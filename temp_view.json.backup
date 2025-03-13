@@ -1,0 +1,48 @@
+{
+  "custom": {},
+  "params": {},
+  "props": {
+    "defaultSize": {
+      "height": 1028,
+      "width": 1850
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "meta": {
+          "name": "Image"
+        },
+        "position": {
+          "height": 1028,
+          "width": 1850
+        },
+        "propConfig": {
+          "props.source": {
+            "binding": {
+              "config": {
+                "expression": "\"http://127.0.0.1:5500/Bulk%20Inbund%20Problem%20Solve.svg?var\""
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "fit": {
+            "mode": "fill"
+          }
+        },
+        "type": "ia.display.image"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "props": {
+      "style": {
+        "overflow": "hidden"
+      }
+    },
+    "type": "ia.container.coord"
+  }
+}
