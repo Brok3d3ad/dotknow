@@ -1,0 +1,7 @@
+{
+  "title": "MTN6_SCADA",
+  "description": "JP",
+  "parent": "SCADA_PERSPECTIVE_PARENT_PROJECT",
+  "enabled": true,
+  "inheritable": false
+}

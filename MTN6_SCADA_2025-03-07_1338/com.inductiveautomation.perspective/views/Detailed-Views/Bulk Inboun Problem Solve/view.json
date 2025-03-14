@@ -1,0 +1,1535 @@
+{
+  "custom": {},
+  "params": {},
+  "props": {
+    "defaultSize": {
+      "height": 1080,
+      "width": 1920
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "meta": {
+          "name": "Image"
+        },
+        "position": {
+          "height": 1080,
+          "width": 1920
+        },
+        "propConfig": {
+          "props.source": {
+            "binding": {
+              "config": {
+                "expression": "\"http://127.0.0.1:5500/bulk_inbound_problemsolve.svg?var\" + toMillis(now(100))"
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "fit": {
+            "mode": "fill"
+          },
+          "style": {
+            "backgroundColor": "#EEEEEE"
+          }
+        },
+        "type": "ia.display.image"
+      },
+      {
+        "meta": {
+          "name": "BS4-015"
+        },
+        "position": {
+          "height": 15,
+          "rotate": {
+            "angle": "90deg"
+          },
+          "width": 15,
+          "x": 800.5,
+          "y": 726.04
+        },
+        "props": {
+          "params": {
+            "directionLeft": true,
+            "forceFaultStatus": null,
+            "forceRunningStatus": null,
+            "tagProps": [
+              "BS4-015",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value"
+            ]
+          },
+          "path": "Symbol-Views/Equipment-Views/Status"
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "BS4_010"
+        },
+        "position": {
+          "height": 15,
+          "rotate": {
+            "angle": "90deg"
+          },
+          "width": 15,
+          "x": 800.5,
+          "y": 851.04
+        },
+        "props": {
+          "params": {
+            "directionLeft": true,
+            "forceFaultStatus": null,
+            "forceRunningStatus": null,
+            "tagProps": [
+              "BS4_010",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value"
+            ]
+          },
+          "path": "Symbol-Views/Equipment-Views/Status"
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "BS4-15"
+        },
+        "position": {
+          "height": 15,
+          "rotate": {
+            "angle": "270deg"
+          },
+          "width": 15,
+          "x": 575.675,
+          "y": 674.033
+        },
+        "props": {
+          "params": {
+            "directionLeft": true,
+            "forceFaultStatus": null,
+            "forceRunningStatus": null,
+            "tagProps": [
+              "BS4-015",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value"
+            ]
+          },
+          "path": "Symbol-Views/Equipment-Views/Status"
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "ULGL6-015"
+        },
+        "position": {
+          "height": 15,
+          "rotate": {
+            "angle": "270deg"
+          },
+          "width": 15,
+          "x": 553.433,
+          "y": 674.033
+        },
+        "props": {
+          "params": {
+            "directionLeft": true,
+            "forceFaultStatus": null,
+            "forceRunningStatus": null,
+            "tagProps": [
+              "BS4-015",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value"
+            ]
+          },
+          "path": "Symbol-Views/Equipment-Views/Status"
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "ULGL7-015"
+        },
+        "position": {
+          "height": 15,
+          "rotate": {
+            "angle": "270deg"
+          },
+          "width": 15,
+          "x": 530.357,
+          "y": 675.033
+        },
+        "props": {
+          "params": {
+            "directionLeft": true,
+            "forceFaultStatus": null,
+            "forceRunningStatus": null,
+            "tagProps": [
+              "ULGL7-015",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value"
+            ]
+          },
+          "path": "Symbol-Views/Equipment-Views/Status"
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "ULGL8-015"
+        },
+        "position": {
+          "height": 15,
+          "rotate": {
+            "angle": "270deg"
+          },
+          "width": 15,
+          "x": 508.152,
+          "y": 676.033
+        },
+        "props": {
+          "params": {
+            "directionLeft": true,
+            "forceFaultStatus": null,
+            "forceRunningStatus": null,
+            "tagProps": [
+              "ULGL8-015",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value"
+            ]
+          },
+          "path": "Symbol-Views/Equipment-Views/Status"
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "BS1-020"
+        },
+        "position": {
+          "height": 15,
+          "rotate": {
+            "angle": "-90deg"
+          },
+          "width": 15,
+          "x": 111.196,
+          "y": 187.762
+        },
+        "props": {
+          "params": {
+            "directionLeft": true,
+            "forceFaultStatus": null,
+            "forceRunningStatus": null,
+            "tagProps": [
+              "BS1-020",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value"
+            ]
+          },
+          "path": "Symbol-Views/Equipment-Views/Status"
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "BS1-010"
+        },
+        "position": {
+          "height": 15,
+          "rotate": {
+            "angle": "180deg"
+          },
+          "width": 15,
+          "x": 278.58,
+          "y": 340.707
+        },
+        "props": {
+          "params": {
+            "directionLeft": true,
+            "forceFaultStatus": null,
+            "forceRunningStatus": null,
+            "tagProps": [
+              "BS1-010",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value"
+            ]
+          },
+          "path": "Symbol-Views/Equipment-Views/Status"
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "BS3-005"
+        },
+        "position": {
+          "height": 15,
+          "width": 15,
+          "x": 490.414,
+          "y": 697.04
+        },
+        "props": {
+          "params": {
+            "directionLeft": true,
+            "forceFaultStatus": null,
+            "forceRunningStatus": null,
+            "tagProps": [
+              "BS3-005",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value"
+            ]
+          },
+          "path": "Symbol-Views/Equipment-Views/Status"
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "BS3-01"
+        },
+        "position": {
+          "height": 15,
+          "rotate": {
+            "angle": "270deg"
+          },
+          "width": 15,
+          "x": 382.06,
+          "y": 797.04
+        },
+        "props": {
+          "params": {
+            "directionLeft": true,
+            "forceFaultStatus": null,
+            "forceRunningStatus": null,
+            "tagProps": [
+              "BS3-01",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value"
+            ]
+          },
+          "path": "Symbol-Views/Equipment-Views/Status"
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "BS3-020"
+        },
+        "position": {
+          "height": 15,
+          "rotate": {
+            "angle": "180deg"
+          },
+          "width": 15,
+          "x": 483.339,
+          "y": 910.6
+        },
+        "props": {
+          "params": {
+            "directionLeft": true,
+            "forceFaultStatus": null,
+            "forceRunningStatus": null,
+            "tagProps": [
+              "BS3-020",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value"
+            ]
+          },
+          "path": "Symbol-Views/Equipment-Views/Status"
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "BS3-025"
+        },
+        "position": {
+          "height": 15,
+          "rotate": {
+            "angle": "180deg"
+          },
+          "width": 15,
+          "x": 673.403,
+          "y": 910.6
+        },
+        "props": {
+          "params": {
+            "directionLeft": true,
+            "forceFaultStatus": null,
+            "forceRunningStatus": null,
+            "tagProps": [
+              "BS3-025",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value"
+            ]
+          },
+          "path": "Symbol-Views/Equipment-Views/Status"
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "BS3-040"
+        },
+        "position": {
+          "height": 15,
+          "rotate": {
+            "angle": "180deg"
+          },
+          "width": 15,
+          "x": 863.24,
+          "y": 910.6
+        },
+        "props": {
+          "params": {
+            "directionLeft": true,
+            "forceFaultStatus": null,
+            "forceRunningStatus": null,
+            "tagProps": [
+              "BS3-040",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value"
+            ]
+          },
+          "path": "Symbol-Views/Equipment-Views/Status"
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "BS3-045"
+        },
+        "position": {
+          "height": 15,
+          "rotate": {
+            "angle": "180deg"
+          },
+          "width": 15,
+          "x": 1052.24,
+          "y": 910.6
+        },
+        "props": {
+          "params": {
+            "directionLeft": true,
+            "forceFaultStatus": null,
+            "forceRunningStatus": null,
+            "tagProps": [
+              "BS3-045",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value"
+            ]
+          },
+          "path": "Symbol-Views/Equipment-Views/Status"
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "BS3-055"
+        },
+        "position": {
+          "height": 15,
+          "rotate": {
+            "angle": "90deg"
+          },
+          "width": 15,
+          "x": 1211.5,
+          "y": 814.04
+        },
+        "props": {
+          "params": {
+            "directionLeft": true,
+            "forceFaultStatus": null,
+            "forceRunningStatus": null,
+            "tagProps": [
+              "BS3-055",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value"
+            ]
+          },
+          "path": "Symbol-Views/Equipment-Views/Status"
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "PRS2-105"
+        },
+        "position": {
+          "height": 15,
+          "width": 15,
+          "x": 623.673,
+          "y": 697.04
+        },
+        "props": {
+          "params": {
+            "directionLeft": true,
+            "forceFaultStatus": null,
+            "forceRunningStatus": null,
+            "tagProps": [
+              "PRS2-105",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value"
+            ]
+          },
+          "path": "Symbol-Views/Equipment-Views/Status"
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "PRS2-240"
+        },
+        "position": {
+          "height": 15,
+          "width": 15,
+          "x": 766.64,
+          "y": 697.04
+        },
+        "props": {
+          "params": {
+            "directionLeft": true,
+            "forceFaultStatus": null,
+            "forceRunningStatus": null,
+            "tagProps": [
+              "PRS2-240",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value"
+            ]
+          },
+          "path": "Symbol-Views/Equipment-Views/Status"
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "PRS2-230"
+        },
+        "position": {
+          "height": 15,
+          "width": 15,
+          "x": 967.24,
+          "y": 697.04
+        },
+        "props": {
+          "params": {
+            "directionLeft": true,
+            "forceFaultStatus": null,
+            "forceRunningStatus": null,
+            "tagProps": [
+              "PRS2-230",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value"
+            ]
+          },
+          "path": "Symbol-Views/Equipment-Views/Status"
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "PRS2-225"
+        },
+        "position": {
+          "height": 15,
+          "rotate": {
+            "angle": "90deg"
+          },
+          "width": 15,
+          "x": 1009.5,
+          "y": 848.04
+        },
+        "props": {
+          "params": {
+            "directionLeft": true,
+            "forceFaultStatus": null,
+            "forceRunningStatus": null,
+            "tagProps": [
+              "PRS2-225",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value"
+            ]
+          },
+          "path": "Symbol-Views/Equipment-Views/Status"
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "PRS2-210"
+        },
+        "position": {
+          "height": 15,
+          "rotate": {
+            "angle": "180deg"
+          },
+          "width": 15,
+          "x": 952.98,
+          "y": 1019.04
+        },
+        "props": {
+          "params": {
+            "directionLeft": true,
+            "forceFaultStatus": null,
+            "forceRunningStatus": null,
+            "tagProps": [
+              "PRS2-210",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value"
+            ]
+          },
+          "path": "Symbol-Views/Equipment-Views/Status"
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "PRS2-220"
+        },
+        "position": {
+          "height": 15,
+          "width": 15,
+          "x": 1081.24,
+          "y": 1019.04
+        },
+        "props": {
+          "params": {
+            "directionLeft": true,
+            "forceFaultStatus": null,
+            "forceRunningStatus": null,
+            "tagProps": [
+              "PRS2-220",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value"
+            ]
+          },
+          "path": "Symbol-Views/Equipment-Views/Status"
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "PRS1-110"
+        },
+        "position": {
+          "height": 15,
+          "width": 15,
+          "x": 873.24,
+          "y": 495.579
+        },
+        "props": {
+          "params": {
+            "directionLeft": true,
+            "forceFaultStatus": null,
+            "forceRunningStatus": null,
+            "tagProps": [
+              "PRS1-110",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value"
+            ]
+          },
+          "path": "Symbol-Views/Equipment-Views/Status"
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "PRS1-105"
+        },
+        "position": {
+          "height": 15,
+          "rotate": {
+            "angle": "-90deg"
+          },
+          "width": 15,
+          "x": 952.527,
+          "y": 447.04
+        },
+        "props": {
+          "params": {
+            "directionLeft": true,
+            "forceFaultStatus": null,
+            "forceRunningStatus": null,
+            "tagProps": [
+              "PRS1-105",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value"
+            ]
+          },
+          "path": "Symbol-Views/Equipment-Views/Status"
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "PRS1-245"
+        },
+        "position": {
+          "height": 15,
+          "rotate": {
+            "angle": "-90deg"
+          },
+          "width": 15,
+          "x": 952.527,
+          "y": 297.418
+        },
+        "props": {
+          "params": {
+            "directionLeft": true,
+            "forceFaultStatus": null,
+            "forceRunningStatus": null,
+            "tagProps": [
+              "PRS1-245",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value"
+            ]
+          },
+          "path": "Symbol-Views/Equipment-Views/Status"
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "PRS1-240"
+        },
+        "position": {
+          "height": 15,
+          "rotate": {
+            "angle": "-90deg"
+          },
+          "width": 15,
+          "x": 952.527,
+          "y": 165.539
+        },
+        "props": {
+          "params": {
+            "directionLeft": true,
+            "forceFaultStatus": null,
+            "forceRunningStatus": null,
+            "tagProps": [
+              "PRS1-240",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value"
+            ]
+          },
+          "path": "Symbol-Views/Equipment-Views/Status"
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "PRS1-215"
+        },
+        "position": {
+          "height": 15,
+          "rotate": {
+            "angle": "180deg"
+          },
+          "width": 15,
+          "x": 883.469,
+          "y": 115.84
+        },
+        "props": {
+          "params": {
+            "directionLeft": true,
+            "forceFaultStatus": null,
+            "forceRunningStatus": null,
+            "tagProps": [
+              "PRS1-215",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value"
+            ]
+          },
+          "path": "Symbol-Views/Equipment-Views/Status"
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "PRS1-230"
+        },
+        "position": {
+          "height": 15,
+          "width": 15,
+          "x": 1067.47,
+          "y": 115.874
+        },
+        "props": {
+          "params": {
+            "directionLeft": true,
+            "forceFaultStatus": null,
+            "forceRunningStatus": null,
+            "tagProps": [
+              "PRS1-230",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value"
+            ]
+          },
+          "path": "Symbol-Views/Equipment-Views/Status"
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "PRS1-225"
+        },
+        "position": {
+          "height": 15,
+          "rotate": {
+            "angle": "-90deg"
+          },
+          "width": 15,
+          "x": 1154.75,
+          "y": 85.752
+        },
+        "props": {
+          "params": {
+            "directionLeft": true,
+            "forceFaultStatus": null,
+            "forceRunningStatus": null,
+            "tagProps": [
+              "PRS1-225",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value"
+            ]
+          },
+          "path": "Symbol-Views/Equipment-Views/Status"
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "PRS1-210"
+        },
+        "position": {
+          "height": 15,
+          "rotate": {
+            "angle": "-90deg"
+          },
+          "width": 15,
+          "x": 850.567,
+          "y": 83.585
+        },
+        "props": {
+          "params": {
+            "directionLeft": true,
+            "forceFaultStatus": null,
+            "forceRunningStatus": null,
+            "tagProps": [
+              "PRS1-210",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value"
+            ]
+          },
+          "path": "Symbol-Views/Equipment-Views/Status"
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "BS2-015"
+        },
+        "position": {
+          "height": 15,
+          "rotate": {
+            "angle": "90deg"
+          },
+          "width": 15,
+          "x": 774.057,
+          "y": 410.224
+        },
+        "props": {
+          "params": {
+            "directionLeft": true,
+            "forceFaultStatus": null,
+            "forceRunningStatus": null,
+            "tagProps": [
+              "BS2-015",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value"
+            ]
+          },
+          "path": "Symbol-Views/Equipment-Views/Status"
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "BS2-020"
+        },
+        "position": {
+          "height": 15,
+          "rotate": {
+            "angle": "90deg"
+          },
+          "width": 15,
+          "x": 774.057,
+          "y": 232.332
+        },
+        "props": {
+          "params": {
+            "directionLeft": true,
+            "forceFaultStatus": null,
+            "forceRunningStatus": null,
+            "tagProps": [
+              "BS2-020",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value"
+            ]
+          },
+          "path": "Symbol-Views/Equipment-Views/Status"
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "BS2-010"
+        },
+        "position": {
+          "height": 15,
+          "rotate": {
+            "angle": "180deg"
+          },
+          "width": 15,
+          "x": 740.573,
+          "y": 340.707
+        },
+        "props": {
+          "params": {
+            "directionLeft": true,
+            "forceFaultStatus": null,
+            "forceRunningStatus": null,
+            "tagProps": [
+              "BS2-010",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value"
+            ]
+          },
+          "path": "Symbol-Views/Equipment-Views/Status"
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "BS2-005"
+        },
+        "position": {
+          "height": 15,
+          "rotate": {
+            "angle": "180deg"
+          },
+          "width": 15,
+          "x": 649.2256870117187,
+          "y": 340.707
+        },
+        "props": {
+          "params": {
+            "directionLeft": true,
+            "forceFaultStatus": null,
+            "forceRunningStatus": null,
+            "tagProps": [
+              "BS2-005",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value"
+            ]
+          },
+          "path": "Symbol-Views/Equipment-Views/Status"
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "BS1-005"
+        },
+        "position": {
+          "height": 15,
+          "rotate": {
+            "angle": "180deg"
+          },
+          "width": 15,
+          "x": 526.538,
+          "y": 340.724
+        },
+        "props": {
+          "params": {
+            "directionLeft": true,
+            "forceFaultStatus": null,
+            "forceRunningStatus": null,
+            "tagProps": [
+              "BS1-005",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value"
+            ]
+          },
+          "path": "Symbol-Views/Equipment-Views/Status"
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "ULGL1-015"
+        },
+        "position": {
+          "height": 15,
+          "rotate": {
+            "angle": "90deg"
+          },
+          "width": 15,
+          "x": 544.563,
+          "y": 361.805
+        },
+        "props": {
+          "params": {
+            "directionLeft": true,
+            "forceFaultStatus": null,
+            "forceRunningStatus": null,
+            "tagProps": [
+              "ULGL1-015",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value"
+            ]
+          },
+          "path": "Symbol-Views/Equipment-Views/Status"
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "ULGL2-015"
+        },
+        "position": {
+          "height": 15,
+          "rotate": {
+            "angle": "90deg"
+          },
+          "width": 15,
+          "x": 566.562,
+          "y": 362.813
+        },
+        "props": {
+          "params": {
+            "directionLeft": true,
+            "forceFaultStatus": null,
+            "forceRunningStatus": null,
+            "tagProps": [
+              "ULGL2-015",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value"
+            ]
+          },
+          "path": "Symbol-Views/Equipment-Views/Status"
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "ULGL3-015"
+        },
+        "position": {
+          "height": 15,
+          "rotate": {
+            "angle": "90deg"
+          },
+          "width": 15,
+          "x": 606.636,
+          "y": 362.813
+        },
+        "props": {
+          "params": {
+            "directionLeft": true,
+            "forceFaultStatus": null,
+            "forceRunningStatus": null,
+            "tagProps": [
+              "ULGL3-015",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value"
+            ]
+          },
+          "path": "Symbol-Views/Equipment-Views/Status"
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "ULGL4-015"
+        },
+        "position": {
+          "height": 15,
+          "rotate": {
+            "angle": "90deg"
+          },
+          "width": 15,
+          "x": 629.502,
+          "y": 363.813
+        },
+        "props": {
+          "params": {
+            "directionLeft": true,
+            "forceFaultStatus": null,
+            "forceRunningStatus": null,
+            "tagProps": [
+              "ULGL4-015",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value"
+            ]
+          },
+          "path": "Symbol-Views/Equipment-Views/Status"
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "BS2-030"
+        },
+        "position": {
+          "height": 15,
+          "rotate": {
+            "angle": "180deg"
+          },
+          "width": 15,
+          "x": 848.47,
+          "y": 133.2
+        },
+        "props": {
+          "params": {
+            "directionLeft": true,
+            "forceFaultStatus": null,
+            "forceRunningStatus": null,
+            "tagProps": [
+              "BS2-030",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value"
+            ]
+          },
+          "path": "Symbol-Views/Equipment-Views/Status"
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "BS2-035"
+        },
+        "position": {
+          "height": 15,
+          "rotate": {
+            "angle": "180deg"
+          },
+          "width": 15,
+          "x": 1079.47,
+          "y": 132.878
+        },
+        "props": {
+          "params": {
+            "directionLeft": true,
+            "forceFaultStatus": null,
+            "forceRunningStatus": null,
+            "tagProps": [
+              "BS2-035",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value"
+            ]
+          },
+          "path": "Symbol-Views/Equipment-Views/Status"
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "BS2-040"
+        },
+        "position": {
+          "height": 15,
+          "rotate": {
+            "angle": "180deg"
+          },
+          "width": 15,
+          "x": 1356.47,
+          "y": 132.878
+        },
+        "props": {
+          "params": {
+            "directionLeft": true,
+            "forceFaultStatus": null,
+            "forceRunningStatus": null,
+            "tagProps": [
+              "BS2-040",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value"
+            ]
+          },
+          "path": "Symbol-Views/Equipment-Views/Status"
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "BS2-045"
+        },
+        "position": {
+          "height": 15,
+          "rotate": {
+            "angle": "180deg"
+          },
+          "width": 15,
+          "x": 1625.47,
+          "y": 132.878
+        },
+        "props": {
+          "params": {
+            "directionLeft": true,
+            "forceFaultStatus": null,
+            "forceRunningStatus": null,
+            "tagProps": [
+              "BS2-045",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value"
+            ]
+          },
+          "path": "Symbol-Views/Equipment-Views/Status"
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "BS2-055"
+        },
+        "position": {
+          "height": 15,
+          "rotate": {
+            "angle": "-90deg"
+          },
+          "width": 15,
+          "x": 1782.56,
+          "y": 269.091
+        },
+        "props": {
+          "params": {
+            "directionLeft": true,
+            "forceFaultStatus": null,
+            "forceRunningStatus": null,
+            "tagProps": [
+              "BS2-055",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value"
+            ]
+          },
+          "path": "Symbol-Views/Equipment-Views/Status"
+        },
+        "type": "ia.display.view"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "props": {
+      "style": {
+        "backgroundColor": "#FFFFFF"
+      }
+    },
+    "type": "ia.container.coord"
+  }
+}

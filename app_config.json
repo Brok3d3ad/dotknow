@@ -3,5 +3,13 @@
     "element_type": "ia.display.viewada",
     "props_path": "Symbol-Views/Equipment-Views/Statusas",
     "element_width": "14ad",
-    "element_height": "14sd"
+    "element_height": "14sd",
+    "project_title": "MTN6_SCADA",
+    "parent_project": "SCADA_PERSPECTIVE_PARENT_PROJECT",
+    "view_name": "Bulk Inbound Problem Solve",
+    "svg_url": "http://127.0.0.1:5500/bulk_inbound_problemsolve.svg",
+    "image_width": "1920",
+    "image_height": "1080",
+    "default_width": "1920",
+    "default_height": "1080"
 }

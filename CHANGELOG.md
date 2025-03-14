@@ -62,3 +62,37 @@ This project is an SVG to JSON processor tool designed for automation standards.
   - Updated resource loading paths (logo, icons) to work with bundled app
   - Explicitly bundled resources with the application
 - Successfully tested the application to verify it correctly saves and loads configuration 
+
+### 2024-05-30
+- Added Ignition SCADA project export functionality:
+  - Created new UI section for SCADA project settings
+  - Added fields for project title, parent project, view name, and SVG URL
+  - Implemented automatic creation of proper folder structure (project/com.inductiveautomation.perspective/views/Detailed-Views/[View Name])
+  - Added generation of project.json with configurable title and parent
+  - Added generation of standard resource.json
+  - Added export functionality for view.json with SVG background and component children
+  - Fixed filename inconsistency: created correct 'inkscape_transform.py' file
+  - Updated import statement to use properly named module
+  - Added configuration persistence for SCADA project settings 
+
+### 2024-05-31
+- Enhanced SCADA export configuration options:
+  - Added configurable image dimensions (width and height)
+  - Added configurable default size for view (width and height)
+  - Updated configuration file to include these new settings
+  - Modified export functionality to use these customized dimensions 
+
+### 2024-06-01
+- Improved Windows compatibility:
+  - Enhanced window icon handling for cross-platform support
+  - Added Windows-specific PyInstaller spec file for easier compilation
+  - Created batch file for one-click Windows builds
+  - Updated documentation with Windows-specific troubleshooting information
+  - Ensured consistent path handling across platforms 
+
+### 2024-06-02
+- Enhanced SCADA project export functionality:
+  - Changed export format from folder structure to zip file
+  - Added temporary directory handling for building project structure
+  - Implemented clean zip file creation with proper relative paths
+  - Improved user experience with file save dialog for selecting zip location 

@@ -4,8 +4,12 @@ import json
 import os
 import sys
 import io
+import shutil
+import zipfile
+import tempfile
+from datetime import datetime
 from contextlib import redirect_stdout
-from incscape_transform import SVGTransformer
+from inkscape_transform import SVGTransformer
 from PIL import Image, ImageTk  # For handling images
 
 # Config file path - with PyInstaller compatibility
@@ -30,7 +34,15 @@ DEFAULT_CONFIG = {
     'element_type': 'ia.display.view',
     'props_path': 'Symbol-Views/Equipment-Views/Status',
     'element_width': '14',
-    'element_height': '14'
+    'element_height': '14',
+    'project_title': 'MTN6_SCADA',
+    'parent_project': 'SCADA_PERSPECTIVE_PARENT_PROJECT',
+    'view_name': 'Bulk Inbound Problem Solve',
+    'svg_url': 'http://127.0.0.1:5500/bulk_inbound_problemsolve.svg',
+    'image_width': '1920',
+    'image_height': '1080',
+    'default_width': '1920',
+    'default_height': '1080'
 }
 
 # Ensure config directory exists
@@ -61,198 +73,170 @@ class RedirectText:
         pass
 
 class SVGProcessorApp:
-    """GUI Application for processing SVG files and copying results to clipboard."""
+    """Main application class for the SVG Processor."""
     
     def __init__(self, root):
-        """Initialize the application UI."""
+        """Initialize the application."""
         self.root = root
-        self.root.title("autStand SVG Processor")  # Updated title
-        self.root.geometry("750x650")  # More compact window size
-        self.root.minsize(550, 450)  # Smaller minimum size
+        self.root.title("SVG Processor")
+        self.root.minsize(800, 600)
+        self.root.geometry("1000x700")
+        
+        # Configure the theme
+        self.configure_theme()
         
         # Set window icon
         self.set_window_icon()
         
-        # Apply black and yellow theme
-        self.configure_theme()
+        # Create a frame for the form fields
+        form_frame = ttk.Frame(root, padding=10)
+        form_frame.pack(fill=tk.X, padx=10, pady=5)
         
-        # Header with logo
-        self.header_frame = ttk.Frame(root)
-        self.header_frame.pack(fill=tk.X, padx=5, pady=5)
+        # File selection
+        self.file_path = tk.StringVar()
+        ttk.Label(form_frame, text="SVG File:").grid(row=0, column=0, sticky=tk.W, pady=5)
+        ttk.Entry(form_frame, textvariable=self.file_path, width=50).grid(row=0, column=1, sticky=tk.W+tk.E, pady=5)
+        ttk.Button(form_frame, text="Browse", command=self.browse_file).grid(row=0, column=2, padx=5, pady=5)
         
-        # Load and display the logo
-        try:
-            # Look specifically for the logo specified for in-app display
-            logo_path = os.path.join(get_application_path(), "automation_standard_logo.jpg")
-            if not os.path.exists(logo_path):
-                # Try current directory
-                if os.path.exists("automation_standard_logo.jpg"):
-                    logo_path = "automation_standard_logo.jpg"
-                else:
-                    # We don't want to use the .ico file for the in-app logo
-                    logo_path = None
-            
-            if logo_path and os.path.exists(logo_path):
-                # Load and resize the image
-                logo_img = Image.open(logo_path)
-                # Calculate new dimensions while maintaining aspect ratio
-                width, height = logo_img.size
-                new_height = 50
-                new_width = int(width * (new_height / height))
-                logo_img = logo_img.resize((new_width, new_height), Image.LANCZOS)
-                
-                # Convert to PhotoImage and keep reference
-                self.logo_photo = ImageTk.PhotoImage(logo_img)
-                
-                # Create a label to display the logo
-                self.logo_label = ttk.Label(self.header_frame, image=self.logo_photo, background='#222222')
-                self.logo_label.pack(side=tk.LEFT, padx=5, pady=5)
-                
-                # Add title text label
-                self.title_label = ttk.Label(self.header_frame, text="SVG to JSON Processor", 
-                                           font=("Arial", 14, "bold"), background='#222222', foreground='#FFDD00')
-                self.title_label.pack(side=tk.LEFT, padx=10)
-            else:
-                # Fallback text title if logo not found
-                self.title_label = ttk.Label(self.header_frame, text="autStand SVG Processor", 
-                                           font=("Arial", 16, "bold"), background='#222222', foreground='#FFDD00')
-                self.title_label.pack(side=tk.LEFT, padx=10)
-                
-        except Exception as e:
-            print(f"Error loading logo: {e}")
-            # Fallback if logo loading fails
-            self.title_label = ttk.Label(self.header_frame, text="autStand SVG Processor", 
-                                       font=("Arial", 16, "bold"), background='#222222', foreground='#FFDD00')
-            self.title_label.pack(side=tk.LEFT, padx=10)
+        # Element type field
+        self.element_type = tk.StringVar(value="ia.display.view")
+        ttk.Label(form_frame, text="Element Type:").grid(row=1, column=0, sticky=tk.W, pady=5)
+        ttk.Entry(form_frame, textvariable=self.element_type).grid(row=1, column=1, sticky=tk.W+tk.E, pady=5)
         
-        # Create a notebook for tabs
+        # Props path field
+        self.props_path = tk.StringVar(value="Symbol-Views/Equipment-Views/Status")
+        ttk.Label(form_frame, text="Properties Path:").grid(row=2, column=0, sticky=tk.W, pady=5)
+        ttk.Entry(form_frame, textvariable=self.props_path).grid(row=2, column=1, sticky=tk.W+tk.E, pady=5)
+        
+        # Element sizing fields
+        sizing_frame = ttk.Frame(form_frame)
+        sizing_frame.grid(row=3, column=1, sticky=tk.W, pady=5)
+        
+        self.element_width = tk.StringVar(value="14")
+        ttk.Label(form_frame, text="Element Size:").grid(row=3, column=0, sticky=tk.W, pady=5)
+        ttk.Label(sizing_frame, text="Width:").pack(side=tk.LEFT, padx=5)
+        ttk.Entry(sizing_frame, textvariable=self.element_width, width=5).pack(side=tk.LEFT, padx=5)
+        
+        self.element_height = tk.StringVar(value="14")
+        ttk.Label(sizing_frame, text="Height:").pack(side=tk.LEFT, padx=5)
+        ttk.Entry(sizing_frame, textvariable=self.element_height, width=5).pack(side=tk.LEFT, padx=5)
+        
+        # SCADA Project Settings
+        scada_frame = ttk.LabelFrame(root, text="Ignition SCADA Project Settings", padding=10)
+        scada_frame.pack(fill=tk.X, padx=10, pady=5)
+        
+        # Project Title
+        self.project_title = tk.StringVar(value="MTN6_SCADA")
+        ttk.Label(scada_frame, text="Project Title:").grid(row=0, column=0, sticky=tk.W, pady=5)
+        ttk.Entry(scada_frame, textvariable=self.project_title).grid(row=0, column=1, sticky=tk.W+tk.E, pady=5)
+        
+        # Parent Project
+        self.parent_project = tk.StringVar(value="SCADA_PERSPECTIVE_PARENT_PROJECT")
+        ttk.Label(scada_frame, text="Parent Project:").grid(row=1, column=0, sticky=tk.W, pady=5)
+        ttk.Entry(scada_frame, textvariable=self.parent_project).grid(row=1, column=1, sticky=tk.W+tk.E, pady=5)
+        
+        # View Name
+        self.view_name = tk.StringVar(value="Bulk Inbound Problem Solve")
+        ttk.Label(scada_frame, text="View Name:").grid(row=2, column=0, sticky=tk.W, pady=5)
+        ttk.Entry(scada_frame, textvariable=self.view_name).grid(row=2, column=1, sticky=tk.W+tk.E, pady=5)
+        
+        # SVG Image URL
+        self.svg_url = tk.StringVar(value="http://127.0.0.1:5500/bulk_inbound_problemsolve.svg")
+        ttk.Label(scada_frame, text="SVG URL:").grid(row=3, column=0, sticky=tk.W, pady=5)
+        ttk.Entry(scada_frame, textvariable=self.svg_url).grid(row=3, column=1, sticky=tk.W+tk.E, pady=5)
+        
+        # Image dimensions frame
+        image_dim_frame = ttk.Frame(scada_frame)
+        image_dim_frame.grid(row=4, column=1, sticky=tk.W, pady=5)
+        
+        # Image width and height
+        self.image_width = tk.StringVar(value="1920")
+        self.image_height = tk.StringVar(value="1080")
+        ttk.Label(scada_frame, text="Image Dimensions:").grid(row=4, column=0, sticky=tk.W, pady=5)
+        ttk.Label(image_dim_frame, text="Width:").pack(side=tk.LEFT, padx=5)
+        ttk.Entry(image_dim_frame, textvariable=self.image_width, width=6).pack(side=tk.LEFT, padx=5)
+        ttk.Label(image_dim_frame, text="Height:").pack(side=tk.LEFT, padx=5)
+        ttk.Entry(image_dim_frame, textvariable=self.image_height, width=6).pack(side=tk.LEFT, padx=5)
+        
+        # Default Size dimensions frame
+        default_dim_frame = ttk.Frame(scada_frame)
+        default_dim_frame.grid(row=5, column=1, sticky=tk.W, pady=5)
+        
+        # Default Size width and height
+        self.default_width = tk.StringVar(value="1920")
+        self.default_height = tk.StringVar(value="1080")
+        ttk.Label(scada_frame, text="Default Size:").grid(row=5, column=0, sticky=tk.W, pady=5)
+        ttk.Label(default_dim_frame, text="Width:").pack(side=tk.LEFT, padx=5)
+        ttk.Entry(default_dim_frame, textvariable=self.default_width, width=6).pack(side=tk.LEFT, padx=5)
+        ttk.Label(default_dim_frame, text="Height:").pack(side=tk.LEFT, padx=5)
+        ttk.Entry(default_dim_frame, textvariable=self.default_height, width=6).pack(side=tk.LEFT, padx=5)
+        
+        # Configure grid column weights
+        scada_frame.columnconfigure(1, weight=1)
+        form_frame.columnconfigure(1, weight=1)
+        
+        # Process button
+        button_frame = ttk.Frame(root, padding=10)
+        button_frame.pack(fill=tk.X, padx=10)
+        self.process_button = ttk.Button(button_frame, text="Process SVG", command=self.process_svg)
+        self.process_button.pack(side=tk.LEFT, padx=5)
+        
+        # Copy to clipboard button
+        self.copy_button = ttk.Button(button_frame, text="Copy to Clipboard", command=self.copy_to_clipboard)
+        self.copy_button.pack(side=tk.LEFT, padx=5)
+        
+        # Save to file button
+        self.save_button = ttk.Button(button_frame, text="Save to File", command=self.save_to_file)
+        self.save_button.pack(side=tk.LEFT, padx=5)
+        
+        # Clear results button
+        self.clear_button = ttk.Button(button_frame, text="Clear Results", command=self.clear_results)
+        self.clear_button.pack(side=tk.LEFT, padx=5)
+        
+        # Export to SCADA button
+        self.export_scada_button = ttk.Button(button_frame, text="Export SCADA Project", command=self.export_scada_project)
+        self.export_scada_button.pack(side=tk.LEFT, padx=5)
+        
+        # Create notebook for results and log
         self.notebook = ttk.Notebook(root)
-        self.notebook.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)  # Reduced padding
+        self.notebook.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
         
-        # Create the main tab
-        self.main_frame = ttk.Frame(self.notebook, padding=5)  # Reduced padding
-        self.notebook.add(self.main_frame, text="Process SVG")
+        # Results tab
+        results_frame = ttk.Frame(self.notebook, padding=10)
+        self.notebook.add(results_frame, text="Results")
         
-        # Create the log tab
-        self.log_frame = ttk.Frame(self.notebook, padding=5)  # Reduced padding
-        self.notebook.add(self.log_frame, text="Processing Log")
+        # Results text area with scrollbar
+        self.results_text = scrolledtext.ScrolledText(results_frame, wrap=tk.WORD, bg='#111111', fg='#FFDD00')
+        self.results_text.pack(fill=tk.BOTH, expand=True)
         
-        # Set up the log area
-        self.log_text = scrolledtext.ScrolledText(self.log_frame, wrap=tk.WORD, height=18, 
-                                                  bg="#111111", fg="#FFDD00")  # Dark bg, yellow text
+        # Log tab
+        log_frame = ttk.Frame(self.notebook, padding=10)
+        self.notebook.add(log_frame, text="Processing Log")
+        
+        # Log text area with scrollbar
+        self.log_text = scrolledtext.ScrolledText(log_frame, wrap=tk.WORD, bg='#111111', fg='#FFDD00')
         self.log_text.pack(fill=tk.BOTH, expand=True)
         
         # Redirect stdout to the log text widget
         self.redirect = RedirectText(self.log_text)
         
-        # File selection section
-        self.file_frame = ttk.Frame(self.main_frame)
-        self.file_frame.pack(fill=tk.X, pady=3)  # Reduced padding
-        
-        self.file_label = ttk.Label(self.file_frame, text="SVG File:")
-        self.file_label.pack(side=tk.LEFT, padx=3)  # Reduced padding
-        
-        self.file_path = tk.StringVar()
-        self.file_entry = ttk.Entry(self.file_frame, textvariable=self.file_path, width=45)  # Slightly smaller
-        self.file_entry.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=3)  # Reduced padding
-        
-        self.browse_button = ttk.Button(self.file_frame, text="Browse...", command=self.browse_file)
-        self.browse_button.pack(side=tk.LEFT, padx=3)  # Reduced padding
-        
-        # Options section - Add custom fields for JSON properties
-        self.options_frame = ttk.LabelFrame(self.main_frame, text="JSON Output Options")
-        self.options_frame.pack(fill=tk.X, pady=5, padx=3)  # Reduced padding
-        
-        # Element type option
-        self.type_frame = ttk.Frame(self.options_frame)
-        self.type_frame.pack(fill=tk.X, pady=2, padx=3)  # Reduced padding
-        
-        self.type_label = ttk.Label(self.type_frame, text="Element Type:")
-        self.type_label.pack(side=tk.LEFT, padx=3)  # Reduced padding
-        
-        self.element_type = tk.StringVar(value="ia.display.view")
-        self.type_entry = ttk.Entry(self.type_frame, textvariable=self.element_type, width=30)
-        self.type_entry.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=3)  # Reduced padding
-        
-        # Props path option
-        self.path_frame = ttk.Frame(self.options_frame)
-        self.path_frame.pack(fill=tk.X, pady=2, padx=3)  # Reduced padding
-        
-        self.path_label = ttk.Label(self.path_frame, text="Props Path:")
-        self.path_label.pack(side=tk.LEFT, padx=3)  # Reduced padding
-        
-        self.props_path = tk.StringVar(value="Symbol-Views/Equipment-Views/Status")
-        self.path_entry = ttk.Entry(self.path_frame, textvariable=self.props_path, width=40)
-        self.path_entry.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=3)  # Reduced padding
-        
-        # Dimension options in a more compact layout
-        self.dim_frame = ttk.Frame(self.options_frame)
-        self.dim_frame.pack(fill=tk.X, pady=2, padx=3)  # Reduced padding
-        
-        self.width_label = ttk.Label(self.dim_frame, text="Width:")
-        self.width_label.pack(side=tk.LEFT, padx=3)  # Reduced padding
-        
-        self.element_width = tk.StringVar(value="14")
-        self.width_entry = ttk.Entry(self.dim_frame, textvariable=self.element_width, width=6)  # Smaller width
-        self.width_entry.pack(side=tk.LEFT, padx=3)  # Reduced padding
-        
-        self.height_label = ttk.Label(self.dim_frame, text="Height:")
-        self.height_label.pack(side=tk.LEFT, padx=3)  # Reduced padding
-        
-        self.element_height = tk.StringVar(value="14")
-        self.height_entry = ttk.Entry(self.dim_frame, textvariable=self.element_height, width=6)  # Smaller width
-        self.height_entry.pack(side=tk.LEFT, padx=3)  # Reduced padding
-        
-        # Process button with progress indicator
-        self.button_frame = ttk.Frame(self.main_frame)
-        self.button_frame.pack(fill=tk.X, pady=5)
-        
-        self.process_button = ttk.Button(self.button_frame, text="Process SVG", command=self.process_svg)
-        self.process_button.pack(side=tk.LEFT, padx=3)  # Reduced padding
-        
-        self.progress = ttk.Progressbar(self.button_frame, mode='indeterminate', length=180)  # Reduced length
-        self.progress.pack(side=tk.LEFT, padx=5, fill=tk.X, expand=True)
-        
-        # Results area
-        self.results_label = ttk.Label(self.main_frame, text="Results:")
-        self.results_label.pack(anchor=tk.W, pady=(5, 2))  # Reduced padding
-        
-        # Results Text widget without scrollbars
-        self.results_frame = ttk.Frame(self.main_frame)
-        self.results_frame.pack(fill=tk.BOTH, expand=True, pady=2)
-        
-        self.results_text = tk.Text(self.results_frame, wrap=tk.WORD, height=16,
-                                   bg="#111111", fg="#FFDD00",
-                                   highlightthickness=0, bd=1)  # Remove scrollbars
-        self.results_text.pack(fill=tk.BOTH, expand=True)
-        
-        # Action buttons
-        self.action_frame = ttk.Frame(self.main_frame)
-        self.action_frame.pack(fill=tk.X, pady=3)  # Reduced padding
-        
-        self.copy_button = ttk.Button(self.action_frame, text="Copy to Clipboard", command=self.copy_to_clipboard)
-        self.copy_button.pack(side=tk.LEFT, padx=3)  # Reduced padding
-        
-        self.save_button = ttk.Button(self.action_frame, text="Save to File", command=self.save_to_file)
-        self.save_button.pack(side=tk.LEFT, padx=3)  # Reduced padding
-        
-        self.clear_button = ttk.Button(self.action_frame, text="Clear Results", command=self.clear_results)
-        self.clear_button.pack(side=tk.LEFT, padx=3)  # Reduced padding
-        
-        # Load saved configuration
-        self.load_config()
-        
-        # Register window close event
-        self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
+        # Progress bar
+        self.progress = ttk.Progressbar(root, mode='indeterminate')
+        self.progress.pack(fill=tk.X, padx=10, pady=5)
         
         # Status bar
-        self.status_var = tk.StringVar()
-        self.status_var.set("Ready")
+        self.status_var = tk.StringVar(value="Ready")
         self.status_bar = ttk.Label(root, textvariable=self.status_var, relief=tk.SUNKEN, anchor=tk.W)
         self.status_bar.pack(side=tk.BOTTOM, fill=tk.X)
         
         # Store the processed elements
         self.elements = []
+        
+        # Load saved configuration
+        self.load_config()
+        
+        # Set up window close handler
+        self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
     
     def configure_theme(self):
         """Configure the black and yellow theme."""
@@ -277,6 +261,9 @@ class SVGProcessorApp:
     def set_window_icon(self):
         """Set the window icon to the autStand logo."""
         try:
+            # Check which platform we're on
+            is_windows = sys.platform.startswith('win')
+            
             # Prioritize the autStand_ic0n.ico file for the window/tray icon
             icon_paths = [
                 os.path.join(get_application_path(), "autStand_ic0n.ico"),
@@ -290,9 +277,22 @@ class SVGProcessorApp:
                 if os.path.exists(icon_path):
                     # For Windows, we can use .ico files directly
                     if icon_path.endswith('.ico'):
-                        self.root.iconbitmap(icon_path)
-                        print(f"Set window icon from: {icon_path}")
-                        return
+                        if is_windows:
+                            self.root.iconbitmap(icon_path)
+                            print(f"Set window icon from: {icon_path}")
+                            return
+                        else:
+                            # For non-Windows, convert .ico to PhotoImage
+                            try:
+                                icon_img = Image.open(icon_path)
+                                # Resize to standard icon size
+                                icon_img = icon_img.resize((32, 32), Image.LANCZOS)
+                                icon_photo = ImageTk.PhotoImage(icon_img)
+                                self.root.iconphoto(True, icon_photo)
+                                print(f"Set window icon from: {icon_path}")
+                                return
+                            except Exception as ico_e:
+                                print(f"Could not use .ico file on non-Windows platform: {ico_e}")
             
             # Only if .ico files are not found, fall back to using the jpg logo as icon
             jpg_paths = [
@@ -302,14 +302,29 @@ class SVGProcessorApp:
             
             for icon_path in jpg_paths:
                 if os.path.exists(icon_path):
-                    # Convert .jpg to PhotoImage for icon
-                    icon_img = Image.open(icon_path)
-                    # Resize to standard icon size
-                    icon_img = icon_img.resize((32, 32), Image.LANCZOS)
-                    icon_photo = ImageTk.PhotoImage(icon_img)
-                    self.root.iconphoto(True, icon_photo)
-                    print(f"Set window icon from: {icon_path}")
-                    return
+                    try:
+                        # Convert .jpg to PhotoImage for icon
+                        icon_img = Image.open(icon_path)
+                        # Resize to standard icon size
+                        icon_img = icon_img.resize((32, 32), Image.LANCZOS)
+                        icon_photo = ImageTk.PhotoImage(icon_img)
+                        
+                        if is_windows:
+                            # Windows can use both methods
+                            try:
+                                self.root.iconphoto(True, icon_photo)
+                            except AttributeError:
+                                # Older tkinter versions on Windows might not have iconphoto
+                                # In this case we skip setting the icon from JPG
+                                print("Could not set JPG icon on Windows (older tkinter)")
+                        else:
+                            # Non-Windows platforms use iconphoto
+                            self.root.iconphoto(True, icon_photo)
+                            
+                        print(f"Set window icon from: {icon_path}")
+                        return
+                    except Exception as jpg_e:
+                        print(f"Could not process JPG for icon: {jpg_e}")
             
             print("No suitable icon file found for window icon")
         except Exception as e:
@@ -445,7 +460,15 @@ class SVGProcessorApp:
             'element_type': self.element_type.get(),
             'props_path': self.props_path.get(),
             'element_width': self.element_width.get(),
-            'element_height': self.element_height.get()
+            'element_height': self.element_height.get(),
+            'project_title': self.project_title.get(),
+            'parent_project': self.parent_project.get(),
+            'view_name': self.view_name.get(),
+            'svg_url': self.svg_url.get(),
+            'image_width': self.image_width.get(),
+            'image_height': self.image_height.get(),
+            'default_width': self.default_width.get(),
+            'default_height': self.default_height.get()
         }
         
         try:
@@ -486,19 +509,219 @@ class SVGProcessorApp:
             if config.get('element_height'):
                 self.element_height.set(config['element_height'])
                 
+            if config.get('project_title'):
+                self.project_title.set(config['project_title'])
+                
+            if config.get('parent_project'):
+                self.parent_project.set(config['parent_project'])
+                
+            if config.get('view_name'):
+                self.view_name.set(config['view_name'])
+                
+            if config.get('svg_url'):
+                self.svg_url.set(config['svg_url'])
+                
+            if config.get('image_width'):
+                self.image_width.set(config['image_width'])
+                
+            if config.get('image_height'):
+                self.image_height.set(config['image_height'])
+                
+            if config.get('default_width'):
+                self.default_width.set(config['default_width'])
+                
+            if config.get('default_height'):
+                self.default_height.set(config['default_height'])
+                
             print(f"Configuration loaded from {CONFIG_FILE}")
-            print(f"Loaded values:")
-            print(f"  File path: {config.get('file_path', 'Not set')}")
-            print(f"  Element type: {config.get('element_type', 'Not set')}")
-            print(f"  Props path: {config.get('props_path', 'Not set')}")
-            print(f"  Width: {config.get('element_width', 'Not set')}")
-            print(f"  Height: {config.get('element_height', 'Not set')}")
         except Exception as e:
             print(f"Error loading configuration: {e}")
             print("Creating new configuration file with default values.")
             # If there's an error loading the config (e.g., corrupted JSON),
             # create a new one with default values
             self.save_config()
+
+    def export_scada_project(self):
+        """Export the processed SVG data as an Ignition SCADA project structure in a zip file."""
+        if not self.elements:
+            messagebox.showinfo("Info", "No results to export. Process an SVG file first.")
+            return
+        
+        try:
+            # Create a temporary directory for the project structure
+            with tempfile.TemporaryDirectory() as temp_dir:
+                # Create timestamp for project folder
+                current_date = datetime.now().strftime("%Y-%m-%d_%H%M")
+                project_folder_name = f"{self.project_title.get()}_{current_date}"
+                project_path = os.path.join(temp_dir, project_folder_name)
+                
+                # Create main project directory
+                os.makedirs(project_path, exist_ok=True)
+                
+                # Create project.json
+                project_config = {
+                    "title": self.project_title.get(),
+                    "description": "Generated by SVG Processor",
+                    "parent": self.parent_project.get(),
+                    "enabled": True,
+                    "inheritable": False
+                }
+                
+                with open(os.path.join(project_path, "project.json"), 'w') as f:
+                    json.dump(project_config, f, indent=2)
+                
+                # Create perspective directory structure
+                perspective_dir = os.path.join(project_path, "com.inductiveautomation.perspective")
+                os.makedirs(perspective_dir, exist_ok=True)
+                
+                views_dir = os.path.join(perspective_dir, "views")
+                os.makedirs(views_dir, exist_ok=True)
+                
+                detailed_views_dir = os.path.join(views_dir, "Detailed-Views")
+                os.makedirs(detailed_views_dir, exist_ok=True)
+                
+                view_name = self.view_name.get()
+                view_dir = os.path.join(detailed_views_dir, view_name)
+                os.makedirs(view_dir, exist_ok=True)
+                
+                # Create resource.json
+                resource_config = {
+                    "scope": "G",
+                    "version": 1,
+                    "restricted": False,
+                    "overridable": True,
+                    "files": [
+                        "view.json",
+                        "thumbnail.png"
+                    ],
+                    "attributes": {
+                        "lastModification": {
+                            "actor": "admin",
+                            "timestamp": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
+                        },
+                        "lastModificationSignature": "generated_by_svg_processor"
+                    }
+                }
+                
+                with open(os.path.join(view_dir, "resource.json"), 'w') as f:
+                    json.dump(resource_config, f, indent=2)
+                
+                # Create empty thumbnail.png
+                empty_image = Image.new('RGBA', (950, 530), (240, 240, 240, 0))
+                empty_image.save(os.path.join(view_dir, "thumbnail.png"))
+                
+                # Create view.json with the processed elements
+                view_config = {
+                    "custom": {},
+                    "params": {},
+                    "props": {
+                        "defaultSize": {
+                            "height": int(self.default_height.get()),
+                            "width": int(self.default_width.get())
+                        }
+                    },
+                    "root": {
+                        "children": []
+                    }
+                }
+                
+                # Add background SVG image as first child
+                background_image = {
+                    "meta": {
+                        "name": "Image"
+                    },
+                    "position": {
+                        "height": int(self.image_height.get()),
+                        "width": int(self.image_width.get())
+                    },
+                    "propConfig": {
+                        "props.source": {
+                            "binding": {
+                                "config": {
+                                    "expression": f"\"{self.svg_url.get()}?var\" + toMillis(now(100))"
+                                },
+                                "type": "expr"
+                            }
+                        }
+                    },
+                    "props": {
+                        "fit": {
+                            "mode": "fill"
+                        },
+                        "style": {
+                            "backgroundColor": "#EEEEEE"
+                        }
+                    },
+                    "type": "ia.display.image"
+                }
+                
+                view_config["root"]["children"].append(background_image)
+                
+                # Format the elements to match Ignition SCADA view format
+                for element in self.elements:
+                    # Transform our element format to Ignition SCADA format
+                    scada_element = {
+                        "meta": {
+                            "name": element["meta"]["name"]
+                        },
+                        "position": {
+                            "height": element["position"]["height"],
+                            "width": element["position"]["width"],
+                            "x": element["position"]["x"],
+                            "y": element["position"]["y"]
+                        },
+                        "props": {
+                            "params": {
+                                "directionLeft": element["props"]["params"]["directionLeft"],
+                                "forceFaultStatus": element["props"]["params"]["forceFaultStatus"],
+                                "forceRunningStatus": element["props"]["params"]["forceRunningStatus"],
+                                "tagProps": element["props"]["params"]["tagProps"]
+                            },
+                            "path": element["props"]["path"]
+                        },
+                        "type": element["type"]
+                    }
+                    
+                    # Add rotation if specified in our app
+                    if hasattr(element, "rotation") and element["rotation"]:
+                        scada_element["position"]["rotate"] = {
+                            "angle": f"{element['rotation']}deg"
+                        }
+                    
+                    view_config["root"]["children"].append(scada_element)
+                
+                # Write view.json
+                with open(os.path.join(view_dir, "view.json"), 'w') as f:
+                    json.dump(view_config, f, indent=2)
+                
+                # Ask for save location for the zip file
+                zip_file_path = filedialog.asksaveasfilename(
+                    title="Save SCADA Project Zip File",
+                    initialfile=f"{project_folder_name}.zip",
+                    defaultextension=".zip",
+                    filetypes=[("Zip files", "*.zip"), ("All files", "*.*")]
+                )
+                
+                if not zip_file_path:
+                    messagebox.showinfo("Info", "Export cancelled.")
+                    return
+                
+                # Create the zip file
+                with zipfile.ZipFile(zip_file_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
+                    # Walk through the temporary directory and add all files to the zip
+                    for root, dirs, files in os.walk(project_path):
+                        for file in files:
+                            file_path = os.path.join(root, file)
+                            # Calculate the relative path for the zip file
+                            rel_path = os.path.relpath(file_path, temp_dir)
+                            zipf.write(file_path, rel_path)
+                
+                self.status_var.set(f"SCADA project exported to {zip_file_path}")
+                messagebox.showinfo("Success", f"SCADA project has been exported to:\n{zip_file_path}")
+                
+        except Exception as e:
+            self.status_var.set("Error exporting SCADA project.")
+            messagebox.showerror("Export Error", f"Error: {str(e)}")
 
 def main():
     """Main entry point for the application."""
