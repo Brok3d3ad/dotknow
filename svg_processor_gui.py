@@ -8,9 +8,21 @@ from contextlib import redirect_stdout
 from incscape_transform import SVGTransformer
 from PIL import Image, ImageTk  # For handling images
 
-# Config file path
-CONFIG_DIR = os.path.dirname(os.path.abspath(__file__))
+# Config file path - with PyInstaller compatibility
+def get_application_path():
+    """Get the base path for the application, works for both dev and PyInstaller"""
+    if getattr(sys, 'frozen', False):
+        # If the application is run as a bundle (PyInstaller)
+        # Use the directory of the executable
+        return os.path.dirname(sys.executable)
+    else:
+        # If running as a regular Python script
+        return os.path.dirname(os.path.abspath(__file__))
+
+CONFIG_DIR = get_application_path()
 CONFIG_FILE = os.path.join(CONFIG_DIR, "app_config.json")
+
+print(f"Configuration directory set to: {CONFIG_DIR}")
 
 # Initialize config with default values
 DEFAULT_CONFIG = {
@@ -71,7 +83,7 @@ class SVGProcessorApp:
         # Load and display the logo
         try:
             # Look specifically for the logo specified for in-app display
-            logo_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "automation_standard_logo.jpg")
+            logo_path = os.path.join(get_application_path(), "automation_standard_logo.jpg")
             if not os.path.exists(logo_path):
                 # Try current directory
                 if os.path.exists("automation_standard_logo.jpg"):
@@ -267,9 +279,9 @@ class SVGProcessorApp:
         try:
             # Prioritize the autStand_ic0n.ico file for the window/tray icon
             icon_paths = [
-                os.path.join(os.path.dirname(os.path.abspath(__file__)), "autStand_ic0n.ico"),
+                os.path.join(get_application_path(), "autStand_ic0n.ico"),
                 "autStand_ic0n.ico",  # Try current directory with exact case
-                os.path.join(os.path.dirname(os.path.abspath(__file__)), "autstand_icon.ico"),
+                os.path.join(get_application_path(), "autstand_icon.ico"),
                 "autstand_icon.ico"   # Fallback to alternate case
             ]
             
@@ -284,7 +296,7 @@ class SVGProcessorApp:
             
             # Only if .ico files are not found, fall back to using the jpg logo as icon
             jpg_paths = [
-                os.path.join(os.path.dirname(os.path.abspath(__file__)), "automation_standard_logo.jpg"),
+                os.path.join(get_application_path(), "automation_standard_logo.jpg"),
                 "automation_standard_logo.jpg"
             ]
             
@@ -296,8 +308,6 @@ class SVGProcessorApp:
                     icon_img = icon_img.resize((32, 32), Image.LANCZOS)
                     icon_photo = ImageTk.PhotoImage(icon_img)
                     self.root.iconphoto(True, icon_photo)
-                    # Keep a reference to prevent garbage collection
-                    self.icon_photo = icon_photo
                     print(f"Set window icon from: {icon_path}")
                     return
             
