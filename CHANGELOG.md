@@ -3,9 +3,10 @@
 ## Project Overview
 This project is an SVG to JSON processor tool designed for automation standards. It consists of a GUI application that allows users to:
 1. Browse and select SVG files
-2. Process SVG files by extracting rectangle elements and their attributes
+2. Process SVG files by extracting SVG elements and their attributes
 3. Convert these elements into JSON format for use in automation systems
 4. Copy results to clipboard or save to file
+5. Export to Ignition SCADA project structure as a zip file
 
 ## Main Components
 
@@ -14,15 +15,17 @@ This project is an SVG to JSON processor tool designed for automation standards.
 - Handles file selection, configuration, and user interaction
 - Displays processing results and output
 - Features black and yellow theme with automation standard branding
+- Implements SCADA project export functionality
 
 ### 2. SVG Transformer (`inkscape_transform.py`)
 - Core processing engine that parses SVG files
-- Extracts rectangle elements and their transformations
+- Extracts SVG elements (rectangles, circles, ellipses, lines, etc.) and their transformations
 - Converts them to the required JSON format
 - Handles complex SVG transformations (translate, scale, rotate, matrix)
 
 ### 3. Supporting Files
 - `requirements.txt`: Lists Python dependencies (numpy, Pillow, pyinstaller)
+- `test-requirements.txt`: Lists testing dependencies (pytest, pytest-cov, mock)
 - `app_config.json`: Stores application settings and user preferences
 - `automation_standard_logo.jpg`: Branding image displayed in the application
 
@@ -33,6 +36,7 @@ This project is an SVG to JSON processor tool designed for automation standards.
 - JSON processing
 - NumPy for matrix transformations
 - PIL/Pillow for image handling
+- Pytest for testing
 
 ## Edits Log
 *This section will be updated after each edit to the project*
@@ -102,3 +106,34 @@ This project is an SVG to JSON processor tool designed for automation standards.
   - Removed duplicate incorrectly named 'incscape_transform.py' file
   - Ensured consistency by keeping only the correctly named 'inkscape_transform.py'
   - Verified all imports are using the correct file name 
+
+### 2024-06-04
+- Enhanced unit testing:
+  - Added comprehensive unit tests for SVGTransformer class
+  - Created test cases for all SVG element types (rect, circle, ellipse, line, path, etc.)
+  - Implemented test fixtures and mock objects for isolated testing
+  - Added test coverage for transformation matrix operations
+  - Added validation tests for file handling and error cases
+  
+### 2024-06-05
+- Improved SVG parsing functionality:
+  - Added support for more SVG element types beyond rectangles
+  - Enhanced error handling for malformed SVG files
+  - Optimized transformation matrix calculations
+  - Added better center point calculation for all element types
+
+### 2024-06-06
+- Completed macOS build process:
+  - Successfully compiled standalone application for macOS
+  - Fixed tkinter-related import issues in bundled application
+  - Updated spec file for proper resource inclusion
+  - Added detailed instructions for macOS installation requirements
+
+### 2024-06-07
+- Updated project documentation:
+  - Enhanced README.md with comprehensive testing instructions
+  - Updated feature list to include all supported SVG element types
+  - Added detailed technical information about matrix transformations
+  - Improved project structure documentation
+  - Expanded troubleshooting section with platform-specific guidance
+  - Added code structure explanations with class relationships 

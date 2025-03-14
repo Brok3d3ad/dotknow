@@ -23,12 +23,7 @@ def get_application_path():
         # If running as a regular Python script
         return os.path.dirname(os.path.abspath(__file__))
 
-CONFIG_DIR = get_application_path()
-CONFIG_FILE = os.path.join(CONFIG_DIR, "app_config.json")
-
-print(f"Configuration directory set to: {CONFIG_DIR}")
-
-# Initialize config with default values
+# Default configuration values
 DEFAULT_CONFIG = {
     'file_path': '',
     'element_type': 'ia.display.view',
@@ -45,17 +40,63 @@ DEFAULT_CONFIG = {
     'default_height': '1080'
 }
 
-# Ensure config directory exists
-os.makedirs(CONFIG_DIR, exist_ok=True)
-
-# Create default config file if it doesn't exist
-if not os.path.exists(CONFIG_FILE):
-    try:
-        with open(CONFIG_FILE, 'w') as config_file:
-            json.dump(DEFAULT_CONFIG, config_file, indent=4)
-        print(f"Created default configuration file at {CONFIG_FILE}")
-    except Exception as e:
-        print(f"Error creating default configuration file: {e}")
+class ConfigManager:
+    """Handles loading, saving, and accessing application configuration."""
+    
+    def __init__(self, config_file=None):
+        """Initialize the configuration manager."""
+        self.config_dir = get_application_path()
+        self.config_file = config_file or os.path.join(self.config_dir, "app_config.json")
+        self.config = self._load_or_create_config()
+        
+    def _load_or_create_config(self):
+        """Load existing config or create default if none exists."""
+        # Ensure config directory exists
+        os.makedirs(self.config_dir, exist_ok=True)
+        
+        if not os.path.exists(self.config_file):
+            return self._create_default_config()
+        
+        try:
+            with open(self.config_file, 'r') as config_file:
+                return json.load(config_file)
+        except Exception as e:
+            print(f"Error loading configuration: {e}")
+            return self._create_default_config()
+    
+    def _create_default_config(self):
+        """Create and save default configuration."""
+        try:
+            with open(self.config_file, 'w') as config_file:
+                json.dump(DEFAULT_CONFIG, config_file, indent=4)
+            print(f"Created default configuration file at {self.config_file}")
+            return DEFAULT_CONFIG.copy()
+        except Exception as e:
+            print(f"Error creating default configuration file: {e}")
+            return DEFAULT_CONFIG.copy()
+    
+    def save_config(self, updated_config):
+        """Save the current configuration to file."""
+        try:
+            # Ensure the directory exists
+            os.makedirs(os.path.dirname(self.config_file), exist_ok=True)
+            
+            with open(self.config_file, 'w') as config_file:
+                json.dump(updated_config, config_file, indent=4)
+            self.config = updated_config
+            print(f"Configuration saved to {self.config_file}")
+            return True
+        except Exception as e:
+            print(f"Error saving configuration: {e}")
+            return False
+    
+    def get_config(self):
+        """Get a copy of the current configuration."""
+        return self.config.copy()
+    
+    def get_value(self, key, default=None):
+        """Get a specific configuration value."""
+        return self.config.get(key, default)
 
 class RedirectText:
     """Redirect stdout to a tkinter widget."""
@@ -75,12 +116,16 @@ class RedirectText:
 class SVGProcessorApp:
     """Main application class for the SVG Processor."""
     
-    def __init__(self, root):
+    def __init__(self, root, config_manager=None, svg_transformer_class=SVGTransformer):
         """Initialize the application."""
         self.root = root
         self.root.title("SVG Processor")
         self.root.minsize(800, 600)
         self.root.geometry("1000x700")
+        
+        # Dependency injection for easier testing
+        self.config_manager = config_manager or ConfigManager()
+        self.svg_transformer_class = svg_transformer_class
         
         # Configure the theme
         self.configure_theme()
@@ -88,23 +133,55 @@ class SVGProcessorApp:
         # Set window icon
         self.set_window_icon()
         
-        # Create a frame for the form fields
-        form_frame = ttk.Frame(root, padding=10)
+        # Initialize UI components
+        self._init_ui_variables()
+        self._create_form_frame()
+        self._create_scada_frame()
+        self._create_button_frame()
+        self._create_notebook()
+        self._create_status_bar()
+        
+        # Store the processed elements
+        self.elements = []
+        
+        # Load saved configuration
+        self._load_config_to_ui()
+        
+        # Set up window close handler
+        self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
+    
+    def _init_ui_variables(self):
+        """Initialize UI variables."""
+        self.file_path = tk.StringVar()
+        self.element_type = tk.StringVar(value=DEFAULT_CONFIG["element_type"])
+        self.props_path = tk.StringVar(value=DEFAULT_CONFIG["props_path"])
+        self.element_width = tk.StringVar(value=DEFAULT_CONFIG["element_width"])
+        self.element_height = tk.StringVar(value=DEFAULT_CONFIG["element_height"])
+        self.project_title = tk.StringVar(value=DEFAULT_CONFIG["project_title"])
+        self.parent_project = tk.StringVar(value=DEFAULT_CONFIG["parent_project"])
+        self.view_name = tk.StringVar(value=DEFAULT_CONFIG["view_name"])
+        self.svg_url = tk.StringVar(value=DEFAULT_CONFIG["svg_url"])
+        self.image_width = tk.StringVar(value=DEFAULT_CONFIG["image_width"])
+        self.image_height = tk.StringVar(value=DEFAULT_CONFIG["image_height"])
+        self.default_width = tk.StringVar(value=DEFAULT_CONFIG["default_width"])
+        self.default_height = tk.StringVar(value=DEFAULT_CONFIG["default_height"])
+        self.status_var = tk.StringVar(value="Ready")
+    
+    def _create_form_frame(self):
+        """Create the main form frame with input fields."""
+        form_frame = ttk.Frame(self.root, padding=10)
         form_frame.pack(fill=tk.X, padx=10, pady=5)
         
         # File selection
-        self.file_path = tk.StringVar()
         ttk.Label(form_frame, text="SVG File:").grid(row=0, column=0, sticky=tk.W, pady=5)
         ttk.Entry(form_frame, textvariable=self.file_path, width=50).grid(row=0, column=1, sticky=tk.W+tk.E, pady=5)
         ttk.Button(form_frame, text="Browse", command=self.browse_file).grid(row=0, column=2, padx=5, pady=5)
         
         # Element type field
-        self.element_type = tk.StringVar(value="ia.display.view")
         ttk.Label(form_frame, text="Element Type:").grid(row=1, column=0, sticky=tk.W, pady=5)
         ttk.Entry(form_frame, textvariable=self.element_type).grid(row=1, column=1, sticky=tk.W+tk.E, pady=5)
         
         # Props path field
-        self.props_path = tk.StringVar(value="Symbol-Views/Equipment-Views/Status")
         ttk.Label(form_frame, text="Properties Path:").grid(row=2, column=0, sticky=tk.W, pady=5)
         ttk.Entry(form_frame, textvariable=self.props_path).grid(row=2, column=1, sticky=tk.W+tk.E, pady=5)
         
@@ -112,36 +189,34 @@ class SVGProcessorApp:
         sizing_frame = ttk.Frame(form_frame)
         sizing_frame.grid(row=3, column=1, sticky=tk.W, pady=5)
         
-        self.element_width = tk.StringVar(value="14")
         ttk.Label(form_frame, text="Element Size:").grid(row=3, column=0, sticky=tk.W, pady=5)
         ttk.Label(sizing_frame, text="Width:").pack(side=tk.LEFT, padx=5)
         ttk.Entry(sizing_frame, textvariable=self.element_width, width=5).pack(side=tk.LEFT, padx=5)
         
-        self.element_height = tk.StringVar(value="14")
         ttk.Label(sizing_frame, text="Height:").pack(side=tk.LEFT, padx=5)
         ttk.Entry(sizing_frame, textvariable=self.element_height, width=5).pack(side=tk.LEFT, padx=5)
         
-        # SCADA Project Settings
-        scada_frame = ttk.LabelFrame(root, text="Ignition SCADA Project Settings", padding=10)
+        # Configure grid column weights
+        form_frame.columnconfigure(1, weight=1)
+    
+    def _create_scada_frame(self):
+        """Create the SCADA project settings frame."""
+        scada_frame = ttk.LabelFrame(self.root, text="Ignition SCADA Project Settings", padding=10)
         scada_frame.pack(fill=tk.X, padx=10, pady=5)
         
         # Project Title
-        self.project_title = tk.StringVar(value="MTN6_SCADA")
         ttk.Label(scada_frame, text="Project Title:").grid(row=0, column=0, sticky=tk.W, pady=5)
         ttk.Entry(scada_frame, textvariable=self.project_title).grid(row=0, column=1, sticky=tk.W+tk.E, pady=5)
         
         # Parent Project
-        self.parent_project = tk.StringVar(value="SCADA_PERSPECTIVE_PARENT_PROJECT")
         ttk.Label(scada_frame, text="Parent Project:").grid(row=1, column=0, sticky=tk.W, pady=5)
         ttk.Entry(scada_frame, textvariable=self.parent_project).grid(row=1, column=1, sticky=tk.W+tk.E, pady=5)
         
         # View Name
-        self.view_name = tk.StringVar(value="Bulk Inbound Problem Solve")
         ttk.Label(scada_frame, text="View Name:").grid(row=2, column=0, sticky=tk.W, pady=5)
         ttk.Entry(scada_frame, textvariable=self.view_name).grid(row=2, column=1, sticky=tk.W+tk.E, pady=5)
         
         # SVG Image URL
-        self.svg_url = tk.StringVar(value="http://127.0.0.1:5500/bulk_inbound_problemsolve.svg")
         ttk.Label(scada_frame, text="SVG URL:").grid(row=3, column=0, sticky=tk.W, pady=5)
         ttk.Entry(scada_frame, textvariable=self.svg_url).grid(row=3, column=1, sticky=tk.W+tk.E, pady=5)
         
@@ -150,8 +225,6 @@ class SVGProcessorApp:
         image_dim_frame.grid(row=4, column=1, sticky=tk.W, pady=5)
         
         # Image width and height
-        self.image_width = tk.StringVar(value="1920")
-        self.image_height = tk.StringVar(value="1080")
         ttk.Label(scada_frame, text="Image Dimensions:").grid(row=4, column=0, sticky=tk.W, pady=5)
         ttk.Label(image_dim_frame, text="Width:").pack(side=tk.LEFT, padx=5)
         ttk.Entry(image_dim_frame, textvariable=self.image_width, width=6).pack(side=tk.LEFT, padx=5)
@@ -163,8 +236,6 @@ class SVGProcessorApp:
         default_dim_frame.grid(row=5, column=1, sticky=tk.W, pady=5)
         
         # Default Size width and height
-        self.default_width = tk.StringVar(value="1920")
-        self.default_height = tk.StringVar(value="1080")
         ttk.Label(scada_frame, text="Default Size:").grid(row=5, column=0, sticky=tk.W, pady=5)
         ttk.Label(default_dim_frame, text="Width:").pack(side=tk.LEFT, padx=5)
         ttk.Entry(default_dim_frame, textvariable=self.default_width, width=6).pack(side=tk.LEFT, padx=5)
@@ -173,11 +244,13 @@ class SVGProcessorApp:
         
         # Configure grid column weights
         scada_frame.columnconfigure(1, weight=1)
-        form_frame.columnconfigure(1, weight=1)
+    
+    def _create_button_frame(self):
+        """Create the button frame with action buttons."""
+        button_frame = ttk.Frame(self.root, padding=10)
+        button_frame.pack(fill=tk.X, padx=10)
         
         # Process button
-        button_frame = ttk.Frame(root, padding=10)
-        button_frame.pack(fill=tk.X, padx=10)
         self.process_button = ttk.Button(button_frame, text="Process SVG", command=self.process_svg)
         self.process_button.pack(side=tk.LEFT, padx=5)
         
@@ -196,9 +269,10 @@ class SVGProcessorApp:
         # Export to SCADA button
         self.export_scada_button = ttk.Button(button_frame, text="Export SCADA Project", command=self.export_scada_project)
         self.export_scada_button.pack(side=tk.LEFT, padx=5)
-        
-        # Create notebook for results and log
-        self.notebook = ttk.Notebook(root)
+    
+    def _create_notebook(self):
+        """Create the notebook with results and log tabs."""
+        self.notebook = ttk.Notebook(self.root)
         self.notebook.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
         
         # Results tab
@@ -221,22 +295,13 @@ class SVGProcessorApp:
         self.redirect = RedirectText(self.log_text)
         
         # Progress bar
-        self.progress = ttk.Progressbar(root, mode='indeterminate')
+        self.progress = ttk.Progressbar(self.root, mode='indeterminate')
         self.progress.pack(fill=tk.X, padx=10, pady=5)
-        
-        # Status bar
-        self.status_var = tk.StringVar(value="Ready")
-        self.status_bar = ttk.Label(root, textvariable=self.status_var, relief=tk.SUNKEN, anchor=tk.W)
+    
+    def _create_status_bar(self):
+        """Create the status bar."""
+        self.status_bar = ttk.Label(self.root, textvariable=self.status_var, relief=tk.SUNKEN, anchor=tk.W)
         self.status_bar.pack(side=tk.BOTTOM, fill=tk.X)
-        
-        # Store the processed elements
-        self.elements = []
-        
-        # Load saved configuration
-        self.load_config()
-        
-        # Set up window close handler
-        self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
     
     def configure_theme(self):
         """Configure the black and yellow theme."""
@@ -330,6 +395,70 @@ class SVGProcessorApp:
         except Exception as e:
             print(f"Error setting window icon: {e}")
     
+    def _load_config_to_ui(self):
+        """Load configuration values into UI elements."""
+        config = self.config_manager.get_config()
+        
+        # Update form fields with saved values
+        if config.get('file_path'):
+            self.file_path.set(config['file_path'])
+            
+        if config.get('element_type'):
+            self.element_type.set(config['element_type'])
+            
+        if config.get('props_path'):
+            self.props_path.set(config['props_path'])
+            
+        if config.get('element_width'):
+            self.element_width.set(config['element_width'])
+            
+        if config.get('element_height'):
+            self.element_height.set(config['element_height'])
+            
+        if config.get('project_title'):
+            self.project_title.set(config['project_title'])
+            
+        if config.get('parent_project'):
+            self.parent_project.set(config['parent_project'])
+            
+        if config.get('view_name'):
+            self.view_name.set(config['view_name'])
+            
+        if config.get('svg_url'):
+            self.svg_url.set(config['svg_url'])
+            
+        if config.get('image_width'):
+            self.image_width.set(config['image_width'])
+            
+        if config.get('image_height'):
+            self.image_height.set(config['image_height'])
+            
+        if config.get('default_width'):
+            self.default_width.set(config['default_width'])
+            
+        if config.get('default_height'):
+            self.default_height.set(config['default_height'])
+    
+    def _save_config_from_ui(self):
+        """Save current UI values to configuration."""
+        updated_config = {
+            'file_path': self.file_path.get(),
+            'element_type': self.element_type.get(),
+            'props_path': self.props_path.get(),
+            'element_width': self.element_width.get(),
+            'element_height': self.element_height.get(),
+            'project_title': self.project_title.get(),
+            'parent_project': self.parent_project.get(),
+            'view_name': self.view_name.get(),
+            'svg_url': self.svg_url.get(),
+            'image_width': self.image_width.get(),
+            'image_height': self.image_height.get(),
+            'default_width': self.default_width.get(),
+            'default_height': self.default_height.get()
+        }
+        
+        return self.config_manager.save_config(updated_config)
+    
     def browse_file(self):
         """Open a file dialog to select an SVG file."""
         filetypes = [
@@ -367,27 +496,14 @@ class SVGProcessorApp:
             self.root.update_idletasks()  # Update UI to show status change
             
             # Get custom options from form
-            custom_options = {
-                'type': self.element_type.get(),
-                'props_path': self.props_path.get(),
-                'width': int(self.element_width.get()),
-                'height': int(self.element_height.get())
-            }
+            custom_options = self._get_processing_options()
             
             # Process the SVG file with stdout redirected to log
-            with redirect_stdout(self.redirect):
-                transformer = SVGTransformer(svg_path, custom_options)
-                self.elements = transformer.process_svg()
+            elements = self._process_svg_file(svg_path, custom_options)
+            self.elements = elements
             
             # Display the results
-            formatted_json = json.dumps(self.elements, indent=2)
-            self.results_text.insert(tk.END, formatted_json)
-            
-            num_elements = len(self.elements)
-            self.status_var.set(f"Processed {num_elements} elements successfully.")
-            
-            # Show the log tab to display the processing details
-            #self.notebook.select(1)  # Switch to the log tab
+            self._display_results(elements)
             
             # After a delay, switch back to the main tab
             self.root.after(3000, lambda: self.notebook.select(0))
@@ -398,6 +514,29 @@ class SVGProcessorApp:
         finally:
             self.progress.stop()
             self.process_button.configure(state=tk.NORMAL)
+    
+    def _get_processing_options(self):
+        """Get processing options from the UI."""
+        return {
+            'type': self.element_type.get(),
+            'props_path': self.props_path.get(),
+            'width': int(self.element_width.get()),
+            'height': int(self.element_height.get())
+        }
+    
+    def _process_svg_file(self, svg_path, custom_options):
+        """Process the SVG file and return the elements."""
+        with redirect_stdout(self.redirect):
+            transformer = self.svg_transformer_class(svg_path, custom_options)
+            return transformer.process_svg()
+    
+    def _display_results(self, elements):
+        """Display the processing results in the UI."""
+        formatted_json = json.dumps(elements, indent=2)
+        self.results_text.insert(tk.END, formatted_json)
+        
+        num_elements = len(elements)
+        self.status_var.set(f"Processed {num_elements} elements successfully.")
     
     def copy_to_clipboard(self):
         """Copy the results to the clipboard."""
@@ -411,7 +550,6 @@ class SVGProcessorApp:
             self.root.clipboard_append(json.dumps(self.elements, indent=2))
             
             self.status_var.set("Results copied to clipboard!")
-            #messagebox.showinfo("Success", "Results have been copied to the clipboard.")
         except Exception as e:
             self.status_var.set("Error copying to clipboard.")
             messagebox.showerror("Clipboard Error", f"Error: {str(e)}")
@@ -450,96 +588,8 @@ class SVGProcessorApp:
     
     def on_closing(self):
         """Save configuration and close the window."""
-        self.save_config()
+        self._save_config_from_ui()
         self.root.destroy()
-        
-    def save_config(self):
-        """Save application state to a configuration file."""
-        config = {
-            'file_path': self.file_path.get(),
-            'element_type': self.element_type.get(),
-            'props_path': self.props_path.get(),
-            'element_width': self.element_width.get(),
-            'element_height': self.element_height.get(),
-            'project_title': self.project_title.get(),
-            'parent_project': self.parent_project.get(),
-            'view_name': self.view_name.get(),
-            'svg_url': self.svg_url.get(),
-            'image_width': self.image_width.get(),
-            'image_height': self.image_height.get(),
-            'default_width': self.default_width.get(),
-            'default_height': self.default_height.get()
-        }
-        
-        try:
-            # Ensure the directory exists
-            os.makedirs(os.path.dirname(CONFIG_FILE), exist_ok=True)
-            
-            with open(CONFIG_FILE, 'w') as config_file:
-                json.dump(config, config_file, indent=4)
-            print(f"Configuration saved to {CONFIG_FILE}")
-        except Exception as e:
-            print(f"Error saving configuration: {e}")
-    
-    def load_config(self):
-        """Load application state from the configuration file."""
-        if not os.path.exists(CONFIG_FILE):
-            print("No saved configuration found, using default values.")
-            # Create a default configuration file
-            self.save_config()
-            return
-            
-        try:
-            with open(CONFIG_FILE, 'r') as config_file:
-                config = json.load(config_file)
-                
-            # Update form fields with saved values
-            if config.get('file_path'):
-                self.file_path.set(config['file_path'])
-                
-            if config.get('element_type'):
-                self.element_type.set(config['element_type'])
-                
-            if config.get('props_path'):
-                self.props_path.set(config['props_path'])
-                
-            if config.get('element_width'):
-                self.element_width.set(config['element_width'])
-                
-            if config.get('element_height'):
-                self.element_height.set(config['element_height'])
-                
-            if config.get('project_title'):
-                self.project_title.set(config['project_title'])
-                
-            if config.get('parent_project'):
-                self.parent_project.set(config['parent_project'])
-                
-            if config.get('view_name'):
-                self.view_name.set(config['view_name'])
-                
-            if config.get('svg_url'):
-                self.svg_url.set(config['svg_url'])
-                
-            if config.get('image_width'):
-                self.image_width.set(config['image_width'])
-                
-            if config.get('image_height'):
-                self.image_height.set(config['image_height'])
-                
-            if config.get('default_width'):
-                self.default_width.set(config['default_width'])
-                
-            if config.get('default_height'):
-                self.default_height.set(config['default_height'])
-                
-            print(f"Configuration loaded from {CONFIG_FILE}")
-        except Exception as e:
-            print(f"Error loading configuration: {e}")
-            print("Creating new configuration file with default values.")
-            # If there's an error loading the config (e.g., corrupted JSON),
-            # create a new one with default values
-            self.save_config()
 
     def export_scada_project(self):
         """Export the processed SVG data as an Ignition SCADA project structure in a zip file."""
@@ -548,180 +598,189 @@ class SVGProcessorApp:
             return
         
         try:
-            # Create a temporary directory for the project structure
-            with tempfile.TemporaryDirectory() as temp_dir:
-                # Create timestamp for project folder
-                current_date = datetime.now().strftime("%Y-%m-%d_%H%M")
-                project_folder_name = f"{self.project_title.get()}_{current_date}"
-                project_path = os.path.join(temp_dir, project_folder_name)
-                
-                # Create main project directory
-                os.makedirs(project_path, exist_ok=True)
-                
-                # Create project.json
-                project_config = {
-                    "title": self.project_title.get(),
-                    "description": "Generated by SVG Processor",
-                    "parent": self.parent_project.get(),
-                    "enabled": True,
-                    "inheritable": False
-                }
-                
-                with open(os.path.join(project_path, "project.json"), 'w') as f:
-                    json.dump(project_config, f, indent=2)
-                
-                # Create perspective directory structure
-                perspective_dir = os.path.join(project_path, "com.inductiveautomation.perspective")
-                os.makedirs(perspective_dir, exist_ok=True)
-                
-                views_dir = os.path.join(perspective_dir, "views")
-                os.makedirs(views_dir, exist_ok=True)
-                
-                detailed_views_dir = os.path.join(views_dir, "Detailed-Views")
-                os.makedirs(detailed_views_dir, exist_ok=True)
-                
-                view_name = self.view_name.get()
-                view_dir = os.path.join(detailed_views_dir, view_name)
-                os.makedirs(view_dir, exist_ok=True)
-                
-                # Create resource.json
-                resource_config = {
-                    "scope": "G",
-                    "version": 1,
-                    "restricted": False,
-                    "overridable": True,
-                    "files": [
-                        "view.json",
-                        "thumbnail.png"
-                    ],
-                    "attributes": {
-                        "lastModification": {
-                            "actor": "admin",
-                            "timestamp": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
-                        },
-                        "lastModificationSignature": "generated_by_svg_processor"
-                    }
-                }
-                
-                with open(os.path.join(view_dir, "resource.json"), 'w') as f:
-                    json.dump(resource_config, f, indent=2)
-                
-                # Create empty thumbnail.png
-                empty_image = Image.new('RGBA', (950, 530), (240, 240, 240, 0))
-                empty_image.save(os.path.join(view_dir, "thumbnail.png"))
-                
-                # Create view.json with the processed elements
-                view_config = {
-                    "custom": {},
-                    "params": {},
-                    "props": {
-                        "defaultSize": {
-                            "height": int(self.default_height.get()),
-                            "width": int(self.default_width.get())
-                        }
-                    },
-                    "root": {
-                        "children": []
-                    }
-                }
-                
-                # Add background SVG image as first child
-                background_image = {
-                    "meta": {
-                        "name": "Image"
-                    },
-                    "position": {
-                        "height": int(self.image_height.get()),
-                        "width": int(self.image_width.get())
-                    },
-                    "propConfig": {
-                        "props.source": {
-                            "binding": {
-                                "config": {
-                                    "expression": f"\"{self.svg_url.get()}?var\" + toMillis(now(100))"
-                                },
-                                "type": "expr"
-                            }
-                        }
-                    },
-                    "props": {
-                        "fit": {
-                            "mode": "fill"
-                        },
-                        "style": {
-                            "backgroundColor": "#EEEEEE"
-                        }
-                    },
-                    "type": "ia.display.image"
-                }
-                
-                view_config["root"]["children"].append(background_image)
-                
-                # Format the elements to match Ignition SCADA view format
-                for element in self.elements:
-                    # Transform our element format to Ignition SCADA format
-                    scada_element = {
-                        "meta": {
-                            "name": element["meta"]["name"]
-                        },
-                        "position": {
-                            "height": element["position"]["height"],
-                            "width": element["position"]["width"],
-                            "x": element["position"]["x"],
-                            "y": element["position"]["y"]
-                        },
-                        "props": {
-                            "params": {
-                                "directionLeft": element["props"]["params"]["directionLeft"],
-                                "forceFaultStatus": element["props"]["params"]["forceFaultStatus"],
-                                "forceRunningStatus": element["props"]["params"]["forceRunningStatus"],
-                                "tagProps": element["props"]["params"]["tagProps"]
-                            },
-                            "path": element["props"]["path"]
-                        },
-                        "type": element["type"]
-                    }
-                    
-                    # Add rotation if specified in our app
-                    if hasattr(element, "rotation") and element["rotation"]:
-                        scada_element["position"]["rotate"] = {
-                            "angle": f"{element['rotation']}deg"
-                        }
-                    
-                    view_config["root"]["children"].append(scada_element)
-                
-                # Write view.json
-                with open(os.path.join(view_dir, "view.json"), 'w') as f:
-                    json.dump(view_config, f, indent=2)
-                
-                # Ask for save location for the zip file
-                zip_file_path = filedialog.asksaveasfilename(
-                    title="Save SCADA Project Zip File",
-                    initialfile=f"{project_folder_name}.zip",
-                    defaultextension=".zip",
-                    filetypes=[("Zip files", "*.zip"), ("All files", "*.*")]
-                )
-                
-                if not zip_file_path:
-                    messagebox.showinfo("Info", "Export cancelled.")
-                    return
-                
-                # Create the zip file
-                with zipfile.ZipFile(zip_file_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
-                    # Walk through the temporary directory and add all files to the zip
-                    for root, dirs, files in os.walk(project_path):
-                        for file in files:
-                            file_path = os.path.join(root, file)
-                            # Calculate the relative path for the zip file
-                            rel_path = os.path.relpath(file_path, temp_dir)
-                            zipf.write(file_path, rel_path)
-                
-                self.status_var.set(f"SCADA project exported to {zip_file_path}")
-                messagebox.showinfo("Success", f"SCADA project has been exported to:\n{zip_file_path}")
+            # Ask for save location for the zip file
+            project_folder_name = f"{self.project_title.get()}_{datetime.now().strftime('%Y-%m-%d_%H%M')}"
+            zip_file_path = filedialog.asksaveasfilename(
+                title="Save SCADA Project Zip File",
+                initialfile=f"{project_folder_name}.zip",
+                defaultextension=".zip",
+                filetypes=[("Zip files", "*.zip"), ("All files", "*.*")]
+            )
+            
+            if not zip_file_path:
+                messagebox.showinfo("Info", "Export cancelled.")
+                return
+            
+            # Do the actual export
+            self._create_scada_export_zip(zip_file_path, project_folder_name)
+            
+            self.status_var.set(f"SCADA project exported to {zip_file_path}")
+            messagebox.showinfo("Success", f"SCADA project has been exported to:\n{zip_file_path}")
                 
         except Exception as e:
             self.status_var.set("Error exporting SCADA project.")
             messagebox.showerror("Export Error", f"Error: {str(e)}")
+    
+    def _create_scada_export_zip(self, zip_file_path, project_folder_name):
+        """Create the SCADA project zip file with all required files."""
+        with tempfile.TemporaryDirectory() as temp_dir:
+            # Create project folder structure
+            project_path = os.path.join(temp_dir, project_folder_name)
+            perspective_dir = os.path.join(project_path, "com.inductiveautomation.perspective")
+            views_dir = os.path.join(perspective_dir, "views")
+            detailed_views_dir = os.path.join(views_dir, "Detailed-Views")
+            view_dir = os.path.join(detailed_views_dir, self.view_name.get())
+            
+            # Create all required directories
+            os.makedirs(view_dir, exist_ok=True)
+            
+            # Create project.json
+            self._create_project_json(project_path)
+            
+            # Create resource.json
+            self._create_resource_json(view_dir)
+            
+            # Create empty thumbnail.png
+            self._create_thumbnail(view_dir)
+            
+            # Create view.json with the processed elements
+            self._create_view_json(view_dir)
+            
+            # Create the zip file
+            with zipfile.ZipFile(zip_file_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
+                # Walk through the temporary directory and add all files to the zip
+                for root, _, files in os.walk(project_path):
+                    for file in files:
+                        file_path = os.path.join(root, file)
+                        # Calculate the relative path for the zip file
+                        rel_path = os.path.relpath(file_path, temp_dir)
+                        zipf.write(file_path, rel_path)
+    
+    def _create_project_json(self, project_path):
+        """Create the project.json file."""
+        project_config = {
+            "title": self.project_title.get(),
+            "description": "Generated by SVG Processor",
+            "parent": self.parent_project.get(),
+            "enabled": True,
+            "inheritable": False
+        }
+        
+        with open(os.path.join(project_path, "project.json"), 'w') as f:
+            json.dump(project_config, f, indent=2)
+    
+    def _create_resource_json(self, view_dir):
+        """Create the resource.json file."""
+        resource_config = {
+            "scope": "G",
+            "version": 1,
+            "restricted": False,
+            "overridable": True,
+            "files": [
+                "view.json",
+                "thumbnail.png"
+            ],
+            "attributes": {
+                "lastModification": {
+                    "actor": "admin",
+                    "timestamp": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
+                },
+                "lastModificationSignature": "generated_by_svg_processor"
+            }
+        }
+        
+        with open(os.path.join(view_dir, "resource.json"), 'w') as f:
+            json.dump(resource_config, f, indent=2)
+    
+    def _create_thumbnail(self, view_dir):
+        """Create an empty thumbnail.png file."""
+        empty_image = Image.new('RGBA', (950, 530), (240, 240, 240, 0))
+        empty_image.save(os.path.join(view_dir, "thumbnail.png"))
+    
+    def _create_view_json(self, view_dir):
+        """Create the view.json file with the processed elements."""
+        view_config = {
+            "custom": {},
+            "params": {},
+            "props": {
+                "defaultSize": {
+                    "height": int(self.default_height.get()),
+                    "width": int(self.default_width.get())
+                }
+            },
+            "root": {
+                "children": []
+            }
+        }
+        
+        # Add background SVG image as first child
+        background_image = {
+            "meta": {
+                "name": "Image"
+            },
+            "position": {
+                "height": int(self.image_height.get()),
+                "width": int(self.image_width.get())
+            },
+            "propConfig": {
+                "props.source": {
+                    "binding": {
+                        "config": {
+                            "expression": f"\"{self.svg_url.get()}?var\" + toMillis(now(100))"
+                        },
+                        "type": "expr"
+                    }
+                }
+            },
+            "props": {
+                "fit": {
+                    "mode": "fill"
+                },
+                "style": {
+                    "backgroundColor": "#EEEEEE"
+                }
+            },
+            "type": "ia.display.image"
+        }
+        
+        view_config["root"]["children"].append(background_image)
+        
+        # Format the elements to match Ignition SCADA view format
+        for element in self.elements:
+            # Transform our element format to Ignition SCADA format
+            scada_element = {
+                "meta": {
+                    "name": element["meta"]["name"]
+                },
+                "position": {
+                    "height": element["position"]["height"],
+                    "width": element["position"]["width"],
+                    "x": element["position"]["x"],
+                    "y": element["position"]["y"]
+                },
+                "props": {
+                    "params": {
+                        "directionLeft": element["props"]["params"]["directionLeft"],
+                        "forceFaultStatus": element["props"]["params"]["forceFaultStatus"],
+                        "forceRunningStatus": element["props"]["params"]["forceRunningStatus"],
+                        "tagProps": element["props"]["params"]["tagProps"]
+                    },
+                    "path": element["props"]["path"]
+                },
+                "type": element["type"]
+            }
+            
+            # Add rotation if specified in our app
+            if hasattr(element, "rotation") and element["rotation"]:
+                scada_element["position"]["rotate"] = {
+                    "angle": f"{element['rotation']}deg"
+                }
+            
+            view_config["root"]["children"].append(scada_element)
+        
+        # Write view.json
+        with open(os.path.join(view_dir, "view.json"), 'w') as f:
+            json.dump(view_config, f, indent=2)
 
 def main():
     """Main entry point for the application."""

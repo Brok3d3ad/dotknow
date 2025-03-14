@@ -1,12 +1,20 @@
 # SVG Processor Tool
 
 ## Overview
-The SVG Processor Tool is an application designed to extract rectangle elements from SVG files and convert them to a custom JSON format for use in automation systems. This tool simplifies the process of integrating graphics from vector editing software into automation HMI systems.
+The SVG Processor Tool is an application designed to extract SVG elements from files and convert them to a custom JSON format for use in automation systems. This tool simplifies the process of integrating graphics from vector editing software into automation HMI systems, particularly Ignition SCADA.
 
 ## Features
 - User-friendly GUI interface with automation standard branding
 - Ability to browse and select SVG files for processing
-- Extracts rectangle elements with their positions, sizes, and attributes
+- Support for multiple SVG element types including:
+  - Rectangles
+  - Circles
+  - Ellipses
+  - Lines
+  - Polylines
+  - Polygons
+  - Paths
+  - Text elements
 - Processes complex SVG transformations including translation, rotation, and scaling
 - Converts SVG elements to a custom JSON format for automation systems
 - Options to copy results to clipboard or save to a file
@@ -30,7 +38,11 @@ The SVG Processor Tool is an application designed to extract rectangle elements 
    ```
    pip install -r requirements.txt
    ```
-3. Run the application:
+3. For development and testing, also install test dependencies:
+   ```
+   pip install -r test-requirements.txt
+   ```
+4. Run the application:
    ```
    python svg_processor_gui.py
    ```
@@ -103,7 +115,7 @@ pyinstaller --onefile --windowed --add-data="automation_standard_logo.jpg:." svg
    - Element Type: Type of element to create in the target system
    - Properties Path: Path in the properties tree
    - Element Width/Height: Default dimensions for elements
-4. Click "Process SVG" to extract and convert rectangle elements
+4. Click "Process SVG" to extract and convert SVG elements
 5. View the results in the output area
 6. Use "Copy to Clipboard" or "Save to File" to export the JSON results
 7. Export to Ignition SCADA project by configuring:
@@ -129,6 +141,35 @@ The application stores its settings in an `app_config.json` file located in the 
   - Default size dimensions (width and height)
 
 The configuration is automatically saved when you exit the application and loaded when you start it again. If the configuration file doesn't exist, a default one will be created.
+
+## Testing
+
+The project includes a comprehensive test suite to ensure stability and correctness:
+
+### Running Tests
+```bash
+# Run all tests
+pytest
+
+# Run tests with coverage report
+pytest --cov=. --cov-report=term-missing
+
+# Run specific test file
+pytest tests/test_inkscape_transform.py
+```
+
+### Test Suite Components
+- **Unit Tests**: Test individual components in isolation
+- **Integration Tests**: Test interaction between components
+- **Mock Tests**: Use mock objects to simulate external dependencies
+- **Transformation Tests**: Verify matrix operations and SVG transformations
+
+### Test Coverage
+The test suite aims to provide high coverage of the codebase, with particular focus on:
+- SVG parsing and transformation logic
+- Element type handling (rect, circle, ellipse, etc.)
+- Error cases and edge conditions
+- Configuration management
 
 ## Troubleshooting
 
@@ -178,21 +219,51 @@ If you encounter `ModuleNotFoundError: No module named 'tkinter'` when running t
 
 ### Core Components
 - **SVGProcessorApp**: The main GUI application class that provides the user interface
+  - Handles file selection, configuration, and user interaction
+  - Manages application state and configuration persistence
+  - Implements SCADA project export functionality
+  
 - **SVGTransformer**: Core processing engine that handles SVG parsing and transformation
-- **Configuration Management**: Handles saving and loading of user preferences
+  - Parses SVG files using XML DOM
+  - Implements matrix transformation operations
+  - Processes different element types with specialized handlers
+  - Calculates correct positions accounting for transformations
+
+- **ConfigManager**: Handles saving and loading of user preferences
+  - Manages `app_config.json` file
+  - Provides default configurations when needed
+  - Handles path resolution for both development and bundled mode
 
 ### SVG Processing Flow
 1. SVG file is loaded and parsed using XML DOM
-2. Rectangle elements are extracted from the SVG
-3. Transformations are applied to determine final positions
-4. Elements are converted to the required JSON format
-5. Results are displayed and can be exported
+2. Elements are identified and classified by type (rect, circle, ellipse, etc.)
+3. Each element's original position, size, and attributes are extracted
+4. Complex transformations are calculated using matrix operations:
+   - Matrix: Direct transformation using a 3x3 matrix
+   - Translate: Moving elements by x,y offsets
+   - Scale: Resizing elements by x,y factors
+   - Rotate: Rotating elements around a specified point
+5. Elements are converted to the required JSON format
+6. Results are displayed and can be exported
+
+### Matrix Transformation
+The application uses 3x3 transformation matrices in homogeneous coordinates:
+- Identity matrix: No transformation
+- Translation matrix: [1,0,tx; 0,1,ty; 0,0,1]
+- Rotation matrix: [cos(a),-sin(a),0; sin(a),cos(a),0; 0,0,1]
+- Scale matrix: [sx,0,0; 0,sy,0; 0,0,1]
+
+Multiple transformations are combined by matrix multiplication.
 
 ## Project Structure
 - `svg_processor_gui.py`: Main application with GUI implementation
 - `inkscape_transform.py`: SVG processing engine
 - `app_config.json`: Application configuration file
 - `requirements.txt`: Python dependencies
+- `test-requirements.txt`: Testing dependencies
+- `tests/`: Test suite directory
+  - `test_inkscape_transform.py`: Tests for the SVG transformer
+  - `test_svg_processor_gui.py`: Tests for the GUI application
 - `automation_standard_logo.jpg`: Application logo
 
 ## SCADA Project Export
