@@ -38,11 +38,6 @@
     "meta": {
       "name": "root"
     },
-    "props": {
-      "style": {
-        "overflow": "hidden"
-      }
-    },
     "type": "ia.container.coord"
   }
 }

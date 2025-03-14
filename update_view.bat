@@ -13,7 +13,7 @@ if %ERRORLEVEL% neq 0 (
 )
 
 echo Updating Ignition view with appended SVG elements...
-copy /Y "C:\Users\user\Desktop\incscape_transform\updated_view.json" "C:\Program Files\Inductive Automation\Ignition\data\projects\MTN6_SCADA\com.inductiveautomation.perspective\views\Detailed-Views\TestView\view.json"
+copy /Y "/Users/iliagurielidze/Desktop/dotknow/updated_view.json" "C:\Program Files\view.json"
 
 if %ERRORLEVEL% equ 0 (
     echo.

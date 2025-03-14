@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SVG to Ignition View</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        .container {
+            background-color: white;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        input[type="file"], input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        button:disabled {
+            background-color: #95a5a6;
+            cursor: not-allowed;
+        }
+        .preview-container {
+            margin-top: 30px;
+            border: 1px dashed #ddd;
+            padding: 20px;
+            min-height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: #777;
+            position: relative;
+        }
+        #svg-preview {
+            max-width: 100%;
+            max-height: 400px;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        /* Make SVG fit container */
+        #svg-preview svg {
+            width: 100%;
+            height: 100%;
+            max-height: 400px;
+            object-fit: contain;
+            display: block;
+        }
+        #status {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 4px;
+            display: none;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+        }
+        .loading::after {
+            content: "⏳";
+            animation: loading 1.5s infinite;
+            font-size: 20px;
+        }
+        @keyframes loading {
+            0% { opacity: 0.3; }
+            50% { opacity: 1; }
+            100% { opacity: 0.3; }
+        }
+        .default-path {
+            font-size: 0.8em;
+            color: #666;
+            margin-top: 5px;
+        }
+        .server-settings {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+        .collapsible {
+            background-color: #f1f1f1;
+            color: #444;
+            cursor: pointer;
+            padding: 10px;
+            width: 100%;
+            border: none;
+            text-align: left;
+            outline: none;
+            font-size: 15px;
+            border-radius: 4px;
+        }
+        .active, .collapsible:hover {
+            background-color: #e0e0e0;
+        }
+        .content {
+            padding: 0 18px;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.2s ease-out;
+            background-color: #f9f9f9;
+            border-radius: 0 0 4px 4px;
+        }
+        .svg-controls {
+            margin-top: 10px;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+        .svg-controls button {
+            width: auto;
+            padding: 5px 10px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>SVG to Ignition View</h1>
+        
+        <form id="svg-form">
+            <div class="form-group">
+                <label for="svg-file">Select SVG File:</label>
+                <input type="file" id="svg-file" accept=".svg" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="ignition-path">Path to Ignition View:</label>
+                <input type="text" id="ignition-path" placeholder="Enter the path to Ignition View" value="C:\Program Files\Inductive Automation\Ignition\data\projects\MTN6_SCADA\com.inductiveautomation.perspective\views\Detailed-Views\TestView\view.json" required>
+                <div class="default-path">Default: C:\Program Files\Inductive Automation\Ignition\data\projects\MTN6_SCADA\com.inductiveautomation.perspective\views\Detailed-Views\TestView\view.json</div>
+            </div>
+            
+            <button type="submit" id="process-btn">Process SVG</button>
+        </form>
+        
+        <div class="loading" id="loading">Processing...</div>
+        
+        <div id="status"></div>
+        
+        <div class="preview-container">
+            <div id="preview-placeholder">SVG preview will appear here</div>
+            <div id="svg-preview"></div>
+        </div>
+        
+        <div class="svg-controls" id="svg-controls" style="display: none;">
+            <button id="fit-original">Original Size</button>
+            <button id="fit-container">Fit to Container</button>
+        </div>
+        
+        <div class="server-settings">
+            <button type="button" class="collapsible">Server Settings</button>
+            <div class="content">
+                <div class="form-group">
+                    <label for="server-url">Server URL:</label>
+                    <input type="text" id="server-url" value="http://localhost:8000" placeholder="Enter server URL">
+                    <p>Start the server by running: <code>python server.py</code></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('svg-form');
+            const svgFileInput = document.getElementById('svg-file');
+            const previewContainer = document.getElementById('svg-preview');
+            const previewPlaceholder = document.getElementById('preview-placeholder');
+            const statusContainer = document.getElementById('status');
+            const loadingIndicator = document.getElementById('loading');
+            const processButton = document.getElementById('process-btn');
+            const serverUrlInput = document.getElementById('server-url');
+            const svgControls = document.getElementById('svg-controls');
+            const fitOriginalBtn = document.getElementById('fit-original');
+            const fitContainerBtn = document.getElementById('fit-container');
+            
+            // Setup collapsible sections
+            const coll = document.getElementsByClassName("collapsible");
+            for (let i = 0; i < coll.length; i++) {
+                coll[i].addEventListener("click", function() {
+                    this.classList.toggle("active");
+                    const content = this.nextElementSibling;
+                    if (content.style.maxHeight) {
+                        content.style.maxHeight = null;
+                    } else {
+                        content.style.maxHeight = content.scrollHeight + "px";
+                    }
+                });
+            }
+
+            // SVG fit controls
+            fitOriginalBtn.addEventListener('click', function() {
+                const svg = previewContainer.querySelector('svg');
+                if (svg) {
+                    svg.style.width = 'auto';
+                    svg.style.height = 'auto';
+                    svg.style.maxWidth = '100%';
+                    svg.style.maxHeight = '400px';
+                }
+            });
+            
+            fitContainerBtn.addEventListener('click', function() {
+                const svg = previewContainer.querySelector('svg');
+                if (svg) {
+                    svg.style.width = '100%';
+                    svg.style.height = '100%';
+                    svg.style.maxWidth = '100%';
+                    svg.style.maxHeight = '400px';
+                }
+            });
+
+            // Preview SVG when file is selected
+            svgFileInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file && file.type === 'image/svg+xml') {
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        previewPlaceholder.style.display = 'none';
+                        
+                        // Parse the SVG content
+                        const parser = new DOMParser();
+                        const svgDoc = parser.parseFromString(event.target.result, "image/svg+xml");
+                        const svgElement = svgDoc.documentElement;
+                        
+                        // Ensure the SVG has viewBox attribute for proper scaling
+                        if (!svgElement.hasAttribute('viewBox') && 
+                            svgElement.hasAttribute('width') && 
+                            svgElement.hasAttribute('height')) {
+                            const width = parseFloat(svgElement.getAttribute('width'));
+                            const height = parseFloat(svgElement.getAttribute('height'));
+                            svgElement.setAttribute('viewBox', `0 0 ${width} ${height}`);
+                        }
+                        
+                        // Add preserveAspectRatio attribute to ensure proper scaling
+                        svgElement.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+                        
+                        // Set style to ensure fit
+                        svgElement.style.width = '100%';
+                        svgElement.style.height = '100%';
+                        svgElement.style.maxWidth = '100%';
+                        svgElement.style.maxHeight = '400px';
+                        
+                        // Clear previous content and add the new SVG
+                        previewContainer.innerHTML = '';
+                        previewContainer.appendChild(svgElement);
+                        
+                        // Show the SVG controls
+                        svgControls.style.display = 'flex';
+                        
+                        // Try to extract elements from SVG
+                        extractSvgElements(event.target.result);
+                    };
+                    reader.readAsText(file);
+                } else {
+                    previewPlaceholder.style.display = 'block';
+                    previewContainer.innerHTML = '';
+                    svgControls.style.display = 'none';
+                    if (file) {
+                        previewPlaceholder.textContent = 'Selected file is not an SVG';
+                    } else {
+                        previewPlaceholder.textContent = 'SVG preview will appear here';
+                    }
+                }
+            });
+
+            function extractSvgElements(svgContent) {
+                // This function parses the SVG and extracts elements
+                try {
+                    const parser = new DOMParser();
+                    const svgDoc = parser.parseFromString(svgContent, "image/svg+xml");
+                    
+                    // Get all elements with IDs (these are often the meaningful elements)
+                    const elements = Array.from(svgDoc.querySelectorAll('[id]'));
+                    
+                    // Create element data
+                    const elementData = elements.map((el, index) => {
+                        // Get bounding box data if available
+                        let bbox = {x: 0, y: 0, width: 16, height: 16};
+                        
+                        if (el.getBBox) {
+                            try {
+                                const box = el.getBBox();
+                                bbox = {
+                                    x: Math.round(box.x),
+                                    y: Math.round(box.y),
+                                    width: Math.round(box.width) || 16,
+                                    height: Math.round(box.height) || 16
+                                };
+                            } catch (e) {
+                                console.warn("Couldn't get bounding box", e);
+                            }
+                        }
+                        
+                        return {
+                            meta: {
+                                name: el.id || `Element_${index}`
+                            },
+                            position: {
+                                x: bbox.x,
+                                y: bbox.y,
+                                width: bbox.width,
+                                height: bbox.height
+                            },
+                            type: "ia.display.view"
+                        };
+                    });
+                    
+                    // Store element data for later use
+                    window.extractedElements = elementData;
+                    
+                    console.log(`Extracted ${elementData.length} elements from SVG`);
+                    
+                    if (elementData.length > 0) {
+                        showStatus(`Found ${elementData.length} elements in the SVG file`, 'success');
+                    } else {
+                        showStatus("No elements with IDs found in the SVG. Processing may be limited.", 'error');
+                    }
+                } catch (error) {
+                    console.error("Error extracting SVG elements:", error);
+                    showStatus("Error extracting elements from SVG", 'error');
+                }
+            }
+
+            // Form submission handler
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const svgFile = svgFileInput.files[0];
+                const ignitionPath = document.getElementById('ignition-path').value;
+                const serverUrl = serverUrlInput.value;
+                
+                if (svgFile && ignitionPath) {
+                    // Start processing
+                    processButton.disabled = true;
+                    loadingIndicator.style.display = 'block';
+                    statusContainer.style.display = 'none';
+                    
+                    // Create the element.json file from the extracted elements
+                    if (window.extractedElements && window.extractedElements.length > 0) {
+                        // Send the data to the server
+                        processSVGWithServer(window.extractedElements, ignitionPath, serverUrl, svgFile.name);
+                    } else {
+                        showStatus("No elements could be extracted from the SVG. Please try another file.", 'error');
+                        processButton.disabled = false;
+                        loadingIndicator.style.display = 'none';
+                    }
+                }
+            });
+            
+            function processSVGWithServer(elements, ignitionPath, serverUrl, fileName) {
+                // Send the data to the server
+                const requestData = {
+                    elements: elements,
+                    ignitionPath: ignitionPath
+                };
+                
+                fetch(serverUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestData)
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`Server responded with status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        showStatus(`
+                            <strong>Processing Successful!</strong><br>
+                            <ul>
+                                <li>SVG File: ${fileName}</li>
+                                <li>Elements Processed: ${elements.length}</li>
+                                <li>Ignition View Path: ${ignitionPath}</li>
+                                <li>element.json created at: ${data.outputFiles.element_json}</li>
+                                <li>view.json updated at: ${data.outputFiles.updated_view}</li>
+                                <li>Batch file generated at: ${data.outputFiles.batch_file}</li>
+                            </ul>
+                            <p>To complete the process:</p>
+                            <ol>
+                                <li>Run the generated batch file as administrator</li>
+                                <li>Open your Ignition Designer to see the updated view</li>
+                            </ol>
+                        `, 'success');
+                    } else {
+                        showStatus(`
+                            <strong>Processing Failed</strong><br>
+                            <p>The server encountered an error: ${data.error}</p>
+                        `, 'error');
+                    }
+                })
+                .catch(error => {
+                    showStatus(`
+                        <strong>Error Connecting to Server</strong><br>
+                        <p>${error.message}</p>
+                        <p>Make sure the server is running by executing: <code>python server.py</code></p>
+                    `, 'error');
+                    console.error('Error:', error);
+                })
+                .finally(() => {
+                    processButton.disabled = false;
+                    loadingIndicator.style.display = 'none';
+                });
+            }
+            
+            function showStatus(message, type) {
+                statusContainer.innerHTML = message;
+                statusContainer.className = type;
+                statusContainer.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html> 

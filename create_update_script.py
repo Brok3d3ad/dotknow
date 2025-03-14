@@ -189,7 +189,7 @@ def create_default_view(file_path):
                         "props.source": {
                             "binding": {
                                 "config": {
-                                    "expression": "\"http://127.0.0.1:5500/Bulk%20Inbund%20Problem%20Solve.svg?var\""
+                                    "expression": ""
                                 },
                                 "type": "expr"
                             }

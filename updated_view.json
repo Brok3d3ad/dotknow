@@ -36,13 +36,173 @@
       },
       {
         "meta": {
+          "name": "svg1"
+        },
+        "position": {
+          "height": 16,
+          "width": 16,
+          "x": 0,
+          "y": 0
+        },
+        "props": {
+          "path": "Symbol-Views/Equipment-Views/Status",
+          "params": {
+            "directionLeft": false,
+            "forceFaultStatus": null,
+            "forceRunningStatus": null,
+            "tagProps": [
+              "DF410/BL02_383",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value"
+            ]
+          }
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "namedview1"
+        },
+        "position": {
+          "height": 16,
+          "width": 16,
+          "x": 0,
+          "y": 0
+        },
+        "props": {
+          "path": "Symbol-Views/Equipment-Views/Status",
+          "params": {
+            "directionLeft": false,
+            "forceFaultStatus": null,
+            "forceRunningStatus": null,
+            "tagProps": [
+              "DF410/BL02_383",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value"
+            ]
+          }
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "defs1"
+        },
+        "position": {
+          "height": 16,
+          "width": 16,
+          "x": 0,
+          "y": 0
+        },
+        "props": {
+          "path": "Symbol-Views/Equipment-Views/Status",
+          "params": {
+            "directionLeft": false,
+            "forceFaultStatus": null,
+            "forceRunningStatus": null,
+            "tagProps": [
+              "DF410/BL02_383",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value"
+            ]
+          }
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "layer1"
+        },
+        "position": {
+          "height": 16,
+          "width": 16,
+          "x": 0,
+          "y": 0
+        },
+        "props": {
+          "path": "Symbol-Views/Equipment-Views/Status",
+          "params": {
+            "directionLeft": false,
+            "forceFaultStatus": null,
+            "forceRunningStatus": null,
+            "tagProps": [
+              "DF410/BL02_383",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value"
+            ]
+          }
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "path1-6-3-5"
+        },
+        "position": {
+          "height": 16,
+          "width": 16,
+          "x": 0,
+          "y": 0
+        },
+        "props": {
+          "path": "Symbol-Views/Equipment-Views/Status",
+          "params": {
+            "directionLeft": false,
+            "forceFaultStatus": null,
+            "forceRunningStatus": null,
+            "tagProps": [
+              "DF410/BL02_383",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value"
+            ]
+          }
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
           "name": "rect222-4-2-9-2-3-5-5-9-4-6-5-6-3-4-3-6-4-3-9-0"
         },
         "position": {
-          "height": 14,
-          "width": 14,
-          "x": 1095.058155,
-          "y": 907.322945
+          "height": 16,
+          "width": 16,
+          "x": 0,
+          "y": 0
         },
         "props": {
           "path": "Symbol-Views/Equipment-Views/Status",
@@ -71,10 +231,1482 @@
           "name": "rect222-4-2-9-2-3-5-5-9-4-6-5-6-3-4-3-6-4-3-2"
         },
         "position": {
-          "height": 14,
-          "width": 14,
-          "x": 922.9823345,
-          "y": 907.141921
+          "height": 16,
+          "width": 16,
+          "x": 0,
+          "y": 0
+        },
+        "props": {
+          "path": "Symbol-Views/Equipment-Views/Status",
+          "params": {
+            "directionLeft": false,
+            "forceFaultStatus": null,
+            "forceRunningStatus": null,
+            "tagProps": [
+              "DF410/BL02_383",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value"
+            ]
+          }
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "path1-6-3-5-8"
+        },
+        "position": {
+          "height": 16,
+          "width": 16,
+          "x": 0,
+          "y": 0
+        },
+        "props": {
+          "path": "Symbol-Views/Equipment-Views/Status",
+          "params": {
+            "directionLeft": false,
+            "forceFaultStatus": null,
+            "forceRunningStatus": null,
+            "tagProps": [
+              "DF410/BL02_383",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value"
+            ]
+          }
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "path111-7-3"
+        },
+        "position": {
+          "height": 16,
+          "width": 16,
+          "x": 0,
+          "y": 0
+        },
+        "props": {
+          "path": "Symbol-Views/Equipment-Views/Status",
+          "params": {
+            "directionLeft": false,
+            "forceFaultStatus": null,
+            "forceRunningStatus": null,
+            "tagProps": [
+              "DF410/BL02_383",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value"
+            ]
+          }
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "path1-3"
+        },
+        "position": {
+          "height": 16,
+          "width": 16,
+          "x": 0,
+          "y": 0
+        },
+        "props": {
+          "path": "Symbol-Views/Equipment-Views/Status",
+          "params": {
+            "directionLeft": false,
+            "forceFaultStatus": null,
+            "forceRunningStatus": null,
+            "tagProps": [
+              "DF410/BL02_383",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value"
+            ]
+          }
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "path1"
+        },
+        "position": {
+          "height": 16,
+          "width": 16,
+          "x": 0,
+          "y": 0
+        },
+        "props": {
+          "path": "Symbol-Views/Equipment-Views/Status",
+          "params": {
+            "directionLeft": false,
+            "forceFaultStatus": null,
+            "forceRunningStatus": null,
+            "tagProps": [
+              "DF410/BL02_383",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value"
+            ]
+          }
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "g115-2"
+        },
+        "position": {
+          "height": 16,
+          "width": 16,
+          "x": 0,
+          "y": 0
+        },
+        "props": {
+          "path": "Symbol-Views/Equipment-Views/Status",
+          "params": {
+            "directionLeft": false,
+            "forceFaultStatus": null,
+            "forceRunningStatus": null,
+            "tagProps": [
+              "DF410/BL02_383",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value"
+            ]
+          }
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "g112-6"
+        },
+        "position": {
+          "height": 16,
+          "width": 16,
+          "x": 0,
+          "y": 0
+        },
+        "props": {
+          "path": "Symbol-Views/Equipment-Views/Status",
+          "params": {
+            "directionLeft": false,
+            "forceFaultStatus": null,
+            "forceRunningStatus": null,
+            "tagProps": [
+              "DF410/BL02_383",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value"
+            ]
+          }
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "path111-7"
+        },
+        "position": {
+          "height": 16,
+          "width": 16,
+          "x": 0,
+          "y": 0
+        },
+        "props": {
+          "path": "Symbol-Views/Equipment-Views/Status",
+          "params": {
+            "directionLeft": false,
+            "forceFaultStatus": null,
+            "forceRunningStatus": null,
+            "tagProps": [
+              "DF410/BL02_383",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value"
+            ]
+          }
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "path208-9-1-2-1-8-4-0-7"
+        },
+        "position": {
+          "height": 16,
+          "width": 16,
+          "x": 0,
+          "y": 0
+        },
+        "props": {
+          "path": "Symbol-Views/Equipment-Views/Status",
+          "params": {
+            "directionLeft": false,
+            "forceFaultStatus": null,
+            "forceRunningStatus": null,
+            "tagProps": [
+              "DF410/BL02_383",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value"
+            ]
+          }
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "path208-9-1-2-1-4-5-1-2-1"
+        },
+        "position": {
+          "height": 16,
+          "width": 16,
+          "x": 0,
+          "y": 0
+        },
+        "props": {
+          "path": "Symbol-Views/Equipment-Views/Status",
+          "params": {
+            "directionLeft": false,
+            "forceFaultStatus": null,
+            "forceRunningStatus": null,
+            "tagProps": [
+              "DF410/BL02_383",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value"
+            ]
+          }
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "path208-9-1-2-1-8-4-0"
+        },
+        "position": {
+          "height": 16,
+          "width": 16,
+          "x": 0,
+          "y": 0
+        },
+        "props": {
+          "path": "Symbol-Views/Equipment-Views/Status",
+          "params": {
+            "directionLeft": false,
+            "forceFaultStatus": null,
+            "forceRunningStatus": null,
+            "tagProps": [
+              "DF410/BL02_383",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value"
+            ]
+          }
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "path208-9-1-2-1-4-5-1-2"
+        },
+        "position": {
+          "height": 16,
+          "width": 16,
+          "x": 0,
+          "y": 0
+        },
+        "props": {
+          "path": "Symbol-Views/Equipment-Views/Status",
+          "params": {
+            "directionLeft": false,
+            "forceFaultStatus": null,
+            "forceRunningStatus": null,
+            "tagProps": [
+              "DF410/BL02_383",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value"
+            ]
+          }
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "path208-9-1-2-1-8-4"
+        },
+        "position": {
+          "height": 16,
+          "width": 16,
+          "x": 0,
+          "y": 0
+        },
+        "props": {
+          "path": "Symbol-Views/Equipment-Views/Status",
+          "params": {
+            "directionLeft": false,
+            "forceFaultStatus": null,
+            "forceRunningStatus": null,
+            "tagProps": [
+              "DF410/BL02_383",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value"
+            ]
+          }
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "path208-9-1-2-1-4-5-1"
+        },
+        "position": {
+          "height": 16,
+          "width": 16,
+          "x": 0,
+          "y": 0
+        },
+        "props": {
+          "path": "Symbol-Views/Equipment-Views/Status",
+          "params": {
+            "directionLeft": false,
+            "forceFaultStatus": null,
+            "forceRunningStatus": null,
+            "tagProps": [
+              "DF410/BL02_383",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value"
+            ]
+          }
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "path208-9-1-2-1-4-5-4-6-55-0"
+        },
+        "position": {
+          "height": 16,
+          "width": 16,
+          "x": 0,
+          "y": 0
+        },
+        "props": {
+          "path": "Symbol-Views/Equipment-Views/Status",
+          "params": {
+            "directionLeft": false,
+            "forceFaultStatus": null,
+            "forceRunningStatus": null,
+            "tagProps": [
+              "DF410/BL02_383",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value"
+            ]
+          }
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "path208-9-1-2-1-4-5-4-6-55"
+        },
+        "position": {
+          "height": 16,
+          "width": 16,
+          "x": 0,
+          "y": 0
+        },
+        "props": {
+          "path": "Symbol-Views/Equipment-Views/Status",
+          "params": {
+            "directionLeft": false,
+            "forceFaultStatus": null,
+            "forceRunningStatus": null,
+            "tagProps": [
+              "DF410/BL02_383",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value"
+            ]
+          }
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "path208-9-1-2-1-4-5-4-6-5"
+        },
+        "position": {
+          "height": 16,
+          "width": 16,
+          "x": 0,
+          "y": 0
+        },
+        "props": {
+          "path": "Symbol-Views/Equipment-Views/Status",
+          "params": {
+            "directionLeft": false,
+            "forceFaultStatus": null,
+            "forceRunningStatus": null,
+            "tagProps": [
+              "DF410/BL02_383",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value"
+            ]
+          }
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "path208-9-1-2-1-4-5-4-6"
+        },
+        "position": {
+          "height": 16,
+          "width": 16,
+          "x": 0,
+          "y": 0
+        },
+        "props": {
+          "path": "Symbol-Views/Equipment-Views/Status",
+          "params": {
+            "directionLeft": false,
+            "forceFaultStatus": null,
+            "forceRunningStatus": null,
+            "tagProps": [
+              "DF410/BL02_383",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value"
+            ]
+          }
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "path208-9-1-2-1-4-5-4"
+        },
+        "position": {
+          "height": 16,
+          "width": 16,
+          "x": 0,
+          "y": 0
+        },
+        "props": {
+          "path": "Symbol-Views/Equipment-Views/Status",
+          "params": {
+            "directionLeft": false,
+            "forceFaultStatus": null,
+            "forceRunningStatus": null,
+            "tagProps": [
+              "DF410/BL02_383",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value"
+            ]
+          }
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "path208-9-1-2-1-8-9"
+        },
+        "position": {
+          "height": 16,
+          "width": 16,
+          "x": 0,
+          "y": 0
+        },
+        "props": {
+          "path": "Symbol-Views/Equipment-Views/Status",
+          "params": {
+            "directionLeft": false,
+            "forceFaultStatus": null,
+            "forceRunningStatus": null,
+            "tagProps": [
+              "DF410/BL02_383",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value"
+            ]
+          }
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "path208-9-1-2-1-4-5-63"
+        },
+        "position": {
+          "height": 16,
+          "width": 16,
+          "x": 0,
+          "y": 0
+        },
+        "props": {
+          "path": "Symbol-Views/Equipment-Views/Status",
+          "params": {
+            "directionLeft": false,
+            "forceFaultStatus": null,
+            "forceRunningStatus": null,
+            "tagProps": [
+              "DF410/BL02_383",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value"
+            ]
+          }
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "path208-9-1-2-1-8-8"
+        },
+        "position": {
+          "height": 16,
+          "width": 16,
+          "x": 0,
+          "y": 0
+        },
+        "props": {
+          "path": "Symbol-Views/Equipment-Views/Status",
+          "params": {
+            "directionLeft": false,
+            "forceFaultStatus": null,
+            "forceRunningStatus": null,
+            "tagProps": [
+              "DF410/BL02_383",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value"
+            ]
+          }
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "path208-9-1-2-1-4-5-6"
+        },
+        "position": {
+          "height": 16,
+          "width": 16,
+          "x": 0,
+          "y": 0
+        },
+        "props": {
+          "path": "Symbol-Views/Equipment-Views/Status",
+          "params": {
+            "directionLeft": false,
+            "forceFaultStatus": null,
+            "forceRunningStatus": null,
+            "tagProps": [
+              "DF410/BL02_383",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value"
+            ]
+          }
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "path208-9-1-2-1-8"
+        },
+        "position": {
+          "height": 16,
+          "width": 16,
+          "x": 0,
+          "y": 0
+        },
+        "props": {
+          "path": "Symbol-Views/Equipment-Views/Status",
+          "params": {
+            "directionLeft": false,
+            "forceFaultStatus": null,
+            "forceRunningStatus": null,
+            "tagProps": [
+              "DF410/BL02_383",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value"
+            ]
+          }
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "path208-9-1-2-1-4-5"
+        },
+        "position": {
+          "height": 16,
+          "width": 16,
+          "x": 0,
+          "y": 0
+        },
+        "props": {
+          "path": "Symbol-Views/Equipment-Views/Status",
+          "params": {
+            "directionLeft": false,
+            "forceFaultStatus": null,
+            "forceRunningStatus": null,
+            "tagProps": [
+              "DF410/BL02_383",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value"
+            ]
+          }
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "path208-9-1-2-1-7"
+        },
+        "position": {
+          "height": 16,
+          "width": 16,
+          "x": 0,
+          "y": 0
+        },
+        "props": {
+          "path": "Symbol-Views/Equipment-Views/Status",
+          "params": {
+            "directionLeft": false,
+            "forceFaultStatus": null,
+            "forceRunningStatus": null,
+            "tagProps": [
+              "DF410/BL02_383",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value"
+            ]
+          }
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "path208-9-1-2-1-4-6"
+        },
+        "position": {
+          "height": 16,
+          "width": 16,
+          "x": 0,
+          "y": 0
+        },
+        "props": {
+          "path": "Symbol-Views/Equipment-Views/Status",
+          "params": {
+            "directionLeft": false,
+            "forceFaultStatus": null,
+            "forceRunningStatus": null,
+            "tagProps": [
+              "DF410/BL02_383",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value"
+            ]
+          }
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "g210-4-5-6-2"
+        },
+        "position": {
+          "height": 16,
+          "width": 16,
+          "x": 0,
+          "y": 0
+        },
+        "props": {
+          "path": "Symbol-Views/Equipment-Views/Status",
+          "params": {
+            "directionLeft": false,
+            "forceFaultStatus": null,
+            "forceRunningStatus": null,
+            "tagProps": [
+              "DF410/BL02_383",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value"
+            ]
+          }
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "g209-9-7-9-46"
+        },
+        "position": {
+          "height": 16,
+          "width": 16,
+          "x": 0,
+          "y": 0
+        },
+        "props": {
+          "path": "Symbol-Views/Equipment-Views/Status",
+          "params": {
+            "directionLeft": false,
+            "forceFaultStatus": null,
+            "forceRunningStatus": null,
+            "tagProps": [
+              "DF410/BL02_383",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value"
+            ]
+          }
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "path208-9-1-2-1"
+        },
+        "position": {
+          "height": 16,
+          "width": 16,
+          "x": 0,
+          "y": 0
+        },
+        "props": {
+          "path": "Symbol-Views/Equipment-Views/Status",
+          "params": {
+            "directionLeft": false,
+            "forceFaultStatus": null,
+            "forceRunningStatus": null,
+            "tagProps": [
+              "DF410/BL02_383",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value"
+            ]
+          }
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "g210-4-5-6-2-6"
+        },
+        "position": {
+          "height": 16,
+          "width": 16,
+          "x": 0,
+          "y": 0
+        },
+        "props": {
+          "path": "Symbol-Views/Equipment-Views/Status",
+          "params": {
+            "directionLeft": false,
+            "forceFaultStatus": null,
+            "forceRunningStatus": null,
+            "tagProps": [
+              "DF410/BL02_383",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value"
+            ]
+          }
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "g209-9-7-9-46-2"
+        },
+        "position": {
+          "height": 16,
+          "width": 16,
+          "x": 0,
+          "y": 0
+        },
+        "props": {
+          "path": "Symbol-Views/Equipment-Views/Status",
+          "params": {
+            "directionLeft": false,
+            "forceFaultStatus": null,
+            "forceRunningStatus": null,
+            "tagProps": [
+              "DF410/BL02_383",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value"
+            ]
+          }
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "path208-9-1-2-1-4"
+        },
+        "position": {
+          "height": 16,
+          "width": 16,
+          "x": 0,
+          "y": 0
+        },
+        "props": {
+          "path": "Symbol-Views/Equipment-Views/Status",
+          "params": {
+            "directionLeft": false,
+            "forceFaultStatus": null,
+            "forceRunningStatus": null,
+            "tagProps": [
+              "DF410/BL02_383",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value"
+            ]
+          }
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "g210-4"
+        },
+        "position": {
+          "height": 16,
+          "width": 16,
+          "x": 0,
+          "y": 0
+        },
+        "props": {
+          "path": "Symbol-Views/Equipment-Views/Status",
+          "params": {
+            "directionLeft": false,
+            "forceFaultStatus": null,
+            "forceRunningStatus": null,
+            "tagProps": [
+              "DF410/BL02_383",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value"
+            ]
+          }
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "g209-9"
+        },
+        "position": {
+          "height": 16,
+          "width": 16,
+          "x": 0,
+          "y": 0
+        },
+        "props": {
+          "path": "Symbol-Views/Equipment-Views/Status",
+          "params": {
+            "directionLeft": false,
+            "forceFaultStatus": null,
+            "forceRunningStatus": null,
+            "tagProps": [
+              "DF410/BL02_383",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value"
+            ]
+          }
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "path111-8-0-9-9-4-0"
+        },
+        "position": {
+          "height": 16,
+          "width": 16,
+          "x": 0,
+          "y": 0
+        },
+        "props": {
+          "path": "Symbol-Views/Equipment-Views/Status",
+          "params": {
+            "directionLeft": false,
+            "forceFaultStatus": null,
+            "forceRunningStatus": null,
+            "tagProps": [
+              "DF410/BL02_383",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value"
+            ]
+          }
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "path111-8-0-9-9-4"
+        },
+        "position": {
+          "height": 16,
+          "width": 16,
+          "x": 0,
+          "y": 0
+        },
+        "props": {
+          "path": "Symbol-Views/Equipment-Views/Status",
+          "params": {
+            "directionLeft": false,
+            "forceFaultStatus": null,
+            "forceRunningStatus": null,
+            "tagProps": [
+              "DF410/BL02_383",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value"
+            ]
+          }
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "path111-8-0-9-9"
+        },
+        "position": {
+          "height": 16,
+          "width": 16,
+          "x": 0,
+          "y": 0
+        },
+        "props": {
+          "path": "Symbol-Views/Equipment-Views/Status",
+          "params": {
+            "directionLeft": false,
+            "forceFaultStatus": null,
+            "forceRunningStatus": null,
+            "tagProps": [
+              "DF410/BL02_383",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value"
+            ]
+          }
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "path111-8-0-9-0"
+        },
+        "position": {
+          "height": 16,
+          "width": 16,
+          "x": 0,
+          "y": 0
+        },
+        "props": {
+          "path": "Symbol-Views/Equipment-Views/Status",
+          "params": {
+            "directionLeft": false,
+            "forceFaultStatus": null,
+            "forceRunningStatus": null,
+            "tagProps": [
+              "DF410/BL02_383",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value"
+            ]
+          }
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "path111-8-0-9-5"
+        },
+        "position": {
+          "height": 16,
+          "width": 16,
+          "x": 0,
+          "y": 0
+        },
+        "props": {
+          "path": "Symbol-Views/Equipment-Views/Status",
+          "params": {
+            "directionLeft": false,
+            "forceFaultStatus": null,
+            "forceRunningStatus": null,
+            "tagProps": [
+              "DF410/BL02_383",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value"
+            ]
+          }
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "path111-8-0-9"
+        },
+        "position": {
+          "height": 16,
+          "width": 16,
+          "x": 0,
+          "y": 0
+        },
+        "props": {
+          "path": "Symbol-Views/Equipment-Views/Status",
+          "params": {
+            "directionLeft": false,
+            "forceFaultStatus": null,
+            "forceRunningStatus": null,
+            "tagProps": [
+              "DF410/BL02_383",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value"
+            ]
+          }
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "g115-1-7-4"
+        },
+        "position": {
+          "height": 16,
+          "width": 16,
+          "x": 0,
+          "y": 0
+        },
+        "props": {
+          "path": "Symbol-Views/Equipment-Views/Status",
+          "params": {
+            "directionLeft": false,
+            "forceFaultStatus": null,
+            "forceRunningStatus": null,
+            "tagProps": [
+              "DF410/BL02_383",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value"
+            ]
+          }
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "g112-0-1-8"
+        },
+        "position": {
+          "height": 16,
+          "width": 16,
+          "x": 0,
+          "y": 0
+        },
+        "props": {
+          "path": "Symbol-Views/Equipment-Views/Status",
+          "params": {
+            "directionLeft": false,
+            "forceFaultStatus": null,
+            "forceRunningStatus": null,
+            "tagProps": [
+              "DF410/BL02_383",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value"
+            ]
+          }
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "path111-8-0-1"
+        },
+        "position": {
+          "height": 16,
+          "width": 16,
+          "x": 0,
+          "y": 0
+        },
+        "props": {
+          "path": "Symbol-Views/Equipment-Views/Status",
+          "params": {
+            "directionLeft": false,
+            "forceFaultStatus": null,
+            "forceRunningStatus": null,
+            "tagProps": [
+              "DF410/BL02_383",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value"
+            ]
+          }
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "g115-1-7"
+        },
+        "position": {
+          "height": 16,
+          "width": 16,
+          "x": 0,
+          "y": 0
+        },
+        "props": {
+          "path": "Symbol-Views/Equipment-Views/Status",
+          "params": {
+            "directionLeft": false,
+            "forceFaultStatus": null,
+            "forceRunningStatus": null,
+            "tagProps": [
+              "DF410/BL02_383",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value"
+            ]
+          }
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "g112-0-1"
+        },
+        "position": {
+          "height": 16,
+          "width": 16,
+          "x": 0,
+          "y": 0
+        },
+        "props": {
+          "path": "Symbol-Views/Equipment-Views/Status",
+          "params": {
+            "directionLeft": false,
+            "forceFaultStatus": null,
+            "forceRunningStatus": null,
+            "tagProps": [
+              "DF410/BL02_383",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value"
+            ]
+          }
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "path111-8-0"
+        },
+        "position": {
+          "height": 16,
+          "width": 16,
+          "x": 0,
+          "y": 0
         },
         "props": {
           "path": "Symbol-Views/Equipment-Views/Status",
@@ -103,10 +1735,10 @@
           "name": "rect222-4-2-9-2-3-5-5-9-4-6-5-6-3-4-3-6-4-3"
         },
         "position": {
-          "height": 14,
-          "width": 14,
-          "x": 763.3213714999999,
-          "y": 707.505985
+          "height": 16,
+          "width": 16,
+          "x": 0,
+          "y": 0
         },
         "props": {
           "path": "Symbol-Views/Equipment-Views/Status",
@@ -135,10 +1767,10 @@
           "name": "rect222-4-2-9-2-3-5-5-9-4-6-5-6-5-1"
         },
         "position": {
-          "height": 14,
-          "width": 14,
-          "x": 835.9308035,
-          "y": 688.708714
+          "height": 16,
+          "width": 16,
+          "x": 0,
+          "y": 0
         },
         "props": {
           "path": "Symbol-Views/Equipment-Views/Status",
@@ -167,10 +1799,10 @@
           "name": "rect222-4-2-9-2-3-5-5-9-4-6-5-6-5-1-7"
         },
         "position": {
-          "height": 14,
-          "width": 14,
-          "x": 645.19187,
-          "y": 687.3374975
+          "height": 16,
+          "width": 16,
+          "x": 0,
+          "y": 0
         },
         "props": {
           "path": "Symbol-Views/Equipment-Views/Status",
@@ -199,10 +1831,10 @@
           "name": "rect222-4-2-9-2-3-5-5-9-4-6-5-6-3-4-3-6-4-3-7"
         },
         "position": {
-          "height": 14,
-          "width": 14,
-          "x": 1200.7136600000001,
-          "y": 801.252685
+          "height": 16,
+          "width": 16,
+          "x": 0,
+          "y": 0
         },
         "props": {
           "path": "Symbol-Views/Equipment-Views/Status",
@@ -231,10 +1863,10 @@
           "name": "rect222-4-2-9-2-3-5-5-9-4-6-5-6-3-4-3-6-4"
         },
         "position": {
-          "height": 14,
-          "width": 14,
-          "x": 763.3058514999999,
-          "y": 837.5242850000001
+          "height": 16,
+          "width": 16,
+          "x": 0,
+          "y": 0
         },
         "props": {
           "path": "Symbol-Views/Equipment-Views/Status",
@@ -263,10 +1895,10 @@
           "name": "rect222-4-2-9-2-3-5-5-9-4-6-5-6-3-4-3-6-5"
         },
         "position": {
-          "height": 14,
-          "width": 14,
-          "x": 759.9196365,
-          "y": 905.700859
+          "height": 16,
+          "width": 16,
+          "x": 0,
+          "y": 0
         },
         "props": {
           "path": "Symbol-Views/Equipment-Views/Status",
@@ -295,10 +1927,10 @@
           "name": "rect222-4-2-9-2-3-5-5-9-4-6-5-6-3-4-3-6-1"
         },
         "position": {
-          "height": 14,
-          "width": 14,
-          "x": 841.9880599999999,
-          "y": 476.44716750000003
+          "height": 16,
+          "width": 16,
+          "x": 0,
+          "y": 0
         },
         "props": {
           "path": "Symbol-Views/Equipment-Views/Status",
@@ -327,10 +1959,10 @@
           "name": "rect222-4-2-9-2-3-5-5-9-4-6-5-6-3-4-3-0"
         },
         "position": {
-          "height": 14,
-          "width": 14,
-          "x": 924.1688375,
-          "y": 454.72467150000006
+          "height": 16,
+          "width": 16,
+          "x": 0,
+          "y": 0
         },
         "props": {
           "path": "Symbol-Views/Equipment-Views/Status",
@@ -359,10 +1991,10 @@
           "name": "rect222-4-2-9-2-3-5-5-9-4-6-5-6-3-4-3-6"
         },
         "position": {
-          "height": 14,
-          "width": 14,
-          "x": 924.579483,
-          "y": 298.33125000000007
+          "height": 16,
+          "width": 16,
+          "x": 0,
+          "y": 0
         },
         "props": {
           "path": "Symbol-Views/Equipment-Views/Status",
@@ -391,10 +2023,10 @@
           "name": "rect222-4-2-9-2-3-5-5-9-4-6-5-6-3-4-6"
         },
         "position": {
-          "height": 14,
-          "width": 14,
-          "x": 1806.959003,
-          "y": 224.1578050000001
+          "height": 16,
+          "width": 16,
+          "x": 0,
+          "y": 0
         },
         "props": {
           "path": "Symbol-Views/Equipment-Views/Status",
@@ -423,10 +2055,10 @@
           "name": "rect222-4-2-9-2-3-5-5-9-4-6-5-6-3-4-3"
         },
         "position": {
-          "height": 14,
-          "width": 14,
-          "x": 924.507294,
-          "y": 137.30626400000006
+          "height": 16,
+          "width": 16,
+          "x": 0,
+          "y": 0
         },
         "props": {
           "path": "Symbol-Views/Equipment-Views/Status",
@@ -455,10 +2087,10 @@
           "name": "rect222-4-2-9-2-3-5-5-9-4-6-5-6-3-1"
         },
         "position": {
-          "height": 14,
-          "width": 14,
-          "x": 1147.6525535,
-          "y": 40.72738250000007
+          "height": 16,
+          "width": 16,
+          "x": 0,
+          "y": 0
         },
         "props": {
           "path": "Symbol-Views/Equipment-Views/Status",
@@ -487,10 +2119,10 @@
           "name": "rect222-4-2-9-2-3-5-5-9-4-6-5-6-3-2"
         },
         "position": {
-          "height": 14,
-          "width": 14,
-          "x": 1055.32987,
-          "y": 83.609229
+          "height": 16,
+          "width": 16,
+          "x": 0,
+          "y": 0
         },
         "props": {
           "path": "Symbol-Views/Equipment-Views/Status",
@@ -519,10 +2151,10 @@
           "name": "rect222-4-2-9-2-3-5-5-9-4-6-5-6-3-4"
         },
         "position": {
-          "height": 14,
-          "width": 14,
-          "x": 816.975453,
-          "y": 42.87846000000005
+          "height": 16,
+          "width": 16,
+          "x": 0,
+          "y": 0
         },
         "props": {
           "path": "Symbol-Views/Equipment-Views/Status",
@@ -551,10 +2183,10 @@
           "name": "rect222-4-2-9-2-3-5-5-9-4-6-5-6-3"
         },
         "position": {
-          "height": 14,
-          "width": 14,
-          "x": 849.243255,
-          "y": 84.0512265
+          "height": 16,
+          "width": 16,
+          "x": 0,
+          "y": 0
         },
         "props": {
           "path": "Symbol-Views/Equipment-Views/Status",
@@ -583,10 +2215,42 @@
           "name": "rect222-4-2-9-2-3-5-5-9-4-6-5-6"
         },
         "position": {
-          "height": 14,
-          "width": 14,
-          "x": 985.1786255,
-          "y": 853.0012050000001
+          "height": 16,
+          "width": 16,
+          "x": 0,
+          "y": 0
+        },
+        "props": {
+          "path": "Symbol-Views/Equipment-Views/Status",
+          "params": {
+            "directionLeft": false,
+            "forceFaultStatus": null,
+            "forceRunningStatus": null,
+            "tagProps": [
+              "DF410/BL02_383",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value"
+            ]
+          }
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "path1-6-3"
+        },
+        "position": {
+          "height": 16,
+          "width": 16,
+          "x": 0,
+          "y": 0
         },
         "props": {
           "path": "Symbol-Views/Equipment-Views/Status",
@@ -615,10 +2279,10 @@
           "name": "rect222-4-2-9-2-3-5-5-9-4-6-5-6-5"
         },
         "position": {
-          "height": 14,
-          "width": 14,
-          "x": 943.6724,
-          "y": 688.247178
+          "height": 16,
+          "width": 16,
+          "x": 0,
+          "y": 0
         },
         "props": {
           "path": "Symbol-Views/Equipment-Views/Status",
@@ -647,10 +2311,10 @@
           "name": "rect222-4-2-9-2-3-5-5-9-4-6"
         },
         "position": {
-          "height": 14,
-          "width": 14,
-          "x": 1069.6666664999998,
-          "y": 1014.58185
+          "height": 16,
+          "width": 16,
+          "x": 0,
+          "y": 0
         },
         "props": {
           "path": "Symbol-Views/Equipment-Views/Status",
@@ -679,10 +2343,10 @@
           "name": "rect222-4-2-9-2-3-5-5-9-4-6-5"
         },
         "position": {
-          "height": 14,
-          "width": 14,
-          "x": 934.025025,
-          "y": 1014.360342
+          "height": 16,
+          "width": 16,
+          "x": 0,
+          "y": 0
         },
         "props": {
           "path": "Symbol-Views/Equipment-Views/Status",
@@ -711,10 +2375,10 @@
           "name": "rect222-4-2-9-2-3-5-5"
         },
         "position": {
-          "height": 14,
-          "width": 14,
-          "x": 419.77184,
-          "y": 906.5693275
+          "height": 16,
+          "width": 16,
+          "x": 0,
+          "y": 0
         },
         "props": {
           "path": "Symbol-Views/Equipment-Views/Status",
@@ -743,10 +2407,10 @@
           "name": "rect222-4-2-9-2-3-5-5-9"
         },
         "position": {
-          "height": 14,
-          "width": 14,
-          "x": 627.2355399999999,
-          "y": 906.5886135
+          "height": 16,
+          "width": 16,
+          "x": 0,
+          "y": 0
         },
         "props": {
           "path": "Symbol-Views/Equipment-Views/Status",
@@ -775,10 +2439,10 @@
           "name": "rect222-4-2-9-2-3-5-5-9-4"
         },
         "position": {
-          "height": 14,
-          "width": 14,
-          "x": 828.891965,
-          "y": 907.0003255
+          "height": 16,
+          "width": 16,
+          "x": 0,
+          "y": 0
         },
         "props": {
           "path": "Symbol-Views/Equipment-Views/Status",
@@ -807,10 +2471,10 @@
           "name": "rect222-4-2-9-2-3-0"
         },
         "position": {
-          "height": 14,
-          "width": 14,
-          "x": 315.10603100000003,
-          "y": 781.21577
+          "height": 16,
+          "width": 16,
+          "x": 0,
+          "y": 0
         },
         "props": {
           "path": "Symbol-Views/Equipment-Views/Status",
@@ -839,10 +2503,10 @@
           "name": "rect222-4-2-9-2-3-5"
         },
         "position": {
-          "height": 14,
-          "width": 14,
-          "x": 432.676545,
-          "y": 685.6919065
+          "height": 16,
+          "width": 16,
+          "x": 0,
+          "y": 0
         },
         "props": {
           "path": "Symbol-Views/Equipment-Views/Status",
@@ -871,10 +2535,10 @@
           "name": "rect222-6-4"
         },
         "position": {
-          "height": 14,
-          "width": 14,
-          "x": 460.5176665,
-          "y": 654.748598
+          "height": 16,
+          "width": 16,
+          "x": 0,
+          "y": 0
         },
         "props": {
           "path": "Symbol-Views/Equipment-Views/Status",
@@ -903,10 +2567,10 @@
           "name": "rect222-6-4-4"
         },
         "position": {
-          "height": 14,
-          "width": 14,
-          "x": 491.76751650000006,
-          "y": 654.578978
+          "height": 16,
+          "width": 16,
+          "x": 0,
+          "y": 0
         },
         "props": {
           "path": "Symbol-Views/Equipment-Views/Status",
@@ -935,10 +2599,10 @@
           "name": "rect222-6-4-4-8"
         },
         "position": {
-          "height": 14,
-          "width": 14,
-          "x": 523.5809665,
-          "y": 654.280758
+          "height": 16,
+          "width": 16,
+          "x": 0,
+          "y": 0
         },
         "props": {
           "path": "Symbol-Views/Equipment-Views/Status",
@@ -967,10 +2631,10 @@
           "name": "rect222-6"
         },
         "position": {
-          "height": 14,
-          "width": 14,
-          "x": 429.01101650000004,
-          "y": 654.5098280000001
+          "height": 16,
+          "width": 16,
+          "x": 0,
+          "y": 0
         },
         "props": {
           "path": "Symbol-Views/Equipment-Views/Status",
@@ -999,10 +2663,10 @@
           "name": "rect222-4-2-9-2-3-6-3-0-6-9"
         },
         "position": {
-          "height": 14,
-          "width": 14,
-          "x": 1646.375665,
-          "y": 103.9483395
+          "height": 16,
+          "width": 16,
+          "x": 0,
+          "y": 0
         },
         "props": {
           "path": "Symbol-Views/Equipment-Views/Status",
@@ -1031,10 +2695,10 @@
           "name": "rect222-4-2-9-2-3-6-3-0-6"
         },
         "position": {
-          "height": 14,
-          "width": 14,
-          "x": 1383.081365,
-          "y": 103.962457
+          "height": 16,
+          "width": 16,
+          "x": 0,
+          "y": 0
         },
         "props": {
           "path": "Symbol-Views/Equipment-Views/Status",
@@ -1063,10 +2727,10 @@
           "name": "rect222-4-2-9-2-3-6-3"
         },
         "position": {
-          "height": 14,
-          "width": 14,
-          "x": 811.26998,
-          "y": 103.86741
+          "height": 16,
+          "width": 16,
+          "x": 0,
+          "y": 0
         },
         "props": {
           "path": "Symbol-Views/Equipment-Views/Status",
@@ -1095,10 +2759,10 @@
           "name": "rect222-4-2-9-2-3-6-3-0"
         },
         "position": {
-          "height": 14,
-          "width": 14,
-          "x": 1071.6896,
-          "y": 103.9342635
+          "height": 16,
+          "width": 16,
+          "x": 0,
+          "y": 0
         },
         "props": {
           "path": "Symbol-Views/Equipment-Views/Status",
@@ -1127,10 +2791,10 @@
           "name": "rect222-4-2-9-2-3-6"
         },
         "position": {
-          "height": 14,
-          "width": 14,
-          "x": 734.4071280000001,
-          "y": 196.51200499999993
+          "height": 16,
+          "width": 16,
+          "x": 0,
+          "y": 0
         },
         "props": {
           "path": "Symbol-Views/Equipment-Views/Status",
@@ -1159,10 +2823,10 @@
           "name": "rect222-4-2-9-2-3"
         },
         "position": {
-          "height": 14,
-          "width": 14,
-          "x": 734.287608,
-          "y": 380.16083999999995
+          "height": 16,
+          "width": 16,
+          "x": 0,
+          "y": 0
         },
         "props": {
           "path": "Symbol-Views/Equipment-Views/Status",
@@ -1191,10 +2855,10 @@
           "name": "rect222-4-2"
         },
         "position": {
-          "height": 14,
-          "width": 14,
-          "x": 517.0343525,
-          "y": 344.4451719999999
+          "height": 16,
+          "width": 16,
+          "x": 0,
+          "y": 0
         },
         "props": {
           "path": "Symbol-Views/Equipment-Views/Status",
@@ -1223,10 +2887,10 @@
           "name": "rect222-4-2-9"
         },
         "position": {
-          "height": 14,
-          "width": 14,
-          "x": 566.0515025,
-          "y": 343.8771519999999
+          "height": 16,
+          "width": 16,
+          "x": 0,
+          "y": 0
         },
         "props": {
           "path": "Symbol-Views/Equipment-Views/Status",
@@ -1255,10 +2919,10 @@
           "name": "rect222-4-2-9-2"
         },
         "position": {
-          "height": 14,
-          "width": 14,
-          "x": 597.0982025,
-          "y": 344.17723199999995
+          "height": 16,
+          "width": 16,
+          "x": 0,
+          "y": 0
         },
         "props": {
           "path": "Symbol-Views/Equipment-Views/Status",
@@ -1287,10 +2951,10 @@
           "name": "rect222-4"
         },
         "position": {
-          "height": 14,
-          "width": 14,
-          "x": 484.9064825,
-          "y": 344.29777199999995
+          "height": 16,
+          "width": 16,
+          "x": 0,
+          "y": 0
         },
         "props": {
           "path": "Symbol-Views/Equipment-Views/Status",
@@ -1319,10 +2983,10 @@
           "name": "rect222-2-5-3"
         },
         "position": {
-          "height": 14,
-          "width": 14,
-          "x": 693.291474,
-          "y": 316.7169375
+          "height": 16,
+          "width": 16,
+          "x": 0,
+          "y": 0
         },
         "props": {
           "path": "Symbol-Views/Equipment-Views/Status",
@@ -1351,10 +3015,10 @@
           "name": "rect222-2-5"
         },
         "position": {
-          "height": 14,
-          "width": 14,
-          "x": 597.661795,
-          "y": 317.2244085
+          "height": 16,
+          "width": 16,
+          "x": 0,
+          "y": 0
         },
         "props": {
           "path": "Symbol-Views/Equipment-Views/Status",
@@ -1383,10 +3047,74 @@
           "name": "rect222-2"
         },
         "position": {
-          "height": 14,
-          "width": 14,
-          "x": 473.43964500000004,
-          "y": 317.3831015
+          "height": 16,
+          "width": 16,
+          "x": 0,
+          "y": 0
+        },
+        "props": {
+          "path": "Symbol-Views/Equipment-Views/Status",
+          "params": {
+            "directionLeft": false,
+            "forceFaultStatus": null,
+            "forceRunningStatus": null,
+            "tagProps": [
+              "DF410/BL02_383",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value"
+            ]
+          }
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "g224-1"
+        },
+        "position": {
+          "height": 16,
+          "width": 16,
+          "x": 0,
+          "y": 0
+        },
+        "props": {
+          "path": "Symbol-Views/Equipment-Views/Status",
+          "params": {
+            "directionLeft": false,
+            "forceFaultStatus": null,
+            "forceRunningStatus": null,
+            "tagProps": [
+              "DF410/BL02_383",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value"
+            ]
+          }
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "g223-0"
+        },
+        "position": {
+          "height": 16,
+          "width": 16,
+          "x": 0,
+          "y": 0
         },
         "props": {
           "path": "Symbol-Views/Equipment-Views/Status",
@@ -1415,10 +3143,10 @@
           "name": "rect222-5"
         },
         "position": {
-          "height": 14,
-          "width": 14,
-          "x": 28.642230578947903,
-          "y": 172.55452927583653
+          "height": 16,
+          "width": 16,
+          "x": 0,
+          "y": 0
         },
         "props": {
           "path": "Symbol-Views/Equipment-Views/Status",
@@ -1447,10 +3175,74 @@
           "name": "rect12"
         },
         "position": {
-          "height": 14,
-          "width": 14,
-          "x": 1198.168580665,
-          "y": 381.237849295
+          "height": 16,
+          "width": 16,
+          "x": 0,
+          "y": 0
+        },
+        "props": {
+          "path": "Symbol-Views/Equipment-Views/Status",
+          "params": {
+            "directionLeft": false,
+            "forceFaultStatus": null,
+            "forceRunningStatus": null,
+            "tagProps": [
+              "DF410/BL02_383",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value"
+            ]
+          }
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "path208-9-1-2-1-8-1"
+        },
+        "position": {
+          "height": 16,
+          "width": 16,
+          "x": 0,
+          "y": 0
+        },
+        "props": {
+          "path": "Symbol-Views/Equipment-Views/Status",
+          "params": {
+            "directionLeft": false,
+            "forceFaultStatus": null,
+            "forceRunningStatus": null,
+            "tagProps": [
+              "DF410/BL02_383",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value",
+              "value"
+            ]
+          }
+        },
+        "type": "ia.display.view"
+      },
+      {
+        "meta": {
+          "name": "path208-9-1-2-1-4-5-5"
+        },
+        "position": {
+          "height": 16,
+          "width": 16,
+          "x": 0,
+          "y": 0
         },
         "props": {
           "path": "Symbol-Views/Equipment-Views/Status",
@@ -1479,10 +3271,10 @@
           "name": "rect222-2-8"
         },
         "position": {
-          "height": 14,
-          "width": 14,
-          "x": 228.43387,
-          "y": 317.4857175
+          "height": 16,
+          "width": 16,
+          "x": 0,
+          "y": 0
         },
         "props": {
           "path": "Symbol-Views/Equipment-Views/Status",
@@ -1509,11 +3301,6 @@
     ],
     "meta": {
       "name": "root"
-    },
-    "props": {
-      "style": {
-        "overflow": "hidden"
-      }
     },
     "type": "ia.container.coord"
   }
