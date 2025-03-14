@@ -1,14 +1,27 @@
-automation_standard_logo.jpg
-autstand_icon.ico
-dist
-build
+# Build artifacts
+dist/
+build/
+*.spec
+__pycache__/
 *.pyc
 *.pyo
 *.pyd
 *.pyw
 *.pyz
 *.exe
-*.spec
+
+# Test artifacts
+.pytest_cache/
+.coverage
+htmlcov/
+coverage.xml
+
+# Project specific files
+app_config.json
+MTN6_SCADA_*
+MTN6_SCADAa_*
+
+# Image files (as needed)
 *.ico
 *.jpg
 *.png
@@ -16,3 +29,6 @@ build
 *.bmp
 *.tiff
 *.jpeg
+
+# macOS specific
+.DS_Store
