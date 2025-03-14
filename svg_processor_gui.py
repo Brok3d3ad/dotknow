@@ -8,6 +8,31 @@ from contextlib import redirect_stdout
 from incscape_transform import SVGTransformer
 from PIL import Image, ImageTk  # For handling images
 
+# Config file path
+CONFIG_DIR = os.path.dirname(os.path.abspath(__file__))
+CONFIG_FILE = os.path.join(CONFIG_DIR, "app_config.json")
+
+# Initialize config with default values
+DEFAULT_CONFIG = {
+    'file_path': '',
+    'element_type': 'ia.display.view',
+    'props_path': 'Symbol-Views/Equipment-Views/Status',
+    'element_width': '14',
+    'element_height': '14'
+}
+
+# Ensure config directory exists
+os.makedirs(CONFIG_DIR, exist_ok=True)
+
+# Create default config file if it doesn't exist
+if not os.path.exists(CONFIG_FILE):
+    try:
+        with open(CONFIG_FILE, 'w') as config_file:
+            json.dump(DEFAULT_CONFIG, config_file, indent=4)
+        print(f"Created default configuration file at {CONFIG_FILE}")
+    except Exception as e:
+        print(f"Error creating default configuration file: {e}")
+
 class RedirectText:
     """Redirect stdout to a tkinter widget."""
     def __init__(self, text_widget):
@@ -202,6 +227,12 @@ class SVGProcessorApp:
         self.clear_button = ttk.Button(self.action_frame, text="Clear Results", command=self.clear_results)
         self.clear_button.pack(side=tk.LEFT, padx=3)  # Reduced padding
         
+        # Load saved configuration
+        self.load_config()
+        
+        # Register window close event
+        self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
+        
         # Status bar
         self.status_var = tk.StringVar()
         self.status_var.set("Ready")
@@ -391,6 +422,73 @@ class SVGProcessorApp:
         self.results_text.delete(1.0, tk.END)
         self.elements = []
         self.status_var.set("Results cleared.")
+    
+    def on_closing(self):
+        """Save configuration and close the window."""
+        self.save_config()
+        self.root.destroy()
+        
+    def save_config(self):
+        """Save application state to a configuration file."""
+        config = {
+            'file_path': self.file_path.get(),
+            'element_type': self.element_type.get(),
+            'props_path': self.props_path.get(),
+            'element_width': self.element_width.get(),
+            'element_height': self.element_height.get()
+        }
+        
+        try:
+            # Ensure the directory exists
+            os.makedirs(os.path.dirname(CONFIG_FILE), exist_ok=True)
+            
+            with open(CONFIG_FILE, 'w') as config_file:
+                json.dump(config, config_file, indent=4)
+            print(f"Configuration saved to {CONFIG_FILE}")
+        except Exception as e:
+            print(f"Error saving configuration: {e}")
+    
+    def load_config(self):
+        """Load application state from the configuration file."""
+        if not os.path.exists(CONFIG_FILE):
+            print("No saved configuration found, using default values.")
+            # Create a default configuration file
+            self.save_config()
+            return
+            
+        try:
+            with open(CONFIG_FILE, 'r') as config_file:
+                config = json.load(config_file)
+                
+            # Update form fields with saved values
+            if config.get('file_path'):
+                self.file_path.set(config['file_path'])
+                
+            if config.get('element_type'):
+                self.element_type.set(config['element_type'])
+                
+            if config.get('props_path'):
+                self.props_path.set(config['props_path'])
+                
+            if config.get('element_width'):
+                self.element_width.set(config['element_width'])
+                
+            if config.get('element_height'):
+                self.element_height.set(config['element_height'])
+                
+            print(f"Configuration loaded from {CONFIG_FILE}")
+            print(f"Loaded values:")
+            print(f"  File path: {config.get('file_path', 'Not set')}")
+            print(f"  Element type: {config.get('element_type', 'Not set')}")
+            print(f"  Props path: {config.get('props_path', 'Not set')}")
+            print(f"  Width: {config.get('element_width', 'Not set')}")
+            print(f"  Height: {config.get('element_height', 'Not set')}")
+        except Exception as e:
+            print(f"Error loading configuration: {e}")
+            print("Creating new configuration file with default values.")
+            # If there's an error loading the config (e.g., corrupted JSON),
+            # create a new one with default values
+            self.save_config()
 
 def main():
     """Main entry point for the application."""
