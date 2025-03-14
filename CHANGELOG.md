@@ -96,3 +96,9 @@ This project is an SVG to JSON processor tool designed for automation standards.
   - Added temporary directory handling for building project structure
   - Implemented clean zip file creation with proper relative paths
   - Improved user experience with file save dialog for selecting zip location 
+
+### 2024-06-03
+- Repository cleanup:
+  - Removed duplicate incorrectly named 'incscape_transform.py' file
+  - Ensured consistency by keeping only the correctly named 'inkscape_transform.py'
+  - Verified all imports are using the correct file name 
