@@ -45,16 +45,17 @@ class SVGProcessorApp:
         
         # Load and display the logo
         try:
-            # Look for the logo in the application directory
+            # Look specifically for the logo specified for in-app display
             logo_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "automation_standard_logo.jpg")
             if not os.path.exists(logo_path):
-                # Try alternate locations
-                for alt_path in ["automation_standard_logo.jpg", "app_icon.ico"]:
-                    if os.path.exists(alt_path):
-                        logo_path = alt_path
-                        break
+                # Try current directory
+                if os.path.exists("automation_standard_logo.jpg"):
+                    logo_path = "automation_standard_logo.jpg"
+                else:
+                    # We don't want to use the .ico file for the in-app logo
+                    logo_path = None
             
-            if os.path.exists(logo_path):
+            if logo_path and os.path.exists(logo_path):
                 # Load and resize the image
                 logo_img = Image.open(logo_path)
                 # Calculate new dimensions while maintaining aspect ratio
@@ -233,12 +234,12 @@ class SVGProcessorApp:
     def set_window_icon(self):
         """Set the window icon to the autStand logo."""
         try:
-            # Look for icon files in various locations
+            # Prioritize the autStand_ic0n.ico file for the window/tray icon
             icon_paths = [
+                os.path.join(os.path.dirname(os.path.abspath(__file__)), "autStand_ic0n.ico"),
+                "autStand_ic0n.ico",  # Try current directory with exact case
                 os.path.join(os.path.dirname(os.path.abspath(__file__)), "autstand_icon.ico"),
-                "autstand_icon.ico",
-                os.path.join(os.path.dirname(os.path.abspath(__file__)), "automation_standard_logo.jpg"),
-                "automation_standard_logo.jpg"
+                "autstand_icon.ico"   # Fallback to alternate case
             ]
             
             # Try each path until we find a valid icon file
@@ -249,18 +250,25 @@ class SVGProcessorApp:
                         self.root.iconbitmap(icon_path)
                         print(f"Set window icon from: {icon_path}")
                         return
-                    
-                    # For .jpg or other image formats, convert to PhotoImage
-                    elif icon_path.endswith('.jpg') or icon_path.endswith('.png'):
-                        icon_img = Image.open(icon_path)
-                        # Resize to standard icon size
-                        icon_img = icon_img.resize((32, 32), Image.LANCZOS)
-                        icon_photo = ImageTk.PhotoImage(icon_img)
-                        self.root.iconphoto(True, icon_photo)
-                        # Keep a reference to prevent garbage collection
-                        self.icon_photo = icon_photo
-                        print(f"Set window icon from: {icon_path}")
-                        return
+            
+            # Only if .ico files are not found, fall back to using the jpg logo as icon
+            jpg_paths = [
+                os.path.join(os.path.dirname(os.path.abspath(__file__)), "automation_standard_logo.jpg"),
+                "automation_standard_logo.jpg"
+            ]
+            
+            for icon_path in jpg_paths:
+                if os.path.exists(icon_path):
+                    # Convert .jpg to PhotoImage for icon
+                    icon_img = Image.open(icon_path)
+                    # Resize to standard icon size
+                    icon_img = icon_img.resize((32, 32), Image.LANCZOS)
+                    icon_photo = ImageTk.PhotoImage(icon_img)
+                    self.root.iconphoto(True, icon_photo)
+                    # Keep a reference to prevent garbage collection
+                    self.icon_photo = icon_photo
+                    print(f"Set window icon from: {icon_path}")
+                    return
             
             print("No suitable icon file found for window icon")
         except Exception as e:
