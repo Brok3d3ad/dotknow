@@ -1,0 +1,1658 @@
+[
+  {
+    "type": "ia.display.view",
+    "version": 0,
+    "props": {
+      "path": "Symbol-Views/Equipment-Views/Status",
+      "params": {
+        "directionLeft": false,
+        "forceFaultStatus": null,
+        "forceRunningStatus": null,
+        "tagProps": [
+          "rect1",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value"
+        ]
+      }
+    },
+    "meta": {
+      "name": "rect1",
+      "originalName": "rect222-4-2-9-2-3-5-5-9-4-6-5-6-3-4-3-6-4-3-9-0",
+      "rectNumber": 1
+    },
+    "position": {
+      "x": 1095.058155,
+      "y": 907.322945,
+      "height": 14,
+      "width": 14
+    },
+    "custom": {}
+  },
+  {
+    "type": "ia.display.view",
+    "version": 0,
+    "props": {
+      "path": "Symbol-Views/Equipment-Views/Status",
+      "params": {
+        "directionLeft": false,
+        "forceFaultStatus": null,
+        "forceRunningStatus": null,
+        "tagProps": [
+          "rect2",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value"
+        ]
+      }
+    },
+    "meta": {
+      "name": "rect2",
+      "originalName": "rect222-4-2-9-2-3-5-5-9-4-6-5-6-3-4-3-6-4-3-2",
+      "rectNumber": 2
+    },
+    "position": {
+      "x": 922.9823345,
+      "y": 907.141921,
+      "height": 14,
+      "width": 14
+    },
+    "custom": {}
+  },
+  {
+    "type": "ia.display.view",
+    "version": 0,
+    "props": {
+      "path": "Symbol-Views/Equipment-Views/Status",
+      "params": {
+        "directionLeft": false,
+        "forceFaultStatus": null,
+        "forceRunningStatus": null,
+        "tagProps": [
+          "rect3",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value"
+        ]
+      }
+    },
+    "meta": {
+      "name": "rect3",
+      "originalName": "rect222-4-2-9-2-3-5-5-9-4-6-5-6-3-4-3-6-4-3",
+      "rectNumber": 3
+    },
+    "position": {
+      "x": 763.3213714999999,
+      "y": 707.505985,
+      "height": 14,
+      "width": 14
+    },
+    "custom": {}
+  },
+  {
+    "type": "ia.display.view",
+    "version": 0,
+    "props": {
+      "path": "Symbol-Views/Equipment-Views/Status",
+      "params": {
+        "directionLeft": false,
+        "forceFaultStatus": null,
+        "forceRunningStatus": null,
+        "tagProps": [
+          "rect4",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value"
+        ]
+      }
+    },
+    "meta": {
+      "name": "rect4",
+      "originalName": "rect222-4-2-9-2-3-5-5-9-4-6-5-6-5-1",
+      "rectNumber": 4
+    },
+    "position": {
+      "x": 835.9308035,
+      "y": 688.708714,
+      "height": 14,
+      "width": 14
+    },
+    "custom": {}
+  },
+  {
+    "type": "ia.display.view",
+    "version": 0,
+    "props": {
+      "path": "Symbol-Views/Equipment-Views/Status",
+      "params": {
+        "directionLeft": false,
+        "forceFaultStatus": null,
+        "forceRunningStatus": null,
+        "tagProps": [
+          "rect5",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value"
+        ]
+      }
+    },
+    "meta": {
+      "name": "rect5",
+      "originalName": "rect222-4-2-9-2-3-5-5-9-4-6-5-6-5-1-7",
+      "rectNumber": 5
+    },
+    "position": {
+      "x": 645.19187,
+      "y": 687.3374975,
+      "height": 14,
+      "width": 14
+    },
+    "custom": {}
+  },
+  {
+    "type": "ia.display.view",
+    "version": 0,
+    "props": {
+      "path": "Symbol-Views/Equipment-Views/Status",
+      "params": {
+        "directionLeft": false,
+        "forceFaultStatus": null,
+        "forceRunningStatus": null,
+        "tagProps": [
+          "rect6",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value"
+        ]
+      }
+    },
+    "meta": {
+      "name": "rect6",
+      "originalName": "rect222-4-2-9-2-3-5-5-9-4-6-5-6-3-4-3-6-4-3-7",
+      "rectNumber": 6
+    },
+    "position": {
+      "x": 1200.7136600000001,
+      "y": 801.252685,
+      "height": 14,
+      "width": 14
+    },
+    "custom": {}
+  },
+  {
+    "type": "ia.display.view",
+    "version": 0,
+    "props": {
+      "path": "Symbol-Views/Equipment-Views/Status",
+      "params": {
+        "directionLeft": false,
+        "forceFaultStatus": null,
+        "forceRunningStatus": null,
+        "tagProps": [
+          "rect7",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value"
+        ]
+      }
+    },
+    "meta": {
+      "name": "rect7",
+      "originalName": "rect222-4-2-9-2-3-5-5-9-4-6-5-6-3-4-3-6-4",
+      "rectNumber": 7
+    },
+    "position": {
+      "x": 763.3058514999999,
+      "y": 837.5242850000001,
+      "height": 14,
+      "width": 14
+    },
+    "custom": {}
+  },
+  {
+    "type": "ia.display.view",
+    "version": 0,
+    "props": {
+      "path": "Symbol-Views/Equipment-Views/Status",
+      "params": {
+        "directionLeft": false,
+        "forceFaultStatus": null,
+        "forceRunningStatus": null,
+        "tagProps": [
+          "rect8",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value"
+        ]
+      }
+    },
+    "meta": {
+      "name": "rect8",
+      "originalName": "rect222-4-2-9-2-3-5-5-9-4-6-5-6-3-4-3-6-5",
+      "rectNumber": 8
+    },
+    "position": {
+      "x": 759.9196365,
+      "y": 905.700859,
+      "height": 14,
+      "width": 14
+    },
+    "custom": {}
+  },
+  {
+    "type": "ia.display.view",
+    "version": 0,
+    "props": {
+      "path": "Symbol-Views/Equipment-Views/Status",
+      "params": {
+        "directionLeft": false,
+        "forceFaultStatus": null,
+        "forceRunningStatus": null,
+        "tagProps": [
+          "rect9",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value"
+        ]
+      }
+    },
+    "meta": {
+      "name": "rect9",
+      "originalName": "rect222-4-2-9-2-3-5-5-9-4-6-5-6-3-4-3-6-1",
+      "rectNumber": 9
+    },
+    "position": {
+      "x": 841.9880599999999,
+      "y": 476.44716750000003,
+      "height": 14,
+      "width": 14
+    },
+    "custom": {}
+  },
+  {
+    "type": "ia.display.view",
+    "version": 0,
+    "props": {
+      "path": "Symbol-Views/Equipment-Views/Status",
+      "params": {
+        "directionLeft": false,
+        "forceFaultStatus": null,
+        "forceRunningStatus": null,
+        "tagProps": [
+          "rect10",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value"
+        ]
+      }
+    },
+    "meta": {
+      "name": "rect10",
+      "originalName": "rect222-4-2-9-2-3-5-5-9-4-6-5-6-3-4-3-0",
+      "rectNumber": 10
+    },
+    "position": {
+      "x": 924.1688375,
+      "y": 454.72467150000006,
+      "height": 14,
+      "width": 14
+    },
+    "custom": {}
+  },
+  {
+    "type": "ia.display.view",
+    "version": 0,
+    "props": {
+      "path": "Symbol-Views/Equipment-Views/Status",
+      "params": {
+        "directionLeft": false,
+        "forceFaultStatus": null,
+        "forceRunningStatus": null,
+        "tagProps": [
+          "rect11",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value"
+        ]
+      }
+    },
+    "meta": {
+      "name": "rect11",
+      "originalName": "rect222-4-2-9-2-3-5-5-9-4-6-5-6-3-4-3-6",
+      "rectNumber": 11
+    },
+    "position": {
+      "x": 924.579483,
+      "y": 298.33125000000007,
+      "height": 14,
+      "width": 14
+    },
+    "custom": {}
+  },
+  {
+    "type": "ia.display.view",
+    "version": 0,
+    "props": {
+      "path": "Symbol-Views/Equipment-Views/Status",
+      "params": {
+        "directionLeft": false,
+        "forceFaultStatus": null,
+        "forceRunningStatus": null,
+        "tagProps": [
+          "rect12",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value"
+        ]
+      }
+    },
+    "meta": {
+      "name": "rect12",
+      "originalName": "rect222-4-2-9-2-3-5-5-9-4-6-5-6-3-4-6",
+      "rectNumber": 12
+    },
+    "position": {
+      "x": 1806.959003,
+      "y": 224.1578050000001,
+      "height": 14,
+      "width": 14
+    },
+    "custom": {}
+  },
+  {
+    "type": "ia.display.view",
+    "version": 0,
+    "props": {
+      "path": "Symbol-Views/Equipment-Views/Status",
+      "params": {
+        "directionLeft": false,
+        "forceFaultStatus": null,
+        "forceRunningStatus": null,
+        "tagProps": [
+          "rect13",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value"
+        ]
+      }
+    },
+    "meta": {
+      "name": "rect13",
+      "originalName": "rect222-4-2-9-2-3-5-5-9-4-6-5-6-3-4-3",
+      "rectNumber": 13
+    },
+    "position": {
+      "x": 924.507294,
+      "y": 137.30626400000006,
+      "height": 14,
+      "width": 14
+    },
+    "custom": {}
+  },
+  {
+    "type": "ia.display.view",
+    "version": 0,
+    "props": {
+      "path": "Symbol-Views/Equipment-Views/Status",
+      "params": {
+        "directionLeft": false,
+        "forceFaultStatus": null,
+        "forceRunningStatus": null,
+        "tagProps": [
+          "rect14",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value"
+        ]
+      }
+    },
+    "meta": {
+      "name": "rect14",
+      "originalName": "rect222-4-2-9-2-3-5-5-9-4-6-5-6-3-1",
+      "rectNumber": 14
+    },
+    "position": {
+      "x": 1147.6525535,
+      "y": 40.72738250000007,
+      "height": 14,
+      "width": 14
+    },
+    "custom": {}
+  },
+  {
+    "type": "ia.display.view",
+    "version": 0,
+    "props": {
+      "path": "Symbol-Views/Equipment-Views/Status",
+      "params": {
+        "directionLeft": false,
+        "forceFaultStatus": null,
+        "forceRunningStatus": null,
+        "tagProps": [
+          "rect15",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value"
+        ]
+      }
+    },
+    "meta": {
+      "name": "rect15",
+      "originalName": "rect222-4-2-9-2-3-5-5-9-4-6-5-6-3-2",
+      "rectNumber": 15
+    },
+    "position": {
+      "x": 1055.32987,
+      "y": 83.609229,
+      "height": 14,
+      "width": 14
+    },
+    "custom": {}
+  },
+  {
+    "type": "ia.display.view",
+    "version": 0,
+    "props": {
+      "path": "Symbol-Views/Equipment-Views/Status",
+      "params": {
+        "directionLeft": false,
+        "forceFaultStatus": null,
+        "forceRunningStatus": null,
+        "tagProps": [
+          "rect16",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value"
+        ]
+      }
+    },
+    "meta": {
+      "name": "rect16",
+      "originalName": "rect222-4-2-9-2-3-5-5-9-4-6-5-6-3-4",
+      "rectNumber": 16
+    },
+    "position": {
+      "x": 816.975453,
+      "y": 42.87846000000005,
+      "height": 14,
+      "width": 14
+    },
+    "custom": {}
+  },
+  {
+    "type": "ia.display.view",
+    "version": 0,
+    "props": {
+      "path": "Symbol-Views/Equipment-Views/Status",
+      "params": {
+        "directionLeft": false,
+        "forceFaultStatus": null,
+        "forceRunningStatus": null,
+        "tagProps": [
+          "rect17",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value"
+        ]
+      }
+    },
+    "meta": {
+      "name": "rect17",
+      "originalName": "rect222-4-2-9-2-3-5-5-9-4-6-5-6-3",
+      "rectNumber": 17
+    },
+    "position": {
+      "x": 849.243255,
+      "y": 84.0512265,
+      "height": 14,
+      "width": 14
+    },
+    "custom": {}
+  },
+  {
+    "type": "ia.display.view",
+    "version": 0,
+    "props": {
+      "path": "Symbol-Views/Equipment-Views/Status",
+      "params": {
+        "directionLeft": false,
+        "forceFaultStatus": null,
+        "forceRunningStatus": null,
+        "tagProps": [
+          "rect18",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value"
+        ]
+      }
+    },
+    "meta": {
+      "name": "rect18",
+      "originalName": "rect222-4-2-9-2-3-5-5-9-4-6-5-6",
+      "rectNumber": 18
+    },
+    "position": {
+      "x": 985.1786255,
+      "y": 853.0012050000001,
+      "height": 14,
+      "width": 14
+    },
+    "custom": {}
+  },
+  {
+    "type": "ia.display.view",
+    "version": 0,
+    "props": {
+      "path": "Symbol-Views/Equipment-Views/Status",
+      "params": {
+        "directionLeft": false,
+        "forceFaultStatus": null,
+        "forceRunningStatus": null,
+        "tagProps": [
+          "rect19",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value"
+        ]
+      }
+    },
+    "meta": {
+      "name": "rect19",
+      "originalName": "rect222-4-2-9-2-3-5-5-9-4-6-5-6-5",
+      "rectNumber": 19
+    },
+    "position": {
+      "x": 943.6724,
+      "y": 688.247178,
+      "height": 14,
+      "width": 14
+    },
+    "custom": {}
+  },
+  {
+    "type": "ia.display.view",
+    "version": 0,
+    "props": {
+      "path": "Symbol-Views/Equipment-Views/Status",
+      "params": {
+        "directionLeft": false,
+        "forceFaultStatus": null,
+        "forceRunningStatus": null,
+        "tagProps": [
+          "rect20",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value"
+        ]
+      }
+    },
+    "meta": {
+      "name": "rect20",
+      "originalName": "rect222-4-2-9-2-3-5-5-9-4-6",
+      "rectNumber": 20
+    },
+    "position": {
+      "x": 1069.6666664999998,
+      "y": 1014.58185,
+      "height": 14,
+      "width": 14
+    },
+    "custom": {}
+  },
+  {
+    "type": "ia.display.view",
+    "version": 0,
+    "props": {
+      "path": "Symbol-Views/Equipment-Views/Status",
+      "params": {
+        "directionLeft": false,
+        "forceFaultStatus": null,
+        "forceRunningStatus": null,
+        "tagProps": [
+          "rect21",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value"
+        ]
+      }
+    },
+    "meta": {
+      "name": "rect21",
+      "originalName": "rect222-4-2-9-2-3-5-5-9-4-6-5",
+      "rectNumber": 21
+    },
+    "position": {
+      "x": 934.025025,
+      "y": 1014.360342,
+      "height": 14,
+      "width": 14
+    },
+    "custom": {}
+  },
+  {
+    "type": "ia.display.view",
+    "version": 0,
+    "props": {
+      "path": "Symbol-Views/Equipment-Views/Status",
+      "params": {
+        "directionLeft": false,
+        "forceFaultStatus": null,
+        "forceRunningStatus": null,
+        "tagProps": [
+          "rect22",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value"
+        ]
+      }
+    },
+    "meta": {
+      "name": "rect22",
+      "originalName": "rect222-4-2-9-2-3-5-5",
+      "rectNumber": 22
+    },
+    "position": {
+      "x": 419.77184,
+      "y": 906.5693275,
+      "height": 14,
+      "width": 14
+    },
+    "custom": {}
+  },
+  {
+    "type": "ia.display.view",
+    "version": 0,
+    "props": {
+      "path": "Symbol-Views/Equipment-Views/Status",
+      "params": {
+        "directionLeft": false,
+        "forceFaultStatus": null,
+        "forceRunningStatus": null,
+        "tagProps": [
+          "rect23",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value"
+        ]
+      }
+    },
+    "meta": {
+      "name": "rect23",
+      "originalName": "rect222-4-2-9-2-3-5-5-9",
+      "rectNumber": 23
+    },
+    "position": {
+      "x": 627.2355399999999,
+      "y": 906.5886135,
+      "height": 14,
+      "width": 14
+    },
+    "custom": {}
+  },
+  {
+    "type": "ia.display.view",
+    "version": 0,
+    "props": {
+      "path": "Symbol-Views/Equipment-Views/Status",
+      "params": {
+        "directionLeft": false,
+        "forceFaultStatus": null,
+        "forceRunningStatus": null,
+        "tagProps": [
+          "rect24",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value"
+        ]
+      }
+    },
+    "meta": {
+      "name": "rect24",
+      "originalName": "rect222-4-2-9-2-3-5-5-9-4",
+      "rectNumber": 24
+    },
+    "position": {
+      "x": 828.891965,
+      "y": 907.0003255,
+      "height": 14,
+      "width": 14
+    },
+    "custom": {}
+  },
+  {
+    "type": "ia.display.view",
+    "version": 0,
+    "props": {
+      "path": "Symbol-Views/Equipment-Views/Status",
+      "params": {
+        "directionLeft": false,
+        "forceFaultStatus": null,
+        "forceRunningStatus": null,
+        "tagProps": [
+          "rect25",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value"
+        ]
+      }
+    },
+    "meta": {
+      "name": "rect25",
+      "originalName": "rect222-4-2-9-2-3-0",
+      "rectNumber": 25
+    },
+    "position": {
+      "x": 315.10603100000003,
+      "y": 781.21577,
+      "height": 14,
+      "width": 14
+    },
+    "custom": {}
+  },
+  {
+    "type": "ia.display.view",
+    "version": 0,
+    "props": {
+      "path": "Symbol-Views/Equipment-Views/Status",
+      "params": {
+        "directionLeft": false,
+        "forceFaultStatus": null,
+        "forceRunningStatus": null,
+        "tagProps": [
+          "rect26",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value"
+        ]
+      }
+    },
+    "meta": {
+      "name": "rect26",
+      "originalName": "rect222-4-2-9-2-3-5",
+      "rectNumber": 26
+    },
+    "position": {
+      "x": 432.676545,
+      "y": 685.6919065,
+      "height": 14,
+      "width": 14
+    },
+    "custom": {}
+  },
+  {
+    "type": "ia.display.view",
+    "version": 0,
+    "props": {
+      "path": "Symbol-Views/Equipment-Views/Status",
+      "params": {
+        "directionLeft": false,
+        "forceFaultStatus": null,
+        "forceRunningStatus": null,
+        "tagProps": [
+          "rect27",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value"
+        ]
+      }
+    },
+    "meta": {
+      "name": "rect27",
+      "originalName": "rect222-6-4",
+      "rectNumber": 27
+    },
+    "position": {
+      "x": 460.5176665,
+      "y": 654.748598,
+      "height": 14,
+      "width": 14
+    },
+    "custom": {}
+  },
+  {
+    "type": "ia.display.view",
+    "version": 0,
+    "props": {
+      "path": "Symbol-Views/Equipment-Views/Status",
+      "params": {
+        "directionLeft": false,
+        "forceFaultStatus": null,
+        "forceRunningStatus": null,
+        "tagProps": [
+          "rect28",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value"
+        ]
+      }
+    },
+    "meta": {
+      "name": "rect28",
+      "originalName": "rect222-6-4-4",
+      "rectNumber": 28
+    },
+    "position": {
+      "x": 491.76751650000006,
+      "y": 654.578978,
+      "height": 14,
+      "width": 14
+    },
+    "custom": {}
+  },
+  {
+    "type": "ia.display.view",
+    "version": 0,
+    "props": {
+      "path": "Symbol-Views/Equipment-Views/Status",
+      "params": {
+        "directionLeft": false,
+        "forceFaultStatus": null,
+        "forceRunningStatus": null,
+        "tagProps": [
+          "rect29",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value"
+        ]
+      }
+    },
+    "meta": {
+      "name": "rect29",
+      "originalName": "rect222-6-4-4-8",
+      "rectNumber": 29
+    },
+    "position": {
+      "x": 523.5809665,
+      "y": 654.280758,
+      "height": 14,
+      "width": 14
+    },
+    "custom": {}
+  },
+  {
+    "type": "ia.display.view",
+    "version": 0,
+    "props": {
+      "path": "Symbol-Views/Equipment-Views/Status",
+      "params": {
+        "directionLeft": false,
+        "forceFaultStatus": null,
+        "forceRunningStatus": null,
+        "tagProps": [
+          "rect30",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value"
+        ]
+      }
+    },
+    "meta": {
+      "name": "rect30",
+      "originalName": "rect222-6",
+      "rectNumber": 30
+    },
+    "position": {
+      "x": 429.01101650000004,
+      "y": 654.5098280000001,
+      "height": 14,
+      "width": 14
+    },
+    "custom": {}
+  },
+  {
+    "type": "ia.display.view",
+    "version": 0,
+    "props": {
+      "path": "Symbol-Views/Equipment-Views/Status",
+      "params": {
+        "directionLeft": false,
+        "forceFaultStatus": null,
+        "forceRunningStatus": null,
+        "tagProps": [
+          "rect31",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value"
+        ]
+      }
+    },
+    "meta": {
+      "name": "rect31",
+      "originalName": "rect222-4-2-9-2-3-6-3-0-6-9",
+      "rectNumber": 31
+    },
+    "position": {
+      "x": 1646.375665,
+      "y": 103.9483395,
+      "height": 14,
+      "width": 14
+    },
+    "custom": {}
+  },
+  {
+    "type": "ia.display.view",
+    "version": 0,
+    "props": {
+      "path": "Symbol-Views/Equipment-Views/Status",
+      "params": {
+        "directionLeft": false,
+        "forceFaultStatus": null,
+        "forceRunningStatus": null,
+        "tagProps": [
+          "rect32",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value"
+        ]
+      }
+    },
+    "meta": {
+      "name": "rect32",
+      "originalName": "rect222-4-2-9-2-3-6-3-0-6",
+      "rectNumber": 32
+    },
+    "position": {
+      "x": 1383.081365,
+      "y": 103.962457,
+      "height": 14,
+      "width": 14
+    },
+    "custom": {}
+  },
+  {
+    "type": "ia.display.view",
+    "version": 0,
+    "props": {
+      "path": "Symbol-Views/Equipment-Views/Status",
+      "params": {
+        "directionLeft": false,
+        "forceFaultStatus": null,
+        "forceRunningStatus": null,
+        "tagProps": [
+          "rect33",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value"
+        ]
+      }
+    },
+    "meta": {
+      "name": "rect33",
+      "originalName": "rect222-4-2-9-2-3-6-3",
+      "rectNumber": 33
+    },
+    "position": {
+      "x": 811.26998,
+      "y": 103.86741,
+      "height": 14,
+      "width": 14
+    },
+    "custom": {}
+  },
+  {
+    "type": "ia.display.view",
+    "version": 0,
+    "props": {
+      "path": "Symbol-Views/Equipment-Views/Status",
+      "params": {
+        "directionLeft": false,
+        "forceFaultStatus": null,
+        "forceRunningStatus": null,
+        "tagProps": [
+          "rect34",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value"
+        ]
+      }
+    },
+    "meta": {
+      "name": "rect34",
+      "originalName": "rect222-4-2-9-2-3-6-3-0",
+      "rectNumber": 34
+    },
+    "position": {
+      "x": 1071.6896,
+      "y": 103.9342635,
+      "height": 14,
+      "width": 14
+    },
+    "custom": {}
+  },
+  {
+    "type": "ia.display.view",
+    "version": 0,
+    "props": {
+      "path": "Symbol-Views/Equipment-Views/Status",
+      "params": {
+        "directionLeft": false,
+        "forceFaultStatus": null,
+        "forceRunningStatus": null,
+        "tagProps": [
+          "rect35",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value"
+        ]
+      }
+    },
+    "meta": {
+      "name": "rect35",
+      "originalName": "rect222-4-2-9-2-3-6",
+      "rectNumber": 35
+    },
+    "position": {
+      "x": 734.4071280000001,
+      "y": 196.51200499999993,
+      "height": 14,
+      "width": 14
+    },
+    "custom": {}
+  },
+  {
+    "type": "ia.display.view",
+    "version": 0,
+    "props": {
+      "path": "Symbol-Views/Equipment-Views/Status",
+      "params": {
+        "directionLeft": false,
+        "forceFaultStatus": null,
+        "forceRunningStatus": null,
+        "tagProps": [
+          "rect36",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value"
+        ]
+      }
+    },
+    "meta": {
+      "name": "rect36",
+      "originalName": "rect222-4-2-9-2-3",
+      "rectNumber": 36
+    },
+    "position": {
+      "x": 734.287608,
+      "y": 380.16083999999995,
+      "height": 14,
+      "width": 14
+    },
+    "custom": {}
+  },
+  {
+    "type": "ia.display.view",
+    "version": 0,
+    "props": {
+      "path": "Symbol-Views/Equipment-Views/Status",
+      "params": {
+        "directionLeft": false,
+        "forceFaultStatus": null,
+        "forceRunningStatus": null,
+        "tagProps": [
+          "rect37",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value"
+        ]
+      }
+    },
+    "meta": {
+      "name": "rect37",
+      "originalName": "rect222-4-2",
+      "rectNumber": 37
+    },
+    "position": {
+      "x": 517.0343525,
+      "y": 344.4451719999999,
+      "height": 14,
+      "width": 14
+    },
+    "custom": {}
+  },
+  {
+    "type": "ia.display.view",
+    "version": 0,
+    "props": {
+      "path": "Symbol-Views/Equipment-Views/Status",
+      "params": {
+        "directionLeft": false,
+        "forceFaultStatus": null,
+        "forceRunningStatus": null,
+        "tagProps": [
+          "rect38",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value"
+        ]
+      }
+    },
+    "meta": {
+      "name": "rect38",
+      "originalName": "rect222-4-2-9",
+      "rectNumber": 38
+    },
+    "position": {
+      "x": 566.0515025,
+      "y": 343.8771519999999,
+      "height": 14,
+      "width": 14
+    },
+    "custom": {}
+  },
+  {
+    "type": "ia.display.view",
+    "version": 0,
+    "props": {
+      "path": "Symbol-Views/Equipment-Views/Status",
+      "params": {
+        "directionLeft": false,
+        "forceFaultStatus": null,
+        "forceRunningStatus": null,
+        "tagProps": [
+          "rect39",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value"
+        ]
+      }
+    },
+    "meta": {
+      "name": "rect39",
+      "originalName": "rect222-4-2-9-2",
+      "rectNumber": 39
+    },
+    "position": {
+      "x": 597.0982025,
+      "y": 344.17723199999995,
+      "height": 14,
+      "width": 14
+    },
+    "custom": {}
+  },
+  {
+    "type": "ia.display.view",
+    "version": 0,
+    "props": {
+      "path": "Symbol-Views/Equipment-Views/Status",
+      "params": {
+        "directionLeft": false,
+        "forceFaultStatus": null,
+        "forceRunningStatus": null,
+        "tagProps": [
+          "rect40",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value"
+        ]
+      }
+    },
+    "meta": {
+      "name": "rect40",
+      "originalName": "rect222-4",
+      "rectNumber": 40
+    },
+    "position": {
+      "x": 484.9064825,
+      "y": 344.29777199999995,
+      "height": 14,
+      "width": 14
+    },
+    "custom": {}
+  },
+  {
+    "type": "ia.display.view",
+    "version": 0,
+    "props": {
+      "path": "Symbol-Views/Equipment-Views/Status",
+      "params": {
+        "directionLeft": false,
+        "forceFaultStatus": null,
+        "forceRunningStatus": null,
+        "tagProps": [
+          "rect41",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value"
+        ]
+      }
+    },
+    "meta": {
+      "name": "rect41",
+      "originalName": "rect222-2-5-3",
+      "rectNumber": 41
+    },
+    "position": {
+      "x": 693.291474,
+      "y": 316.7169375,
+      "height": 14,
+      "width": 14
+    },
+    "custom": {}
+  },
+  {
+    "type": "ia.display.view",
+    "version": 0,
+    "props": {
+      "path": "Symbol-Views/Equipment-Views/Status",
+      "params": {
+        "directionLeft": false,
+        "forceFaultStatus": null,
+        "forceRunningStatus": null,
+        "tagProps": [
+          "rect42",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value"
+        ]
+      }
+    },
+    "meta": {
+      "name": "rect42",
+      "originalName": "rect222-2-5",
+      "rectNumber": 42
+    },
+    "position": {
+      "x": 597.661795,
+      "y": 317.2244085,
+      "height": 14,
+      "width": 14
+    },
+    "custom": {}
+  },
+  {
+    "type": "ia.display.view",
+    "version": 0,
+    "props": {
+      "path": "Symbol-Views/Equipment-Views/Status",
+      "params": {
+        "directionLeft": false,
+        "forceFaultStatus": null,
+        "forceRunningStatus": null,
+        "tagProps": [
+          "test1",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value"
+        ]
+      }
+    },
+    "meta": {
+      "name": "test1",
+      "originalName": "rect222-2",
+      "rectNumber": 43
+    },
+    "position": {
+      "x": 473.43965000000003,
+      "y": 317.3831015,
+      "height": 14,
+      "width": 14
+    },
+    "custom": {}
+  },
+  {
+    "type": "ia.display.view",
+    "version": 0,
+    "props": {
+      "path": "Symbol-Views/Equipment-Views/Status",
+      "params": {
+        "directionLeft": false,
+        "forceFaultStatus": null,
+        "forceRunningStatus": null,
+        "tagProps": [
+          "rect44",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value"
+        ]
+      }
+    },
+    "meta": {
+      "name": "rect44",
+      "originalName": "rect222-5",
+      "rectNumber": 44
+    },
+    "position": {
+      "x": 28.642230578947903,
+      "y": 172.55452927583653,
+      "height": 14,
+      "width": 14
+    },
+    "custom": {}
+  },
+  {
+    "type": "ia.display.view",
+    "version": 0,
+    "props": {
+      "path": "Symbol-Views/Equipment-Views/Status",
+      "params": {
+        "directionLeft": false,
+        "forceFaultStatus": null,
+        "forceRunningStatus": null,
+        "tagProps": [
+          "rect45",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value"
+        ]
+      }
+    },
+    "meta": {
+      "name": "rect45",
+      "originalName": "rect12",
+      "rectNumber": 45
+    },
+    "position": {
+      "x": 1198.168580665,
+      "y": 381.237849295,
+      "height": 14,
+      "width": 14
+    },
+    "custom": {}
+  },
+  {
+    "type": "ia.display.view",
+    "version": 0,
+    "props": {
+      "path": "Symbol-Views/Equipment-Views/Status",
+      "params": {
+        "directionLeft": false,
+        "forceFaultStatus": null,
+        "forceRunningStatus": null,
+        "tagProps": [
+          "rect46",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value",
+          "value"
+        ]
+      }
+    },
+    "meta": {
+      "name": "rect46",
+      "originalName": "rect222-2-8",
+      "rectNumber": 46
+    },
+    "position": {
+      "x": 228.43387,
+      "y": 317.4857175,
+      "height": 14,
+      "width": 14
+    },
+    "custom": {}
+  }
+]
