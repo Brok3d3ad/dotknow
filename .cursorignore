@@ -1,9 +1,11 @@
 # Virtual environment
 venv/
+test_venv/
 
 # Build directories
 build/
 dist/
+test_build/
 
 # Python cache
 __pycache__/

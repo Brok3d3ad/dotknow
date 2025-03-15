@@ -1,5 +1,13 @@
 # SVG Processor Project - Documentation Changelog
 
+## [1.2.6] - 2025-03-21
+### Fixed
+- Fixed virtual environment activation issues in build script
+- Added proper absolute path handling for all file operations
+- Added Python installation verification before building
+- Enhanced error reporting when activation fails
+- Added validation that Python virtual environment is correctly activated
+
 ## [1.2.5] - 2025-03-20
 ### Added
 - Added virtual environment support to the build process
