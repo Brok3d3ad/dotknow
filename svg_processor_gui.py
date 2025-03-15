@@ -360,7 +360,33 @@ class SVGProcessorApp:
                     if icon_path.endswith('.ico'):
                         if is_windows:
                             print(f"Using iconbitmap with: {icon_path}")
+                            # Apply both iconbitmap and iconphoto methods for better Windows integration
                             self.root.iconbitmap(icon_path)
+                            
+                            # Also try to create a PhotoImage for the taskbar/tray icon
+                            try:
+                                icon_img = Image.open(icon_path)
+                                # Windows taskbar icons work better with specific sizes
+                                # Try multiple sizes for better compatibility
+                                for size in [(16, 16), (32, 32), (48, 48)]:
+                                    try:
+                                        resized = icon_img.resize(size, Image.LANCZOS)
+                                        photo = ImageTk.PhotoImage(resized)
+                                        self.root.iconphoto(False, photo)  # Use False to avoid affecting child windows
+                                        print(f"Added icon with size {size}")
+                                    except Exception as e:
+                                        print(f"Failed to add icon size {size}: {e}")
+                                
+                                # Set the default icon as well
+                                default_photo = ImageTk.PhotoImage(icon_img.resize((32, 32), Image.LANCZOS))
+                                self.root.iconphoto(True, default_photo)
+                                print(f"Set default window icon with size (32, 32)")
+                            except Exception as photoEx:
+                                print(f"Could not create PhotoImage from icon: {photoEx}")
+                                
+                            # Force the window to refresh its taskbar icon
+                            self.root.update_idletasks()
+                            
                             print(f"Set window icon from: {icon_path}")
                             return
                         else:

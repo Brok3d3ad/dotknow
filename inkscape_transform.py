@@ -164,9 +164,13 @@ class SVGTransformer:
             # Apply transform
             center_x, center_y = self.apply_transform((center_x, center_y), transform_matrix)
             
-            # Apply the requested offset (-7 pixels in both x and y directions)
-            offset_x = center_x - 7
-            offset_y = center_y - 7
+            # Get element dimensions from custom options or use defaults
+            element_width = self.custom_options.get('width', 14)
+            element_height = self.custom_options.get('height', 14)
+            
+            # Apply the offset using half of element width and height
+            offset_x = center_x - element_width / 2
+            offset_y = center_y - element_height / 2
             
             # Get element identifiers
             rect_id = rect.getAttribute('id') or ""

@@ -9,7 +9,7 @@ __pycache__/
 *.pyw
 *.pyz
 *.exe
-
+venv/ 
 # Test artifacts
 .pytest_cache/
 .coverage
