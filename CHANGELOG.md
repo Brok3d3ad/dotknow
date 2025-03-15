@@ -1,5 +1,13 @@
 # SVG Processor Project - Documentation Changelog
 
+## [1.3.0] - 2025-03-23
+### Changed
+- Removed all batch files in favor of direct PyInstaller commands
+- Simplified build process by eliminating virtual environment scripts
+- Updated README with comprehensive PyInstaller commands for all platforms
+- Enhanced build commands with proper icon and dependency configuration
+- Standardized executable naming across all platforms as SVG_Processor
+
 ## [1.2.7] - 2025-03-22
 ### Fixed
 - Enhanced virtual environment handling for cross-platform compatibility

@@ -51,47 +51,39 @@ The SVG Processor Tool is an application designed to extract SVG elements from f
 
 #### For Windows
 
-There are three ways to build the application on Windows:
+To build the application on Windows, use PyInstaller directly:
 
-**Option 1: Using the automated batch file with icon support (Recommended)**
-1. Simply double-click the `build_with_icon.bat` file
-2. The script will:
-   - Create and activate a dedicated virtual environment
-   - Install all required dependencies in the isolated environment
-   - Clean any previous build artifacts
-   - Build the application with proper icon integration
-   - Refresh the Windows icon cache
-   - Automatically deactivate the virtual environment when done
-3. The compiled executable will be in the `dist` folder as `SVG_Processor.exe`
-
-**Option 2: Using the standard automated batch file**
-1. Simply double-click the `build_windows.bat` file
-2. The script will install any missing dependencies and build the application
-3. The compiled executable will be in the `dist` folder
-
-**Option 3: Manual compilation**
+**Option 1: One-step build with all options (Recommended)**
 ```
-pyinstaller --onefile --windowed --icon=autStand_ic0n.ico --add-data="automation_standard_logo.jpg;." --add-data="autStand_ic0n.ico;." svg_processor_gui.py
+pyinstaller --onefile --windowed --name="SVG_Processor" --icon=autStand_ic0n.ico --add-data="automation_standard_logo.jpg;." --add-data="autStand_ic0n.ico;." --hidden-import=numpy --hidden-import=PIL --hidden-import=PIL._tkinter_finder svg_processor_gui.py
 ```
-Or use the provided spec file:
+
+This command:
+- Creates a single-file executable (`--onefile`)
+- Makes it a windowed application without console (`--windowed`)
+- Names the output executable "SVG_Processor" (`--name`)
+- Uses the custom icon file (`--icon`)
+- Includes necessary resources (`--add-data`)
+- Ensures all dependencies are bundled (`--hidden-import`)
+
+**Option 2: Using the spec file**
 ```
 pyinstaller autStand_icon.spec
 ```
 
+The spec file includes all the necessary configuration for building with the correct icon and dependencies.
+
 > **Note on Windows Icon Issues**: If the application icon is not appearing correctly:
 > 1. Make sure the `autStand_ic0n.ico` file is present in your project directory
-> 2. Use the `build_with_icon.bat` script which includes steps to clear the Windows icon cache
-> 3. The icon file must be included in both the `datas` section and the `icon` parameter of the spec file
-> 4. In persistent cases, you may need to restart your computer to clear the Windows icon cache completely
-> 5. Try renaming the output executable to avoid Windows caching the old icon
+> 2. Try refreshing the Windows icon cache with: `ie4uinit.exe -ClearIconCache`
+> 3. In persistent cases, you may need to restart your computer to clear the Windows icon cache completely
 
-The Windows build will create:
-- `SVG_Processor.exe` - A standalone executable in the `dist` folder
+The compiled executable will be created in the `dist` folder.
 
 #### For macOS
 
 ##### Install Required Dependencies
-For macOS, you need to ensure tkinter is properly installed:
+For macOS, you need to ensure tkinter and other dependencies are properly installed:
 
 ```bash
 # Install Tcl/Tk framework
@@ -99,12 +91,16 @@ brew install tcl-tk
 
 # Install Python with tkinter support
 brew install python-tk@3.11
+
+# Install required Python packages
+pip install numpy Pillow pyinstaller
 ```
 
 ##### Compile the Application
 ```bash
-pyinstaller --clean --onefile --windowed --name="SVG Processor" \
+pyinstaller --clean --onefile --windowed --name="SVG_Processor" \
   --osx-bundle-identifier="com.automationstandard.svgprocessor" \
+  --hidden-import=numpy --hidden-import=PIL --hidden-import=PIL._tkinter_finder \
   --hidden-import=tkinter --hidden-import=_tkinter \
   --hidden-import=tkinter.filedialog --hidden-import=tkinter.messagebox \
   --hidden-import=tkinter.scrolledtext --hidden-import=tkinter.ttk \
@@ -112,19 +108,38 @@ pyinstaller --clean --onefile --windowed --name="SVG Processor" \
   --add-data="/opt/homebrew/Cellar/tcl-tk@8/8.6.16/lib/tcl8.6:tcl8.6" \
   --add-data="/opt/homebrew/Cellar/tcl-tk@8/8.6.16/lib/tk8.6:tk8.6" \
   --add-data="automation_standard_logo.jpg:." \
-  --icon=automation_standard_logo.jpg svg_processor_gui.py
+  --add-data="autStand_ic0n.ico:." \
+  --icon=autStand_ic0n.ico svg_processor_gui.py
 ```
 
 Note: Your Tcl/Tk path may be different. Check with `brew info tcl-tk` to find the correct path.
 
 The macOS build will create:
-- `SVG Processor.app` - A macOS application bundle that can be dragged to Applications
-- `SVG Processor` - A standalone executable
+- `SVG_Processor.app` - A macOS application bundle that can be dragged to Applications
+- `SVG_Processor` - A standalone executable
 
 #### For Linux
+
+##### Install Required Dependencies
+```bash
+# Install required system packages
+sudo apt-get install python3-tk python3-dev
+
+# Install required Python packages
+pip install numpy Pillow pyinstaller
 ```
-pyinstaller --onefile --windowed --add-data="automation_standard_logo.jpg:." svg_processor_gui.py
+
+##### Compile the Application
+```bash
+pyinstaller --clean --onefile --windowed --name="SVG_Processor" \
+  --hidden-import=numpy --hidden-import=PIL --hidden-import=PIL._tkinter_finder \
+  --add-data="automation_standard_logo.jpg:." \
+  --add-data="autStand_ic0n.ico:." \
+  --icon=autStand_ic0n.ico svg_processor_gui.py
 ```
+
+The Linux build will create:
+- `SVG_Processor` - A standalone executable in the `dist` folder
 
 ## Usage
 1. Launch the application
