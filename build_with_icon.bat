@@ -14,6 +14,15 @@ if %errorlevel% neq 0 (
     )
 )
 
+REM Ensure numpy is installed
+echo Ensuring numpy is installed...
+pip install numpy
+if %errorlevel% neq 0 (
+    echo Failed to install numpy.
+    pause
+    exit /b 1
+)
+
 REM Remove any existing build and dist folders to ensure clean build
 echo Cleaning previous builds...
 if exist build rmdir /s /q build

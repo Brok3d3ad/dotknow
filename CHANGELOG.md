@@ -1,5 +1,12 @@
 # SVG Processor Project - Documentation Changelog
 
+## [1.2.4] - 2025-03-19
+### Fixed
+- Fixed "No module named 'numpy'" error in compiled executable
+- Added explicit numpy dependency in PyInstaller spec file's hiddenimports
+- Added explicit PIL dependencies to ensure proper bundling with PyInstaller
+- Added additional step in build script to ensure numpy is installed before building
+
 ## [1.2.3] - 2025-03-18
 ### Fixed
 - Enhanced icon handling with additional debugging information
