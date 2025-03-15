@@ -24,6 +24,7 @@ MTN6_SCADAa_*
 # Image files (as needed)
 # *.ico  # Uncommenting to allow icon files
 *.jpg
+*.spec
 *.png
 *.gif
 *.bmp
