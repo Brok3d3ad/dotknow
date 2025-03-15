@@ -16,7 +16,7 @@ if %errorlevel% neq 0 (
 
 echo.
 echo Building application using PyInstaller...
-pyinstaller SVG_Processor_Windows.spec
+pyinstaller svg_processor_gui.spec
 
 if %errorlevel% neq 0 (
     echo Build failed!
@@ -27,6 +27,6 @@ if %errorlevel% neq 0 (
 echo.
 echo Build successful! The application is available in the 'dist' folder.
 echo.
-echo You can find the executable at: dist\SVG Processor.exe
+echo You can find the executable at: dist\svg_processor_gui.exe
 echo.
 pause 

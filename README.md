@@ -60,12 +60,14 @@ There are two ways to build the application on Windows:
 
 **Option 2: Manual compilation**
 ```
-pyinstaller --onefile --windowed --icon=automation_standard_logo.jpg --add-data="automation_standard_logo.jpg;." svg_processor_gui.py
+pyinstaller --onefile --windowed --icon=autStand_ic0n.ico --add-data="automation_standard_logo.jpg;." --add-data="autStand_ic0n.ico;." svg_processor_gui.py
 ```
 Or use the provided spec file:
 ```
-pyinstaller SVG_Processor_Windows.spec
+pyinstaller svg_processor_gui.spec
 ```
+
+> **Note**: Make sure the spec file correctly includes the icon file in both the `datas` section and the `icon` parameter of the `EXE` function. If you're experiencing issues with the application icon not appearing in the compiled executable, check that the .ico file is properly referenced and included.
 
 The Windows build will create:
 - `SVG Processor.exe` - A standalone executable in the `dist` folder

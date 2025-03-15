@@ -1,5 +1,23 @@
 # SVG Processor Project - Documentation Changelog
 
+## [1.2.2] - 2025-03-17
+### Fixed
+- Fixed issue with application icon not appearing in the compiled Windows executable
+- Added the autStand_ic0n.ico file to the datas section in both spec files to ensure it's properly bundled
+- Ensured consistent naming and reference to spec files between build script and actual file names
+- Updated README.md with clearer instructions for building with the correct icon
+
+## [1.2.1] - 2025-03-16
+### Fixed
+- Added missing root element properties in exported view.json files
+- Fixed absence of "meta", "props.style", and "type" fields in root element configuration
+- Ensured exported views match production SCADA structure for compatibility
+
+## [1.2.0] - 2025-03-15
+### Fixed
+- Replaced hardcoded values (-7 pixels) in SVG element positioning with half of the user-defined element width and height
+- Modified zip export functionality to place files directly in the zip file without an extra folder level
+
 ## Project Overview
 This project is an SVG to JSON processor tool designed for automation standards. It consists of a GUI application that allows users to:
 1. Browse and select SVG files

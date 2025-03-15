@@ -1,7 +1,7 @@
 # Build artifacts
 dist/
 build/
-*.spec
+# *.spec  # Uncommenting to allow .spec files
 __pycache__/
 *.pyc
 *.pyo
@@ -22,13 +22,17 @@ MTN6_SCADA_*
 MTN6_SCADAa_*
 
 # Image files (as needed)
-*.ico
+# *.ico  # Uncommenting to allow icon files
 *.jpg
 *.png
 *.gif
 *.bmp
 *.tiff
 *.jpeg
+
+# Exception for app logo
+!automation_standard_logo.jpg
+!autStand_ic0n.ico
 
 # macOS specific
 .DS_Store
