@@ -1,5 +1,13 @@
 # SVG Processor Project - Documentation Changelog
 
+## [1.2.7] - 2025-03-22
+### Fixed
+- Enhanced virtual environment handling for cross-platform compatibility
+- Switched from using venv to virtualenv for better compatibility
+- Added dynamic detection of activation scripts for Windows/Unix systems
+- Created test_build.bat script to validate builds before pushing changes
+- Improved Python executable path handling to ensure correct environment
+
 ## [1.2.6] - 2025-03-21
 ### Fixed
 - Fixed virtual environment activation issues in build script

@@ -16,6 +16,15 @@ if %errorlevel% neq 0 (
 )
 python --version
 
+REM Install virtualenv if needed
+echo Installing/upgrading virtualenv...
+python -m pip install --upgrade virtualenv
+if %errorlevel% neq 0 (
+    echo Failed to install virtualenv.
+    pause
+    exit /b 1
+)
+
 REM Setup virtual environment with absolute paths
 echo Setting up virtual environment...
 set "VENV_DIR=%CURRENT_DIR%\venv"
@@ -24,23 +33,37 @@ if exist "%VENV_DIR%" (
     rmdir /s /q "%VENV_DIR%"
 )
 
-REM Create virtual environment
+REM Create virtual environment using virtualenv
 echo Creating virtual environment in: %VENV_DIR%
-python -m venv "%VENV_DIR%"
+python -m virtualenv "%VENV_DIR%"
 if %errorlevel% neq 0 (
     echo Failed to create virtual environment.
     pause
     exit /b 1
 )
 
-REM Activate virtual environment - use full path to activate script
-echo Activating virtual environment...
+REM Check if we can find the activation script
+echo Checking activation script...
 if exist "%VENV_DIR%\Scripts\activate.bat" (
-    call "%VENV_DIR%\Scripts\activate.bat"
+    echo Found Windows activation script.
+    set "ACTIVATE_SCRIPT=%VENV_DIR%\Scripts\activate.bat"
+) else if exist "%VENV_DIR%\bin\activate" (
+    echo Found Unix activation script.
+    set "ACTIVATE_SCRIPT=%VENV_DIR%\bin\activate"
 ) else (
-    echo Activation script not found at: %VENV_DIR%\Scripts\activate.bat
-    echo Listing Scripts directory content:
-    dir "%VENV_DIR%\Scripts"
+    echo No activation script found. Listing virtual environment directory:
+    dir "%VENV_DIR%"
+    if exist "%VENV_DIR%\Scripts" echo Listing Scripts directory: & dir "%VENV_DIR%\Scripts"
+    if exist "%VENV_DIR%\bin" echo Listing bin directory: & dir "%VENV_DIR%\bin"
+    pause
+    exit /b 1
+)
+
+REM Activate virtual environment
+echo Activating virtual environment using: %ACTIVATE_SCRIPT%
+call "%ACTIVATE_SCRIPT%"
+if %errorlevel% neq 0 (
+    echo Failed to activate virtual environment.
     pause
     exit /b 1
 )
@@ -55,10 +78,9 @@ echo Checking for PyInstaller...
 python -c "import PyInstaller" 2>nul
 if %errorlevel% neq 0 (
     echo PyInstaller not found. Installing required packages...
-    pip install -r "%CURRENT_DIR%\requirements.txt"
+    python -m pip install -r "%CURRENT_DIR%\requirements.txt"
     if %errorlevel% neq 0 (
         echo Failed to install requirements.
-        call "%VENV_DIR%\Scripts\deactivate.bat"
         pause
         exit /b 1
     )
@@ -66,10 +88,9 @@ if %errorlevel% neq 0 (
 
 REM Ensure numpy is installed
 echo Ensuring numpy is installed...
-pip install numpy
+python -m pip install numpy
 if %errorlevel% neq 0 (
     echo Failed to install numpy.
-    call "%VENV_DIR%\Scripts\deactivate.bat"
     pause
     exit /b 1
 )
@@ -81,11 +102,10 @@ if exist "%CURRENT_DIR%\dist" rmdir /s /q "%CURRENT_DIR%\dist"
 
 echo.
 echo Building application using PyInstaller with custom icon...
-pyinstaller "%CURRENT_DIR%\autStand_icon.spec"
+python -m PyInstaller "%CURRENT_DIR%\autStand_icon.spec"
 
 if %errorlevel% neq 0 (
     echo Build failed!
-    call "%VENV_DIR%\Scripts\deactivate.bat"
     pause
     exit /b 1
 )
@@ -104,9 +124,8 @@ echo.
 echo NOTE: If the icon is still not showing correctly, you may need to restart your computer.
 echo.
 
-REM Deactivate the virtual environment
-call "%VENV_DIR%\Scripts\deactivate.bat"
-echo Virtual environment deactivated.
+REM Clean up environment (but keep the virtualenv for future builds)
+echo Virtual environment is kept for future builds at: %VENV_DIR%
 echo.
 
 pause 
