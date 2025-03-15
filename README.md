@@ -24,8 +24,26 @@ The SVG Processor Tool is an application designed to extract SVG elements from f
 
 ## Installation
 
+### Using the Pre-Built Executable (Windows)
+The simplest way to use the application is to run the pre-built executable:
+
+1. Navigate to the `SVG_Processor_Distribute` folder in the project directory
+2. Double-click on `SVG_Processor.exe` to launch the application
+
+#### Running from different shells:
+
+- **Windows Explorer:** Simply double-click the `SVG_Processor.exe` file
+- **Command Prompt:** Use `SVG_Processor.exe` or the full path
+- **PowerShell:** Use `.\SVG_Processor.exe` or the full path
+- **Git Bash:** Git Bash doesn't directly execute Windows `.exe` files by name. Use one of these approaches:
+  - Use the full Windows path: `./SVG_Processor.exe`
+  - Use the `start` command: `start SVG_Processor.exe`
+  - Use `cmd` to execute it: `cmd //c SVG_Processor.exe`
+
+> **Note:** If you encounter the "command not found" error in Git Bash, it's because Git Bash uses a Unix-like environment that doesn't automatically recognize Windows executables. Use one of the methods listed above instead.
+
 ### Prerequisites
-- Python 3.6 or higher
+- Python 3.6 or higher (only needed if building from source)
 - Required Python packages (listed in requirements.txt):
   - numpy>=1.21.0
   - Pillow>=9.0.0

@@ -1,16 +1,38 @@
+"""
+SVG Processor GUI - A tool for processing SVG files for automation systems.
+
+This application provides a graphical user interface for processing SVG files
+and converting them to a custom JSON format for use in automation systems.
+It allows users to:
+
+1. Browse and select SVG files
+2. Configure processing options
+3. Process SVG files to extract elements
+4. Copy the results to clipboard or save to a file
+5. Export to Ignition SCADA project structure as a zip file
+
+The application uses the SVGTransformer class from inkscape_transform.py
+to handle the actual SVG processing.
+
+Author: Automation Standards Team
+License: Proprietary
+"""
+
 import tkinter as tk
 from tkinter import filedialog, scrolledtext, messagebox, ttk
 import json
 import os
 import sys
 import io
-import shutil
 import zipfile
 import tempfile
 from datetime import datetime
 from contextlib import redirect_stdout
 from inkscape_transform import SVGTransformer
 from PIL import Image, ImageTk  # For handling images
+import re
+import threading
+import queue
 
 # Config file path - with PyInstaller compatibility
 def get_application_path():
@@ -22,6 +44,29 @@ def get_application_path():
     else:
         # If running as a regular Python script
         return os.path.dirname(os.path.abspath(__file__))
+
+def resource_path(relative_path):
+    """
+    Get absolute path to resource, works for dev and for PyInstaller.
+    This function helps locate resources whether running from source or
+    from a packaged executable.
+    
+    Args:
+        relative_path (str): Path relative to the script or executable
+        
+    Returns:
+        str: Absolute path to the resource
+    """
+    try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = getattr(sys, '_MEIPASS', None)
+        if base_path is None:
+            # Fall back to application directory
+            base_path = get_application_path()
+    except Exception:
+        base_path = get_application_path()
+    
+    return os.path.join(base_path, relative_path)
 
 # Default configuration values
 DEFAULT_CONFIG = {
@@ -41,83 +86,244 @@ DEFAULT_CONFIG = {
 }
 
 class ConfigManager:
-    """Handles loading, saving, and accessing application configuration."""
+    """
+    Handles loading, saving, and accessing application configuration.
+    
+    This class provides methods to manage the application's configuration,
+    including loading from file, saving to file, and accessing configuration values.
+    It also handles creating default configuration when necessary.
+    """
     
     def __init__(self, config_file=None):
-        """Initialize the configuration manager."""
+        """
+        Initialize the configuration manager.
+        
+        Args:
+            config_file (str, optional): Path to the configuration file.
+                If None, uses the default location in the application directory.
+        """
         self.config_dir = get_application_path()
         self.config_file = config_file or os.path.join(self.config_dir, "app_config.json")
         self.config = self._load_or_create_config()
         
     def _load_or_create_config(self):
-        """Load existing config or create default if none exists."""
+        """
+        Load existing config or create default if none exists.
+        
+        Returns:
+            dict: The loaded or created configuration dictionary.
+        """
         # Ensure config directory exists
-        os.makedirs(self.config_dir, exist_ok=True)
+        try:
+            os.makedirs(self.config_dir, exist_ok=True)
+        except (PermissionError, OSError):
+            return DEFAULT_CONFIG.copy()
         
         if not os.path.exists(self.config_file):
             return self._create_default_config()
         
         try:
             with open(self.config_file, 'r') as config_file:
-                return json.load(config_file)
-        except Exception as e:
-            print(f"Error loading configuration: {e}")
-            return self._create_default_config()
+                config = json.load(config_file)
+                # Validate the loaded config and add any missing keys
+                return self._validate_and_update_config(config)
+        except (json.JSONDecodeError, PermissionError, Exception):
+            return DEFAULT_CONFIG.copy()
+    
+    def _validate_and_update_config(self, config):
+        """
+        Validate loaded configuration and add any missing default values.
+        
+        Args:
+            config (dict): The loaded configuration dictionary.
+        
+        Returns:
+            dict: The validated and updated configuration dictionary.
+        """
+        validated_config = DEFAULT_CONFIG.copy()
+        
+        # Update with values from loaded config
+        for key, default_value in DEFAULT_CONFIG.items():
+            if key in config:
+                validated_config[key] = config[key]
+        
+        return validated_config
     
     def _create_default_config(self):
-        """Create and save default configuration."""
+        """
+        Create and save default configuration.
+        
+        Returns:
+            dict: The default configuration dictionary.
+        """
         try:
             with open(self.config_file, 'w') as config_file:
                 json.dump(DEFAULT_CONFIG, config_file, indent=4)
-            print(f"Created default configuration file at {self.config_file}")
             return DEFAULT_CONFIG.copy()
-        except Exception as e:
-            print(f"Error creating default configuration file: {e}")
+        except Exception:
             return DEFAULT_CONFIG.copy()
     
     def save_config(self, updated_config):
-        """Save the current configuration to file."""
+        """
+        Save the current configuration to file.
+        
+        Args:
+            updated_config (dict): The configuration dictionary to save.
+        
+        Returns:
+            bool: True if the configuration was saved successfully, False otherwise.
+        """
         try:
             # Ensure the directory exists
             os.makedirs(os.path.dirname(self.config_file), exist_ok=True)
             
+            # Validate the configuration before saving
+            validated_config = self._validate_and_update_config(updated_config)
+            
             with open(self.config_file, 'w') as config_file:
-                json.dump(updated_config, config_file, indent=4)
-            self.config = updated_config
-            print(f"Configuration saved to {self.config_file}")
+                json.dump(validated_config, config_file, indent=4)
+            self.config = validated_config
             return True
-        except Exception as e:
-            print(f"Error saving configuration: {e}")
+        except Exception:
             return False
     
     def get_config(self):
-        """Get a copy of the current configuration."""
+        """
+        Get a copy of the current configuration.
+        
+        Returns:
+            dict: A copy of the current configuration dictionary.
+        """
         return self.config.copy()
     
     def get_value(self, key, default=None):
-        """Get a specific configuration value."""
+        """
+        Get a specific configuration value.
+        
+        Args:
+            key (str): The configuration key to get.
+            default: The default value to return if the key doesn't exist.
+        
+        Returns:
+            The value for the specified key, or the default value if the key doesn't exist.
+        """
         return self.config.get(key, default)
+    
+    def set_value(self, key, value):
+        """
+        Set a specific configuration value and save the configuration.
+        
+        Args:
+            key (str): The configuration key to set.
+            value: The value to set for the key.
+            
+        Returns:
+            bool: True if the value was set and saved successfully, False otherwise.
+        """
+        updated_config = self.get_config()
+        updated_config[key] = value
+        return self.save_config(updated_config)
 
 class RedirectText:
-    """Redirect stdout to a tkinter widget."""
+    """
+    Redirect stdout to a tkinter widget.
+    
+    This class provides a file-like interface to redirect standard output
+    to a tkinter text widget. It's used to capture console output for
+    display in the GUI.
+    """
     def __init__(self, text_widget):
+        """
+        Initialize the stdout redirector.
+        
+        Args:
+            text_widget: A tkinter text or scrolledtext widget to receive the output.
+        """
         self.text_widget = text_widget
         self.buffer = io.StringIO()
+        self.text_buffer = ""
         
     def write(self, string):
-        self.buffer.write(string)
-        self.text_widget.insert(tk.END, string)
-        self.text_widget.see(tk.END)  # Auto-scroll to the end
-        self.text_widget.update_idletasks()
+        """
+        Write string to the buffer and text widget.
+        
+        This method is called when text is written to stdout.
+        
+        Args:
+            string (str): The string to write to the widget.
+        """
+        try:
+            # Write to buffer
+            self.buffer.write(string)
+            
+            # Accumulate text and schedule updates in batches for smoother UI
+            self.text_buffer += string
+            if len(self.text_buffer) >= 100 or '\n' in self.text_buffer:
+                self._flush_text_buffer()
+        except Exception as e:
+            # Handle other errors
+            print(f"Unexpected error writing to text widget: {e}")
+    
+    def _flush_text_buffer(self):
+        """Flush accumulated text to the widget for smoother UI updates."""
+        if not self.text_buffer:
+            return
+            
+        try:
+            # Add the text to the widget
+            self.text_widget.insert(tk.END, self.text_buffer)
+            self.text_widget.see(tk.END)  # Auto-scroll to the end
+            
+            # Only call update_idletasks occasionally to reduce UI freezing
+            if '\n' in self.text_buffer:
+                self.text_widget.update_idletasks()
+                
+            # Clear the buffer
+            self.text_buffer = ""
+        except tk.TclError as e:
+            # Handle tkinter errors (e.g., widget destroyed)
+            print(f"Error writing to text widget: {e}")
+            self.text_buffer = ""
     
     def flush(self):
-        pass
+        """
+        Flush the buffer.
+        
+        This method is called when the buffer needs to be flushed.
+        It's required for file-like objects.
+        """
+        try:
+            self.buffer.flush()
+            self._flush_text_buffer()
+        except Exception as e:
+            print(f"Error flushing buffer: {e}")
+    
+    def getvalue(self):
+        """
+        Get the current value of the buffer.
+        
+        Returns:
+            str: The current value of the buffer.
+        """
+        return self.buffer.getvalue()
 
 class SVGProcessorApp:
-    """Main application class for the SVG Processor."""
+    """
+    Main application class for the SVG Processor.
+    
+    This class handles the user interface and coordinates the various
+    components of the application.
+    """
     
     def __init__(self, root, config_manager=None, svg_transformer_class=SVGTransformer):
-        """Initialize the application."""
+        """
+        Initialize the application.
+        
+        Args:
+            root: The Tkinter root window.
+            config_manager: An optional ConfigManager instance for configuration handling.
+            svg_transformer_class: The SVGTransformer class to use for processing SVGs.
+        """
         self.root = root
         self.root.title("SVG Processor")
         self.root.minsize(800, 600)
@@ -127,6 +333,23 @@ class SVGProcessorApp:
         self.config_manager = config_manager or ConfigManager()
         self.svg_transformer_class = svg_transformer_class
         
+        # Store the processed elements
+        self.elements = []
+        
+        # Create a queue for thread communication
+        self.queue = queue.Queue()
+        
+        # Thread status flag
+        self.processing_thread_active = False
+        
+        # Initialize the application UI
+        self._init_application()
+        
+        # Set up queue checking for thread results
+        self._setup_queue_check()
+    
+    def _init_application(self):
+        """Initialize the application components."""
         # Configure the theme
         self.configure_theme()
         
@@ -135,20 +358,23 @@ class SVGProcessorApp:
         
         # Initialize UI components
         self._init_ui_variables()
-        self._create_form_frame()
-        self._create_scada_frame()
-        self._create_button_frame()
-        self._create_notebook()
-        self._create_status_bar()
         
-        # Store the processed elements
-        self.elements = []
+        # Create UI sections
+        self._create_ui_sections()
         
         # Load saved configuration
         self._load_config_to_ui()
         
         # Set up window close handler
         self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
+    
+    def _create_ui_sections(self):
+        """Create all UI sections."""
+        self._create_form_frame()
+        self._create_scada_frame()
+        self._create_button_frame()
+        self._create_notebook()
+        self._create_status_bar()
     
     def _init_ui_variables(self):
         """Initialize UI variables."""
@@ -324,199 +550,307 @@ class SVGProcessorApp:
         self.root.configure(background='#222222')
     
     def set_window_icon(self):
-        """Set the window icon to the autStand logo."""
+        """
+        Set the window icon to the autStand logo.
+        
+        This method tries to locate and set the application icon
+        from different possible locations, with fallbacks.
+        """
         try:
-            # Check which platform we're on
+            # Get platform info for platform-specific handling
             is_windows = sys.platform.startswith('win')
-            print(f"Platform is Windows: {is_windows}")
             
-            # Get the application path for debugging
-            app_path = get_application_path()
-            print(f"Application path: {app_path}")
-            
-            # List files in the application path
-            try:
-                print(f"Files in application path: {os.listdir(app_path)}")
-            except Exception as e:
-                print(f"Could not list files in application path: {e}")
-            
-            # Prioritize the autStand_ic0n.ico file for the window/tray icon
-            icon_paths = [
-                os.path.join(app_path, "autStand_ic0n.ico"),
-                "autStand_ic0n.ico",  # Try current directory with exact case
-                os.path.join(app_path, "autstand_icon.ico"),
-                "autstand_icon.ico",   # Fallback to alternate case
-                os.path.abspath("autStand_ic0n.ico"),  # Try absolute path
-                os.path.abspath("autstand_icon.ico")   # Try absolute path with alternate case
-            ]
-            
-            print(f"Checking icon paths: {icon_paths}")
-            
-            # Try each path until we find a valid icon file
-            for icon_path in icon_paths:
-                print(f"Checking icon path: {icon_path}, exists: {os.path.exists(icon_path)}")
-                if os.path.exists(icon_path):
-                    # For Windows, we can use .ico files directly
-                    if icon_path.endswith('.ico'):
-                        if is_windows:
-                            print(f"Using iconbitmap with: {icon_path}")
-                            # Apply both iconbitmap and iconphoto methods for better Windows integration
-                            self.root.iconbitmap(icon_path)
-                            
-                            # Also try to create a PhotoImage for the taskbar/tray icon
-                            try:
-                                icon_img = Image.open(icon_path)
-                                # Windows taskbar icons work better with specific sizes
-                                # Try multiple sizes for better compatibility
-                                for size in [(16, 16), (32, 32), (48, 48)]:
-                                    try:
-                                        resized = icon_img.resize(size, Image.LANCZOS)
-                                        photo = ImageTk.PhotoImage(resized)
-                                        self.root.iconphoto(False, photo)  # Use False to avoid affecting child windows
-                                        print(f"Added icon with size {size}")
-                                    except Exception as e:
-                                        print(f"Failed to add icon size {size}: {e}")
-                                
-                                # Set the default icon as well
-                                default_photo = ImageTk.PhotoImage(icon_img.resize((32, 32), Image.LANCZOS))
-                                self.root.iconphoto(True, default_photo)
-                                print(f"Set default window icon with size (32, 32)")
-                            except Exception as photoEx:
-                                print(f"Could not create PhotoImage from icon: {photoEx}")
-                                
-                            # Force the window to refresh its taskbar icon
-                            self.root.update_idletasks()
-                            
-                            print(f"Set window icon from: {icon_path}")
-                            return
-                        else:
-                            # For non-Windows, convert .ico to PhotoImage
-                            try:
-                                print(f"Converting .ico to PhotoImage: {icon_path}")
-                                icon_img = Image.open(icon_path)
-                                # Resize to standard icon size
-                                icon_img = icon_img.resize((32, 32), Image.LANCZOS)
-                                icon_photo = ImageTk.PhotoImage(icon_img)
-                                self.root.iconphoto(True, icon_photo)
-                                print(f"Set window icon from: {icon_path}")
-                                return
-                            except Exception as ico_e:
-                                print(f"Could not use .ico file on non-Windows platform: {ico_e}")
-            
-            print("No .ico files found, trying jpg files...")
-            # Only if .ico files are not found, fall back to using the jpg logo as icon
-            jpg_paths = [
-                os.path.join(app_path, "automation_standard_logo.jpg"),
-                "automation_standard_logo.jpg"
-            ]
-            
-            for icon_path in jpg_paths:
-                if os.path.exists(icon_path):
-                    try:
-                        # Convert .jpg to PhotoImage for icon
-                        icon_img = Image.open(icon_path)
-                        # Resize to standard icon size
-                        icon_img = icon_img.resize((32, 32), Image.LANCZOS)
-                        icon_photo = ImageTk.PhotoImage(icon_img)
-                        
-                        if is_windows:
-                            # Windows can use both methods
-                            try:
-                                self.root.iconphoto(True, icon_photo)
-                            except AttributeError:
-                                # Older tkinter versions on Windows might not have iconphoto
-                                # In this case we skip setting the icon from JPG
-                                print("Could not set JPG icon on Windows (older tkinter)")
-                        else:
-                            # Non-Windows platforms use iconphoto
-                            self.root.iconphoto(True, icon_photo)
-                            
-                        print(f"Set window icon from: {icon_path}")
-                        return
-                    except Exception as jpg_e:
-                        print(f"Could not process JPG for icon: {jpg_e}")
-            
-            print("No suitable icon file found for window icon")
+            # Try to find icon files using resource_path
+            icon_path = self._find_icon_file()
+            if not icon_path:
+                print("Could not find icon file.")
+                return
+                
+            # Apply the icon based on platform
+            if icon_path.endswith('.ico'):
+                self._apply_ico_icon(icon_path, is_windows)
+            elif icon_path.endswith('.jpg') or icon_path.endswith('.png'):
+                self._apply_image_icon(icon_path)
+                
         except Exception as e:
             print(f"Error setting window icon: {e}")
     
-    def _load_config_to_ui(self):
-        """Load configuration values into UI elements."""
-        config = self.config_manager.get_config()
+    def _find_icon_file(self):
+        """
+        Find the icon file using resource_path to ensure it works in both
+        development and PyInstaller environments.
         
-        # Update form fields with saved values
-        if config.get('file_path'):
-            self.file_path.set(config['file_path'])
+        Returns:
+            str: The path to the icon file, or None if not found.
+        """
+        # Try icon files in order of preference
+        icon_files = [
+            "autStand_ic0n.ico",
+            "autstand_icon.ico",
+            "automation_standard_logo.jpg"
+        ]
+        
+        # Check each file
+        for icon_file in icon_files:
+            try:
+                path = resource_path(icon_file)
+                if os.path.exists(path):
+                    return path
+            except Exception:
+                continue
+                
+        return None
+    
+    def _apply_ico_icon(self, icon_path, is_windows):
+        """
+        Apply an .ico file as the window icon.
+        
+        Args:
+            icon_path (str): The path to the .ico file.
+            is_windows (bool): Whether the platform is Windows.
+        """
+        print(f"Applying .ico icon from: {icon_path}")
+        if is_windows:
+            try:
+                # Windows can use iconbitmap directly
+                self.root.iconbitmap(icon_path)
+                print("Applied icon using iconbitmap")
+                
+                # Also try to create a PhotoImage for the taskbar/tray icon
+                self._apply_photo_image_from_icon(icon_path)
+            except Exception as e:
+                print(f"Error applying iconbitmap: {e}")
+                # Fall back to photo image if iconbitmap fails
+                self._apply_photo_image_from_icon(icon_path)
+        else:
+            # For non-Windows, convert .ico to PhotoImage
+            self._apply_photo_image_from_icon(icon_path)
+    
+    def _apply_photo_image_from_icon(self, icon_path):
+        """
+        Create and apply a PhotoImage from an icon file.
+        
+        Args:
+            icon_path (str): The path to the icon file.
+        """
+        try:
+            print(f"Creating PhotoImage from: {icon_path}")
+            icon_img = Image.open(icon_path)
             
-        if config.get('element_type'):
-            self.element_type.set(config['element_type'])
+            # Set the default icon
+            default_photo = ImageTk.PhotoImage(icon_img.resize((32, 32), Image.LANCZOS))
+            self.root.iconphoto(True, default_photo)
+            print("Applied icon using iconphoto")
             
-        if config.get('props_path'):
-            self.props_path.set(config['props_path'])
+            # Force the window to refresh its taskbar icon
+            self.root.update_idletasks()
+        except Exception as e:
+            print(f"Error creating PhotoImage from icon: {e}")
+    
+    def _apply_image_icon(self, image_path):
+        """
+        Apply an image file (.jpg, .png) as the window icon.
+        
+        Args:
+            image_path (str): The path to the image file.
+        """
+        try:
+            print(f"Creating image icon from: {image_path}")
+            # Convert image to PhotoImage for icon
+            icon_img = Image.open(image_path)
+            # Resize to standard icon size
+            icon_img = icon_img.resize((32, 32), Image.LANCZOS)
+            icon_photo = ImageTk.PhotoImage(icon_img)
             
-        if config.get('element_width'):
-            self.element_width.set(config['element_width'])
+            # Set as icon
+            self.root.iconphoto(True, icon_photo)
+            print("Applied image as icon using iconphoto")
+        except Exception as e:
+            print(f"Error applying image as icon: {e}")
             
-        if config.get('element_height'):
-            self.element_height.set(config['element_height'])
+        # Force the window to refresh its icon
+        self.root.update_idletasks()
+    
+    def _load_config_to_ui(self):
+        """
+        Load configuration values into UI elements.
+        
+        This method loads saved configuration values from the config manager
+        and updates the UI elements accordingly.
+        """
+        try:
+            config = self.config_manager.get_config()
             
-        if config.get('project_title'):
-            self.project_title.set(config['project_title'])
+            # Map configuration keys to UI variables
+            config_to_ui_map = {
+                'file_path': self.file_path,
+                'element_type': self.element_type,
+                'props_path': self.props_path,
+                'element_width': self.element_width,
+                'element_height': self.element_height,
+                'project_title': self.project_title,
+                'parent_project': self.parent_project,
+                'view_name': self.view_name,
+                'svg_url': self.svg_url,
+                'image_width': self.image_width,
+                'image_height': self.image_height,
+                'default_width': self.default_width,
+                'default_height': self.default_height
+            }
             
-        if config.get('parent_project'):
-            self.parent_project.set(config['parent_project'])
-            
-        if config.get('view_name'):
-            self.view_name.set(config['view_name'])
-            
-        if config.get('svg_url'):
-            self.svg_url.set(config['svg_url'])
-            
-        if config.get('image_width'):
-            self.image_width.set(config['image_width'])
-            
-        if config.get('image_height'):
-            self.image_height.set(config['image_height'])
-            
-        if config.get('default_width'):
-            self.default_width.set(config['default_width'])
-            
-        if config.get('default_height'):
-            self.default_height.set(config['default_height'])
+            # Update form fields with saved values
+            for config_key, ui_var in config_to_ui_map.items():
+                if config_key in config and config[config_key]:
+                    ui_var.set(config[config_key])
+        except Exception:
+            # Fall back to default values if loading fails
+            pass
     
     def _save_config_from_ui(self):
-        """Save current UI values to configuration."""
-        updated_config = {
-            'file_path': self.file_path.get(),
-            'element_type': self.element_type.get(),
-            'props_path': self.props_path.get(),
-            'element_width': self.element_width.get(),
-            'element_height': self.element_height.get(),
-            'project_title': self.project_title.get(),
-            'parent_project': self.parent_project.get(),
-            'view_name': self.view_name.get(),
-            'svg_url': self.svg_url.get(),
-            'image_width': self.image_width.get(),
-            'image_height': self.image_height.get(),
-            'default_width': self.default_width.get(),
-            'default_height': self.default_height.get()
-        }
+        """
+        Save current UI values to configuration.
         
-        return self.config_manager.save_config(updated_config)
+        This method collects values from UI elements and saves them
+        to the configuration manager.
+        
+        Returns:
+            bool: True if the configuration was saved successfully, False otherwise.
+        """
+        try:
+            updated_config = {
+                'file_path': self.file_path.get(),
+                'element_type': self.element_type.get(),
+                'props_path': self.props_path.get(),
+                'element_width': self.element_width.get(),
+                'element_height': self.element_height.get(),
+                'project_title': self.project_title.get(),
+                'parent_project': self.parent_project.get(),
+                'view_name': self.view_name.get(),
+                'svg_url': self.svg_url.get(),
+                'image_width': self.image_width.get(),
+                'image_height': self.image_height.get(),
+                'default_width': self.default_width.get(),
+                'default_height': self.default_height.get()
+            }
+            
+            return self.config_manager.save_config(updated_config)
+        except Exception:
+            return False
     
     def browse_file(self):
-        """Open a file dialog to select an SVG file."""
-        filetypes = [
-            ("SVG files", "*.svg"),
-            ("All files", "*.*")
-        ]
-        filename = filedialog.askopenfilename(
-            title="Select SVG File",
-            filetypes=filetypes
-        )
-        if filename:
-            self.file_path.set(filename)
-            self.status_var.set(f"Selected file: {os.path.basename(filename)}")
+        """
+        Open a file dialog to select an SVG file.
+        
+        This method opens a file dialog for the user to select an SVG file,
+        updates the file path in the UI, and updates the status bar.
+        """
+        try:
+            # Determine initial directory from current file path if available
+            initial_dir = None
+            if self.file_path.get():
+                initial_dir = os.path.dirname(self.file_path.get())
+                
+            filetypes = [
+                ("SVG files", "*.svg"),
+                ("All files", "*.*")
+            ]
+            
+            filename = filedialog.askopenfilename(
+                title="Select SVG File",
+                filetypes=filetypes,
+                initialdir=initial_dir
+            )
+            
+            if filename:
+                self.file_path.set(filename)
+                self.status_var.set(f"Selected file: {os.path.basename(filename)}")
+                
+                # Update SVG URL if it's empty or has a default value
+                current_url = self.svg_url.get()
+                if not current_url or current_url == DEFAULT_CONFIG["svg_url"]:
+                    # Create a basic URL from the filename
+                    file_basename = os.path.basename(filename)
+                    self.svg_url.set(f"http://127.0.0.1:5500/{file_basename}")
+                
+                # Save the configuration to preserve the file path
+                self._save_config_from_ui()
+                
+        except Exception as e:
+            self.status_var.set("Error selecting file")
+            print(f"Error in file selection: {e}")
+    
+    def _setup_queue_check(self):
+        """Set up periodic queue checking for thread results."""
+        # Schedule the first check
+        self.root.after(100, self._check_queue)
+    
+    def _check_queue(self):
+        """Check for results from background processing thread."""
+        try:
+            # Non-blocking check
+            if not self.queue.empty():
+                result = self.queue.get_nowait()
+                
+                # Check if result is an error
+                if isinstance(result, Exception):
+                    self._handle_processing_error(result)
+                else:
+                    # Handle successful result
+                    self.elements = result
+                    self._display_results(result)
+                    self.status_var.set(f"Processed {len(result)} elements successfully.")
+                
+                # Clean up processing state
+                self.processing_thread_active = False
+                self.progress.stop()
+                self.process_button.configure(state=tk.NORMAL)
+                
+                # Save the configuration
+                self._save_config_from_ui()
+                
+                # Switch back to the results tab after a short delay
+                self.root.after(500, lambda: self.notebook.select(0))
+        except queue.Empty:
+            # Queue is empty, do nothing
+            pass
+        except Exception as e:
+            print(f"Error checking thread queue: {e}")
+        
+        # Schedule the next check
+        self.root.after(100, self._check_queue)
+    
+    def _handle_processing_error(self, error):
+        """Handle an error result from the processing thread."""
+        self.status_var.set(f"Processing failed: {str(error)}")
+        messagebox.showerror("Processing Error", f"Error processing SVG: {str(error)}")
+        self.progress.stop()
+        self.process_button.configure(state=tk.NORMAL)
+        self.processing_thread_active = False
+    
+    def _process_svg_in_thread(self, svg_path, custom_options):
+        """Process the SVG file in a background thread."""
+        try:
+            # Create a StringIO to capture stdout
+            log_output = io.StringIO()
+            with redirect_stdout(log_output):
+                transformer = self.svg_transformer_class(svg_path, custom_options)
+                elements = transformer.process_svg()
+            
+            # Update the log text from the main thread
+            log_text = log_output.getvalue()
+            self.root.after(0, lambda: self._update_log_text(log_text))
+            
+            # Put the result in the queue for the main thread to process
+            self.queue.put(elements)
+        except Exception as e:
+            # Put the exception in the queue for the main thread to handle
+            self.queue.put(e)
+    
+    def _update_log_text(self, text):
+        """Update the log text widget with captured output."""
+        if text:
+            self.log_text.insert(tk.END, text)
+            self.log_text.see(tk.END)
     
     def process_svg(self):
         """Process the selected SVG file and display results."""
@@ -530,58 +864,144 @@ class SVGProcessorApp:
             messagebox.showerror("Error", f"File not found: {svg_path}")
             return
         
+        # Prevent multiple processing threads
+        if self.processing_thread_active:
+            messagebox.showinfo("Processing", "SVG processing is already in progress.")
+            return
+            
         try:
             # Clear previous results
             self.results_text.delete(1.0, tk.END)
             self.log_text.delete(1.0, tk.END)
             
+            # Update UI to show processing state
             self.status_var.set("Processing...")
             self.progress.start()
             self.process_button.configure(state=tk.DISABLED)
             self.root.update_idletasks()  # Update UI to show status change
             
             # Get custom options from form
-            custom_options = self._get_processing_options()
+            try:
+                custom_options = self._get_processing_options()
+            except ValueError as e:
+                messagebox.showerror("Input Error", f"Invalid input values: {str(e)}")
+                self.status_var.set("Processing failed: Invalid input values")
+                self.progress.stop()
+                self.process_button.configure(state=tk.NORMAL)
+                return
             
-            # Process the SVG file with stdout redirected to log
-            elements = self._process_svg_file(svg_path, custom_options)
-            self.elements = elements
+            # Start a background thread for SVG processing
+            self.processing_thread_active = True
+            processing_thread = threading.Thread(
+                target=self._process_svg_in_thread,
+                args=(svg_path, custom_options),
+                daemon=True  # Thread will exit when main program exits
+            )
+            processing_thread.start()
             
-            # Display the results
-            self._display_results(elements)
-            
-            # After a delay, switch back to the main tab
-            self.root.after(3000, lambda: self.notebook.select(0))
+            # Switch to log tab to show processing progress
+            self.notebook.select(1)  # Index 1 is the log tab
             
         except Exception as e:
             self.status_var.set("Error processing file.")
             messagebox.showerror("Processing Error", f"Error: {str(e)}")
-        finally:
+            
+            # Log the detailed error
+            import traceback
+            traceback_str = traceback.format_exc()
+            print(f"Error details:\n{traceback_str}")
+            
+            # Always ensure UI is updated properly
             self.progress.stop()
             self.process_button.configure(state=tk.NORMAL)
+            self.processing_thread_active = False
     
     def _get_processing_options(self):
-        """Get processing options from the UI."""
-        return {
-            'type': self.element_type.get(),
-            'props_path': self.props_path.get(),
-            'width': int(self.element_width.get()),
-            'height': int(self.element_height.get())
-        }
-    
-    def _process_svg_file(self, svg_path, custom_options):
-        """Process the SVG file and return the elements."""
-        with redirect_stdout(self.redirect):
-            transformer = self.svg_transformer_class(svg_path, custom_options)
-            return transformer.process_svg()
+        """
+        Get processing options from the UI.
+        
+        Returns:
+            dict: The processing options.
+            
+        Raises:
+            ValueError: If any input values are invalid.
+        """
+        try:
+            # Validate width and height are positive integers
+            width = int(self.element_width.get())
+            height = int(self.element_height.get())
+            
+            if width <= 0 or height <= 0:
+                raise ValueError("Element width and height must be positive integers")
+            
+            element_type = self.element_type.get()
+            props_path = self.props_path.get()
+            
+            if not element_type or not props_path:
+                raise ValueError("Element type and properties path cannot be empty")
+                
+            return {
+                'type': element_type,
+                'props_path': props_path,
+                'width': width,
+                'height': height
+            }
+        except ValueError as e:
+            if "invalid literal for int" in str(e):
+                raise ValueError("Element width and height must be valid integers")
+            else:
+                raise
     
     def _display_results(self, elements):
-        """Display the processing results in the UI."""
-        formatted_json = json.dumps(elements, indent=2)
-        self.results_text.insert(tk.END, formatted_json)
+        """
+        Display the processing results in the UI.
         
-        num_elements = len(elements)
-        self.status_var.set(f"Processed {num_elements} elements successfully.")
+        Args:
+            elements (list): The processed SVG elements.
+        """
+        if not elements:
+            self.results_text.insert(tk.END, "No elements found in the SVG file.")
+            self.status_var.set("Processed SVG but found no elements.")
+            return
+            
+        try:
+            # Format results with indentation for better readability
+            formatted_json = json.dumps(elements, indent=2)
+            
+            # For large results, insert in chunks to prevent UI freezing
+            if len(formatted_json) > 50000:  # Large result threshold
+                self.status_var.set(f"Processing large result ({len(formatted_json)} chars)...")
+                self._insert_large_text(self.results_text, formatted_json)
+            else:
+                self.results_text.insert(tk.END, formatted_json)
+            
+            num_elements = len(elements)
+            self.status_var.set(f"Processed {num_elements} elements successfully.")
+        except Exception as e:
+            print(f"Error formatting results: {e}")
+            self.results_text.insert(tk.END, f"Error formatting results: {str(e)}")
+            self.status_var.set("Error displaying results.")
+    
+    def _insert_large_text(self, text_widget, text):
+        """Insert large text in chunks to prevent UI freezing."""
+        chunk_size = 10000  # Characters per chunk
+        
+        # Create a function to insert text chunks and update the UI
+        def insert_chunk(start_pos):
+            if start_pos >= len(text):
+                return
+                
+            end_pos = min(start_pos + chunk_size, len(text))
+            chunk = text[start_pos:end_pos]
+            
+            text_widget.insert(tk.END, chunk)
+            
+            # Schedule the next chunk
+            if end_pos < len(text):
+                self.root.after(10, lambda: insert_chunk(end_pos))
+                
+        # Start inserting chunks
+        insert_chunk(0)
     
     def copy_to_clipboard(self):
         """Copy the results to the clipboard."""
@@ -595,6 +1015,18 @@ class SVGProcessorApp:
             self.root.clipboard_append(json.dumps(self.elements, indent=2))
             
             self.status_var.set("Results copied to clipboard!")
+            
+            # Optional: Flash the status bar to provide visual feedback
+            original_bg = self.status_bar['background']
+            self.status_bar.configure(background='#FFDD00')
+            self.status_bar.configure(foreground='#111111')
+            
+            # Reset after a delay
+            self.root.after(1000, lambda: self.status_bar.configure(background=original_bg, foreground='#FFDD00'))
+            
+        except tk.TclError as e:
+            self.status_var.set("Error accessing clipboard.")
+            messagebox.showerror("Clipboard Error", f"Clipboard access error: {str(e)}")
         except Exception as e:
             self.status_var.set("Error copying to clipboard.")
             messagebox.showerror("Clipboard Error", f"Error: {str(e)}")
@@ -606,6 +1038,16 @@ class SVGProcessorApp:
             return
         
         try:
+            # Get initial directory from the loaded SVG file
+            initial_dir = os.path.dirname(self.file_path.get()) if self.file_path.get() else None
+            
+            # Generate a default filename based on the SVG filename
+            default_filename = None
+            if self.file_path.get():
+                svg_basename = os.path.basename(self.file_path.get())
+                svg_name = os.path.splitext(svg_basename)[0]
+                default_filename = f"{svg_name}_elements.json"
+            
             filetypes = [
                 ("JSON files", "*.json"),
                 ("All files", "*.*")
@@ -613,7 +1055,9 @@ class SVGProcessorApp:
             filename = filedialog.asksaveasfilename(
                 title="Save Results",
                 filetypes=filetypes,
-                defaultextension=".json"
+                defaultextension=".json",
+                initialdir=initial_dir,
+                initialfile=default_filename
             )
             
             if filename:
@@ -621,6 +1065,9 @@ class SVGProcessorApp:
                     json.dump(self.elements, f, indent=2)
                 self.status_var.set(f"Results saved to {os.path.basename(filename)}")
                 messagebox.showinfo("Success", f"Results have been saved to {filename}")
+        except PermissionError:
+            self.status_var.set("Error: Permission denied when saving file.")
+            messagebox.showerror("Permission Error", "You don't have permission to save the file at this location.")
         except Exception as e:
             self.status_var.set("Error saving file.")
             messagebox.showerror("File Error", f"Error: {str(e)}")
@@ -630,83 +1077,241 @@ class SVGProcessorApp:
         self.results_text.delete(1.0, tk.END)
         self.elements = []
         self.status_var.set("Results cleared.")
+        
+        # Also clear the log text if it's getting too large
+        if len(self.log_text.get(1.0, tk.END)) > 10000:  # If log is larger than ~10KB
+            self.log_text.delete(1.0, tk.END)
+            self.log_text.insert(tk.END, "[Log cleared to improve performance]\n")
     
     def on_closing(self):
-        """Save configuration and close the window."""
+        """
+        Save configuration and close the window.
+        
+        This method is called when the window is closing.
+        It saves the current configuration and destroys the window.
+        """
         self._save_config_from_ui()
         self.root.destroy()
 
     def export_scada_project(self):
-        """Export the processed SVG data as an Ignition SCADA project structure in a zip file."""
+        """
+        Export the processed SVG data as an Ignition SCADA project structure in a zip file.
+        
+        This method creates a zip file with the proper folder structure and
+        configuration files for importing into Ignition SCADA.
+        """
         if not self.elements:
             messagebox.showinfo("Info", "No results to export. Process an SVG file first.")
             return
         
+        # Prevent export if processing is active
+        if self.processing_thread_active:
+            messagebox.showinfo("Processing", "Please wait for SVG processing to complete before exporting.")
+            return
+            
+        # Validate SCADA project settings
+        if not self._validate_scada_settings():
+            return
+            
         try:
+            # Update UI to show exporting state
+            self.status_var.set("Exporting SCADA project...")
+            self.export_scada_button.configure(state=tk.DISABLED)
+            self.progress.start()
+            self.root.update_idletasks()
+            
             # Ask for save location for the zip file
-            project_folder_name = f"{self.project_title.get()}_{datetime.now().strftime('%Y-%m-%d_%H%M')}"
-            zip_file_path = filedialog.asksaveasfilename(
-                title="Save SCADA Project Zip File",
-                initialfile=f"{project_folder_name}.zip",
-                defaultextension=".zip",
-                filetypes=[("Zip files", "*.zip"), ("All files", "*.*")]
-            )
+            project_folder_name = self._get_safe_project_name()
+            zip_file_path = self._get_export_zip_path(project_folder_name)
             
             if not zip_file_path:
-                messagebox.showinfo("Info", "Export cancelled.")
+                self.status_var.set("Export cancelled.")
+                self.progress.stop()
+                self.export_scada_button.configure(state=tk.NORMAL)
                 return
             
+            # Create a thread for export to prevent UI freezing
+            export_thread = threading.Thread(
+                target=self._export_scada_thread,
+                args=(zip_file_path, project_folder_name),
+                daemon=True
+            )
+            export_thread.start()
+                
+        except Exception as e:
+            self.status_var.set("Error preparing SCADA export.")
+            messagebox.showerror("Export Error", f"Error: {str(e)}")
+            self.progress.stop()
+            self.export_scada_button.configure(state=tk.NORMAL)
+    
+    def _validate_scada_settings(self):
+        """
+        Validate the SCADA project settings.
+        
+        Returns:
+            bool: True if settings are valid, False otherwise.
+        """
+        # Check for empty values
+        required_fields = {
+            'Project Title': self.project_title.get(),
+            'Parent Project': self.parent_project.get(),
+            'View Name': self.view_name.get(),
+            'SVG URL': self.svg_url.get(),
+        }
+        
+        empty_fields = [field for field, value in required_fields.items() if not value.strip()]
+        
+        if empty_fields:
+            # Create the error message without using an f-string with a backslash in the expression
+            error_msg = "The following fields cannot be empty:\n- " + "\n- ".join(empty_fields)
+            messagebox.showerror(
+                "Invalid Settings", 
+                error_msg
+            )
+            return False
+            
+        # Validate numeric fields
+        try:
+            image_width = int(self.image_width.get())
+            image_height = int(self.image_height.get())
+            default_width = int(self.default_width.get())
+            default_height = int(self.default_height.get())
+            
+            if any(dim <= 0 for dim in [image_width, image_height, default_width, default_height]):
+                messagebox.showerror(
+                    "Invalid Settings", 
+                    "Width and height values must be positive integers."
+                )
+                return False
+        except ValueError:
+            messagebox.showerror(
+                "Invalid Settings", 
+                "Width and height values must be valid integers."
+            )
+            return False
+            
+        return True
+    
+    def _get_safe_project_name(self):
+        """
+        Get a safe project folder name based on the project title and current timestamp.
+        
+        Returns:
+            str: A safe project folder name.
+        """
+        # Clean the project title to ensure it's a valid folder name
+        project_title = self.project_title.get().strip()
+        safe_title = re.sub(r'[^\w\-_]', '_', project_title)
+        timestamp = datetime.now().strftime('%Y-%m-%d_%H%M')
+        
+        return f"{safe_title}_{timestamp}"
+    
+    def _get_export_zip_path(self, project_folder_name):
+        """
+        Get the zip file path for the SCADA project export.
+        
+        Args:
+            project_folder_name (str): The project folder name.
+            
+        Returns:
+            str: The zip file path, or None if cancelled.
+        """
+        # Get initial directory from the loaded SVG file
+        initial_dir = os.path.dirname(self.file_path.get()) if self.file_path.get() else None
+        
+        return filedialog.asksaveasfilename(
+            title="Save SCADA Project Zip File",
+            initialfile=f"{project_folder_name}.zip",
+            initialdir=initial_dir,
+            defaultextension=".zip",
+            filetypes=[("Zip files", "*.zip"), ("All files", "*.*")]
+        )
+    
+    def _export_scada_thread(self, zip_file_path, project_folder_name):
+        """Background thread for SCADA project export."""
+        try:
             # Do the actual export
             self._create_scada_export_zip(zip_file_path, project_folder_name)
             
-            self.status_var.set(f"SCADA project exported to {zip_file_path}")
-            messagebox.showinfo("Success", f"SCADA project has been exported to:\n{zip_file_path}")
-                
-        except Exception as e:
-            self.status_var.set("Error exporting SCADA project.")
-            messagebox.showerror("Export Error", f"Error: {str(e)}")
+            # Update UI from main thread
+            self.root.after(0, lambda: self._finish_export_success(zip_file_path))
+        except Exception as exc:
+            # Store error message
+            error_message = str(exc)
+            # Handle errors on the main thread
+            self.root.after(0, lambda: self._finish_export_error(error_message))
+    
+    def _finish_export_success(self, zip_file_path):
+        """Handle successful export completion in the main thread."""
+        self.status_var.set(f"SCADA project exported to {os.path.basename(zip_file_path)}")
+        messagebox.showinfo("Success", f"SCADA project has been exported to:\n{zip_file_path}")
+        self.progress.stop()
+        self.export_scada_button.configure(state=tk.NORMAL)
+    
+    def _finish_export_error(self, error_message):
+        """Handle export error in the main thread."""
+        self.status_var.set("Error exporting SCADA project.")
+        messagebox.showerror("Export Error", f"Error: {error_message}")
+        self.progress.stop()
+        self.export_scada_button.configure(state=tk.NORMAL)
     
     def _create_scada_export_zip(self, zip_file_path, project_folder_name):
-        """Create the SCADA project zip file with all required files.
+        """
+        Create the SCADA project zip file with all required files.
         
         Args:
             zip_file_path (str): Path where the zip file will be saved
             project_folder_name (str): Name used for the zip file but not for internal folder structure
+            
+        Raises:
+            Exception: If there's an error creating the zip file.
         """
         with tempfile.TemporaryDirectory() as temp_dir:
-            # Create folder structure directly at temp_dir without the project folder level
-            perspective_dir = os.path.join(temp_dir, "com.inductiveautomation.perspective")
-            views_dir = os.path.join(perspective_dir, "views")
-            detailed_views_dir = os.path.join(views_dir, "Detailed-Views")
-            view_dir = os.path.join(detailed_views_dir, self.view_name.get())
-            
-            # Create all required directories
-            os.makedirs(view_dir, exist_ok=True)
-            
-            # Create project.json
-            self._create_project_json(temp_dir)
-            
-            # Create resource.json
-            self._create_resource_json(view_dir)
-            
-            # Create empty thumbnail.png
-            self._create_thumbnail(view_dir)
-            
-            # Create view.json with the processed elements
-            self._create_view_json(view_dir)
-            
-            # Create the zip file
-            with zipfile.ZipFile(zip_file_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
-                # Walk through the temporary directory and add all files to the zip
-                for root, _, files in os.walk(temp_dir):
-                    for file in files:
-                        file_path = os.path.join(root, file)
-                        # Calculate the relative path for the zip file - now directly from temp_dir
-                        rel_path = os.path.relpath(file_path, temp_dir)
-                        zipf.write(file_path, rel_path)
+            try:
+                # Create folder structure directly at temp_dir without the project folder level
+                perspective_dir = os.path.join(temp_dir, "com.inductiveautomation.perspective")
+                views_dir = os.path.join(perspective_dir, "views")
+                detailed_views_dir = os.path.join(views_dir, "Detailed-Views")
+                view_dir = os.path.join(detailed_views_dir, self.view_name.get())
+                
+                # Create all required directories
+                os.makedirs(view_dir, exist_ok=True)
+                
+                # Create project.json
+                self._create_project_json(temp_dir)
+                
+                # Create resource.json
+                self._create_resource_json(view_dir)
+                
+                # Create empty thumbnail.png
+                self._create_thumbnail(view_dir)
+                
+                # Create view.json with the processed elements
+                self._create_view_json(view_dir)
+                
+                # Create the zip file
+                with zipfile.ZipFile(zip_file_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
+                    # Walk through the temporary directory and add all files to the zip
+                    for root, _, files in os.walk(temp_dir):
+                        for file in files:
+                            file_path = os.path.join(root, file)
+                            # Calculate the relative path for the zip file
+                            rel_path = os.path.relpath(file_path, temp_dir)
+                            zipf.write(file_path, rel_path)
+                
+            except Exception:
+                raise
     
     def _create_project_json(self, project_path):
-        """Create the project.json file."""
+        """
+        Create the project.json file.
+        
+        Args:
+            project_path (str): The path where project.json will be created.
+            
+        Raises:
+            Exception: If there's an error creating the file.
+        """
         project_config = {
             "title": self.project_title.get(),
             "description": "Generated by SVG Processor",
@@ -715,11 +1320,20 @@ class SVGProcessorApp:
             "inheritable": False
         }
         
-        with open(os.path.join(project_path, "project.json"), 'w') as f:
+        project_file = os.path.join(project_path, "project.json")
+        with open(project_file, 'w') as f:
             json.dump(project_config, f, indent=2)
     
     def _create_resource_json(self, view_dir):
-        """Create the resource.json file."""
+        """
+        Create the resource.json file.
+        
+        Args:
+            view_dir (str): The directory where resource.json will be created.
+            
+        Raises:
+            Exception: If there's an error creating the file.
+        """
         resource_config = {
             "scope": "G",
             "version": 1,
@@ -738,23 +1352,47 @@ class SVGProcessorApp:
             }
         }
         
-        with open(os.path.join(view_dir, "resource.json"), 'w') as f:
+        resource_file = os.path.join(view_dir, "resource.json")
+        with open(resource_file, 'w') as f:
             json.dump(resource_config, f, indent=2)
     
     def _create_thumbnail(self, view_dir):
-        """Create an empty thumbnail.png file."""
+        """
+        Create an empty thumbnail.png file.
+        
+        Args:
+            view_dir (str): The directory where thumbnail.png will be created.
+            
+        Raises:
+            Exception: If there's an error creating the file.
+        """
+        thumbnail_file = os.path.join(view_dir, "thumbnail.png")
         empty_image = Image.new('RGBA', (950, 530), (240, 240, 240, 0))
-        empty_image.save(os.path.join(view_dir, "thumbnail.png"))
+        empty_image.save(thumbnail_file)
     
     def _create_view_json(self, view_dir):
-        """Create the view.json file with the processed elements."""
+        """
+        Create the view.json file with the processed elements.
+        
+        Args:
+            view_dir (str): The directory where view.json will be created.
+            
+        Raises:
+            Exception: If there's an error creating the file.
+        """
+        # Convert dimensions to integers
+        image_width = int(self.image_width.get())
+        image_height = int(self.image_height.get())
+        default_width = int(self.default_width.get())
+        default_height = int(self.default_height.get())
+        
         view_config = {
             "custom": {},
             "params": {},
             "props": {
                 "defaultSize": {
-                    "height": int(self.default_height.get()),
-                    "width": int(self.default_width.get())
+                    "height": default_height,
+                    "width": default_width
                 }
             },
             "root": {
@@ -777,14 +1415,14 @@ class SVGProcessorApp:
                 "name": "Image"
             },
             "position": {
-                "height": int(self.image_height.get()),
-                "width": int(self.image_width.get())
+                "height": image_height,
+                "width": image_width
             },
             "propConfig": {
                 "props.source": {
                     "binding": {
                         "config": {
-                            "expression": f"\"{self.svg_url.get()}?var\" + toMillis(now(100))"
+                            "expression": "\"" + self.svg_url.get() + "?var\" + toMillis(now(100))"
                         },
                         "type": "expr"
                     }
@@ -829,7 +1467,7 @@ class SVGProcessorApp:
             }
             
             # Add rotation if specified in our app
-            if hasattr(element, "rotation") and element["rotation"]:
+            if "rotation" in element and element["rotation"]:
                 scada_element["position"]["rotate"] = {
                     "angle": f"{element['rotation']}deg"
                 }
@@ -837,14 +1475,53 @@ class SVGProcessorApp:
             view_config["root"]["children"].append(scada_element)
         
         # Write view.json
-        with open(os.path.join(view_dir, "view.json"), 'w') as f:
+        view_file = os.path.join(view_dir, "view.json")
+        with open(view_file, 'w') as f:
             json.dump(view_config, f, indent=2)
 
 def main():
-    """Main entry point for the application."""
-    root = tk.Tk()
-    app = SVGProcessorApp(root)
-    root.mainloop()
+    """
+    Main entry point for the application.
+    
+    Creates the main application window and starts the Tkinter event loop.
+    Handles any uncaught exceptions by showing an error message.
+    """
+    try:
+        root = tk.Tk()
+        app = SVGProcessorApp(root)
+        
+        # Add a simple confirmation dialog when closing with the X button
+        def confirm_exit():
+            if messagebox.askokcancel("Exit", "Are you sure you want to exit?"):
+                app.on_closing()
+        
+        root.protocol("WM_DELETE_WINDOW", confirm_exit)
+        
+        # Center the window on the screen
+        window_width = 1000
+        window_height = 700
+        screen_width = root.winfo_screenwidth()
+        screen_height = root.winfo_screenheight()
+        x_coordinate = int((screen_width / 2) - (window_width / 2))
+        y_coordinate = int((screen_height / 2) - (window_height / 2))
+        root.geometry(f"{window_width}x{window_height}+{x_coordinate}+{y_coordinate}")
+        
+        root.mainloop()
+        
+    except Exception as e:
+        # Show a messagebox with the error
+        error_message = f"An error occurred while starting the application:\n{str(e)}"
+        if 'root' not in locals() or not root:
+            # If Tk hasn't been initialized yet, use print
+            print(error_message)
+        else:
+            # If Tk is initialized, show a messagebox
+            messagebox.showerror("Application Error", error_message)
+        
+        # Return non-zero exit code
+        return 1
+        
+    return 0
 
 if __name__ == "__main__":
-    main() 
+    sys.exit(main()) 

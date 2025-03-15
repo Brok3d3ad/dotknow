@@ -1,5 +1,12 @@
 # SVG Processor Project - Documentation Changelog
 
+## [1.3.1] - 2025-03-24
+### Added
+- Created dedicated SVG_Processor_Distribute folder containing the compiled Windows executable
+- Added the compiled SVG_Processor.exe with all required resources in the distribution folder
+- Updated README with instructions for running the pre-built executable
+- Improved command-line usage documentation for Git Bash and Windows Command Prompt/PowerShell
+
 ## [1.3.0] - 2025-03-23
 ### Changed
 - Removed all batch files in favor of direct PyInstaller commands
