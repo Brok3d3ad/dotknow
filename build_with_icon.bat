@@ -2,13 +2,38 @@
 echo Building SVG Processor with custom icon...
 echo.
 
-REM Check if PyInstaller is installed
+REM Setup virtual environment
+echo Setting up virtual environment...
+if exist venv (
+    echo Virtual environment already exists, removing old one...
+    rmdir /s /q venv
+)
+
+REM Create virtual environment
+python -m venv venv
+if %errorlevel% neq 0 (
+    echo Failed to create virtual environment.
+    pause
+    exit /b 1
+)
+
+REM Activate virtual environment
+echo Activating virtual environment...
+call venv\Scripts\activate
+if %errorlevel% neq 0 (
+    echo Failed to activate virtual environment.
+    pause
+    exit /b 1
+)
+
+REM Check if PyInstaller is installed in the virtual environment
 python -c "import PyInstaller" 2>nul
 if %errorlevel% neq 0 (
     echo PyInstaller not found. Installing required packages...
     pip install -r requirements.txt
     if %errorlevel% neq 0 (
         echo Failed to install requirements.
+        call venv\Scripts\deactivate
         pause
         exit /b 1
     )
@@ -19,6 +44,7 @@ echo Ensuring numpy is installed...
 pip install numpy
 if %errorlevel% neq 0 (
     echo Failed to install numpy.
+    call venv\Scripts\deactivate
     pause
     exit /b 1
 )
@@ -34,6 +60,7 @@ pyinstaller autStand_icon.spec
 
 if %errorlevel% neq 0 (
     echo Build failed!
+    call venv\Scripts\deactivate
     pause
     exit /b 1
 )
@@ -51,4 +78,10 @@ echo You can find the executable at: dist\SVG_Processor.exe
 echo.
 echo NOTE: If the icon is still not showing correctly, you may need to restart your computer.
 echo.
+
+REM Deactivate the virtual environment
+call venv\Scripts\deactivate
+echo Virtual environment deactivated.
+echo.
+
 pause 

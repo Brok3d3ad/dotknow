@@ -55,9 +55,14 @@ There are three ways to build the application on Windows:
 
 **Option 1: Using the automated batch file with icon support (Recommended)**
 1. Simply double-click the `build_with_icon.bat` file
-2. The script will install any missing dependencies, clean existing builds, and build the application
-3. It will also attempt to refresh the Windows icon cache
-4. The compiled executable will be in the `dist` folder as `SVG_Processor.exe`
+2. The script will:
+   - Create and activate a dedicated virtual environment
+   - Install all required dependencies in the isolated environment
+   - Clean any previous build artifacts
+   - Build the application with proper icon integration
+   - Refresh the Windows icon cache
+   - Automatically deactivate the virtual environment when done
+3. The compiled executable will be in the `dist` folder as `SVG_Processor.exe`
 
 **Option 2: Using the standard automated batch file**
 1. Simply double-click the `build_windows.bat` file

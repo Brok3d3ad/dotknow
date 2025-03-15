@@ -1,5 +1,12 @@
 # SVG Processor Project - Documentation Changelog
 
+## [1.2.5] - 2025-03-20
+### Added
+- Added virtual environment support to the build process
+- Build script now creates, activates, and uses a dedicated virtual environment for dependencies
+- Ensures clean dependency installation isolated from system Python
+- Automatically cleans up by deactivating the virtual environment after build completes
+
 ## [1.2.4] - 2025-03-19
 ### Fixed
 - Fixed "No module named 'numpy'" error in compiled executable
