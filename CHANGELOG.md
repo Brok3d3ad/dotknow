@@ -1,5 +1,15 @@
 # SVG Processor Project - Documentation Changelog
 
+## [1.2.3] - 2025-03-18
+### Fixed
+- Enhanced icon handling with additional debugging information
+- Created dedicated build script (build_with_icon.bat) specifically for proper icon embedding
+- Added version information metadata to provide better Windows integration
+- Added MANIFEST.in file to ensure icon is included in all package distributions
+- Improved icon path resolution with multiple fallback options
+- Added Windows icon cache clearing to build process
+- Added detailed debug logging to icon loading process
+
 ## [1.2.2] - 2025-03-17
 ### Fixed
 - Fixed issue with application icon not appearing in the compiled Windows executable

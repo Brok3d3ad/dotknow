@@ -51,26 +51,37 @@ The SVG Processor Tool is an application designed to extract SVG elements from f
 
 #### For Windows
 
-There are two ways to build the application on Windows:
+There are three ways to build the application on Windows:
 
-**Option 1: Using the automated batch file**
+**Option 1: Using the automated batch file with icon support (Recommended)**
+1. Simply double-click the `build_with_icon.bat` file
+2. The script will install any missing dependencies, clean existing builds, and build the application
+3. It will also attempt to refresh the Windows icon cache
+4. The compiled executable will be in the `dist` folder as `SVG_Processor.exe`
+
+**Option 2: Using the standard automated batch file**
 1. Simply double-click the `build_windows.bat` file
 2. The script will install any missing dependencies and build the application
 3. The compiled executable will be in the `dist` folder
 
-**Option 2: Manual compilation**
+**Option 3: Manual compilation**
 ```
 pyinstaller --onefile --windowed --icon=autStand_ic0n.ico --add-data="automation_standard_logo.jpg;." --add-data="autStand_ic0n.ico;." svg_processor_gui.py
 ```
 Or use the provided spec file:
 ```
-pyinstaller svg_processor_gui.spec
+pyinstaller autStand_icon.spec
 ```
 
-> **Note**: Make sure the spec file correctly includes the icon file in both the `datas` section and the `icon` parameter of the `EXE` function. If you're experiencing issues with the application icon not appearing in the compiled executable, check that the .ico file is properly referenced and included.
+> **Note on Windows Icon Issues**: If the application icon is not appearing correctly:
+> 1. Make sure the `autStand_ic0n.ico` file is present in your project directory
+> 2. Use the `build_with_icon.bat` script which includes steps to clear the Windows icon cache
+> 3. The icon file must be included in both the `datas` section and the `icon` parameter of the spec file
+> 4. In persistent cases, you may need to restart your computer to clear the Windows icon cache completely
+> 5. Try renaming the output executable to avoid Windows caching the old icon
 
 The Windows build will create:
-- `SVG Processor.exe` - A standalone executable in the `dist` folder
+- `SVG_Processor.exe` - A standalone executable in the `dist` folder
 
 #### For macOS
 

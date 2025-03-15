@@ -328,27 +328,45 @@ class SVGProcessorApp:
         try:
             # Check which platform we're on
             is_windows = sys.platform.startswith('win')
+            print(f"Platform is Windows: {is_windows}")
+            
+            # Get the application path for debugging
+            app_path = get_application_path()
+            print(f"Application path: {app_path}")
+            
+            # List files in the application path
+            try:
+                print(f"Files in application path: {os.listdir(app_path)}")
+            except Exception as e:
+                print(f"Could not list files in application path: {e}")
             
             # Prioritize the autStand_ic0n.ico file for the window/tray icon
             icon_paths = [
-                os.path.join(get_application_path(), "autStand_ic0n.ico"),
+                os.path.join(app_path, "autStand_ic0n.ico"),
                 "autStand_ic0n.ico",  # Try current directory with exact case
-                os.path.join(get_application_path(), "autstand_icon.ico"),
-                "autstand_icon.ico"   # Fallback to alternate case
+                os.path.join(app_path, "autstand_icon.ico"),
+                "autstand_icon.ico",   # Fallback to alternate case
+                os.path.abspath("autStand_ic0n.ico"),  # Try absolute path
+                os.path.abspath("autstand_icon.ico")   # Try absolute path with alternate case
             ]
+            
+            print(f"Checking icon paths: {icon_paths}")
             
             # Try each path until we find a valid icon file
             for icon_path in icon_paths:
+                print(f"Checking icon path: {icon_path}, exists: {os.path.exists(icon_path)}")
                 if os.path.exists(icon_path):
                     # For Windows, we can use .ico files directly
                     if icon_path.endswith('.ico'):
                         if is_windows:
+                            print(f"Using iconbitmap with: {icon_path}")
                             self.root.iconbitmap(icon_path)
                             print(f"Set window icon from: {icon_path}")
                             return
                         else:
                             # For non-Windows, convert .ico to PhotoImage
                             try:
+                                print(f"Converting .ico to PhotoImage: {icon_path}")
                                 icon_img = Image.open(icon_path)
                                 # Resize to standard icon size
                                 icon_img = icon_img.resize((32, 32), Image.LANCZOS)
@@ -359,9 +377,10 @@ class SVGProcessorApp:
                             except Exception as ico_e:
                                 print(f"Could not use .ico file on non-Windows platform: {ico_e}")
             
+            print("No .ico files found, trying jpg files...")
             # Only if .ico files are not found, fall back to using the jpg logo as icon
             jpg_paths = [
-                os.path.join(get_application_path(), "automation_standard_logo.jpg"),
+                os.path.join(app_path, "automation_standard_logo.jpg"),
                 "automation_standard_logo.jpg"
             ]
             
@@ -622,11 +641,15 @@ class SVGProcessorApp:
             messagebox.showerror("Export Error", f"Error: {str(e)}")
     
     def _create_scada_export_zip(self, zip_file_path, project_folder_name):
-        """Create the SCADA project zip file with all required files."""
+        """Create the SCADA project zip file with all required files.
+        
+        Args:
+            zip_file_path (str): Path where the zip file will be saved
+            project_folder_name (str): Name used for the zip file but not for internal folder structure
+        """
         with tempfile.TemporaryDirectory() as temp_dir:
-            # Create project folder structure
-            project_path = os.path.join(temp_dir, project_folder_name)
-            perspective_dir = os.path.join(project_path, "com.inductiveautomation.perspective")
+            # Create folder structure directly at temp_dir without the project folder level
+            perspective_dir = os.path.join(temp_dir, "com.inductiveautomation.perspective")
             views_dir = os.path.join(perspective_dir, "views")
             detailed_views_dir = os.path.join(views_dir, "Detailed-Views")
             view_dir = os.path.join(detailed_views_dir, self.view_name.get())
@@ -635,7 +658,7 @@ class SVGProcessorApp:
             os.makedirs(view_dir, exist_ok=True)
             
             # Create project.json
-            self._create_project_json(project_path)
+            self._create_project_json(temp_dir)
             
             # Create resource.json
             self._create_resource_json(view_dir)
@@ -649,10 +672,10 @@ class SVGProcessorApp:
             # Create the zip file
             with zipfile.ZipFile(zip_file_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
                 # Walk through the temporary directory and add all files to the zip
-                for root, _, files in os.walk(project_path):
+                for root, _, files in os.walk(temp_dir):
                     for file in files:
                         file_path = os.path.join(root, file)
-                        # Calculate the relative path for the zip file
+                        # Calculate the relative path for the zip file - now directly from temp_dir
                         rel_path = os.path.relpath(file_path, temp_dir)
                         zipf.write(file_path, rel_path)
     
@@ -709,7 +732,16 @@ class SVGProcessorApp:
                 }
             },
             "root": {
-                "children": []
+                "children": [],
+                "meta": {
+                    "name": "root"
+                },
+                "props": {
+                    "style": {
+                        "backgroundColor": "#FFFFFF"
+                    }
+                },
+                "type": "ia.container.coord"
             }
         }
         

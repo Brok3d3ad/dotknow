@@ -1,0 +1,6 @@
+include autStand_ic0n.ico
+include automation_standard_logo.jpg
+include *.txt
+include *.md
+include requirements.txt
+include test-requirements.txt 
