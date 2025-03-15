@@ -1,0 +1,32 @@
+# Virtual environment
+venv/
+
+# Build directories
+build/
+dist/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+
+# Operating system files
+.DS_Store
+Thumbs.db
+
+# IDE specific files
+.vscode/
+.idea/
+
+# Project specific files
+app_config.json
+*.svg
+
+# Test cache
+.pytest_cache/
