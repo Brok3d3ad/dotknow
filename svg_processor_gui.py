@@ -149,7 +149,9 @@ class ConfigManager:
                             "label_prefix": "",
                             "props_path": "Symbol-Views/Equipment-Views/Status",
                             "width": 14,
-                            "height": 14
+                            "height": 14,
+                            "x_offset": 0,
+                            "y_offset": 0
                         }
                     ]
                 }
@@ -259,7 +261,9 @@ class ConfigManager:
                     'label_prefix': label_prefix,
                     'props_path': props_path,
                     'width': width,
-                    'height': height
+                    'height': height,
+                    'x_offset': 0,
+                    'y_offset': 0
                 }
                 
                 # Add this mapping to our list
@@ -301,7 +305,9 @@ class ConfigManager:
                     'label_prefix': "",
                     'props_path': props_path,
                     'width': width,
-                    'height': height
+                    'height': height,
+                    'x_offset': 0,
+                    'y_offset': 0
                 }
                 
                 # Add this mapping to our list
@@ -638,7 +644,8 @@ class SVGProcessorApp:
         ttk.Label(mapping_frame, text="Output Element Type:", font=('Helvetica', 9, 'bold')).grid(row=2, column=2, sticky=tk.W, pady=(0, 5), padx=5)
         ttk.Label(mapping_frame, text="Properties Path:", font=('Helvetica', 9, 'bold')).grid(row=2, column=3, sticky=tk.W, pady=(0, 5), padx=5)
         ttk.Label(mapping_frame, text="Size (WxH):", font=('Helvetica', 9, 'bold')).grid(row=2, column=4, sticky=tk.W, pady=(0, 5), padx=5)
-        ttk.Label(mapping_frame, text="", width=4).grid(row=2, column=5, sticky=tk.W, pady=(0, 5), padx=5)  # Header spacer for buttons
+        ttk.Label(mapping_frame, text="Offset (X,Y):", font=('Helvetica', 9, 'bold')).grid(row=2, column=5, sticky=tk.W, pady=(0, 5), padx=5)
+        ttk.Label(mapping_frame, text="", width=4).grid(row=2, column=6, sticky=tk.W, pady=(0, 5), padx=5)  # Header spacer for buttons
         
         # Store a reference to the mapping_frame
         self.mapping_frame = mapping_frame
@@ -658,19 +665,19 @@ class SVGProcessorApp:
         # Add default mappings if no previous configuration
         if not hasattr(self, 'initialized_mappings') or not self.initialized_mappings:
             default_mappings = [
-                ("rect", "", "ia.display.view", "Symbol-Views/Equipment-Views/Status", "14", "14"),
-                ("rect", "CON", "ia.display.flex", "Symbol-Views/Equipment-Views/Conveyor", "20", "16"),
-                ("circle", "", "ia.display.view", "Symbol-Views/Equipment-Views/Status", "14", "14"),
-                ("ellipse", "", "ia.display.view", "Symbol-Views/Equipment-Views/Status", "14", "14"),
-                ("line", "", "ia.display.view", "Symbol-Views/Equipment-Views/Status", "14", "14"),
-                ("polyline", "", "ia.display.view", "Symbol-Views/Equipment-Views/Status", "14", "14"),
-                ("polygon", "", "ia.display.view", "Symbol-Views/Equipment-Views/Status", "14", "14"),
-                ("path", "", "ia.display.view", "Symbol-Views/Equipment-Views/Status", "14", "14")
+                ("rect", "", "ia.display.view", "Symbol-Views/Equipment-Views/Status", "14", "14", "0", "0"),
+                ("rect", "CON", "ia.display.flex", "Symbol-Views/Equipment-Views/Conveyor", "20", "16", "0", "0"),
+                ("circle", "", "ia.display.view", "Symbol-Views/Equipment-Views/Status", "14", "14", "0", "0"),
+                ("ellipse", "", "ia.display.view", "Symbol-Views/Equipment-Views/Status", "14", "14", "0", "0"),
+                ("line", "", "ia.display.view", "Symbol-Views/Equipment-Views/Status", "14", "14", "0", "0"),
+                ("polyline", "", "ia.display.view", "Symbol-Views/Equipment-Views/Status", "14", "14", "0", "0"),
+                ("polygon", "", "ia.display.view", "Symbol-Views/Equipment-Views/Status", "14", "14", "0", "0"),
+                ("path", "", "ia.display.view", "Symbol-Views/Equipment-Views/Status", "14", "14", "0", "0")
             ]
             
             # Add default rows
-            for svg_type, label_prefix, element_type, props_path, width, height in default_mappings:
-                self._add_mapping_row(svg_type, label_prefix, element_type, props_path, width, height)
+            for svg_type, label_prefix, element_type, props_path, width, height, x_offset, y_offset in default_mappings:
+                self._add_mapping_row(svg_type, label_prefix, element_type, props_path, width, height, x_offset, y_offset)
             
             self.initialized_mappings = True
     
@@ -688,7 +695,7 @@ class SVGProcessorApp:
         """Reset the flag to allow cleanup of empty rows again."""
         self.allow_empty_rows = False
     
-    def _add_mapping_row(self, svg_type="", label_prefix="", element_type="", props_path="", width="", height=""):
+    def _add_mapping_row(self, svg_type="", label_prefix="", element_type="", props_path="", width="", height="", x_offset="", y_offset=""):
         """Add a new row for element mapping."""
         # Current row number (after headers)
         row_index = len(self.mapping_rows) + 3
@@ -700,6 +707,8 @@ class SVGProcessorApp:
         props_path_var = tk.StringVar(value=props_path)
         width_var = tk.StringVar(value=width)
         height_var = tk.StringVar(value=height)
+        x_offset_var = tk.StringVar(value=x_offset)
+        y_offset_var = tk.StringVar(value=y_offset)
         
         # Add trace to save when values change
         svg_type_var.trace_add("write", lambda *args: self._on_mapping_changed())
@@ -708,6 +717,8 @@ class SVGProcessorApp:
         props_path_var.trace_add("write", lambda *args: self._on_mapping_changed())
         width_var.trace_add("write", lambda *args: self._on_mapping_changed())
         height_var.trace_add("write", lambda *args: self._on_mapping_changed())
+        x_offset_var.trace_add("write", lambda *args: self._on_mapping_changed())
+        y_offset_var.trace_add("write", lambda *args: self._on_mapping_changed())
         
         # SVG type entry
         svg_type_entry = ttk.Entry(self.mapping_frame, textvariable=svg_type_var, width=12)
@@ -725,8 +736,11 @@ class SVGProcessorApp:
         props_path_entry = ttk.Entry(self.mapping_frame, textvariable=props_path_var, width=40)
         props_path_entry.grid(row=row_index, column=3, sticky=tk.W+tk.E, pady=5, padx=5)
         
-        # Create a validation command to only allow numbers
+        # Register validation function for number-only fields
         validate_numeric = self.root.register(lambda P: P.isdigit() or P == "")
+        
+        # Register validation function for offset fields that allows negative values
+        validate_offset = self.root.register(lambda P: P == "" or P == "-" or P.lstrip('-').isdigit())
         
         # Size frame to hold width and height
         size_frame = ttk.Frame(self.mapping_frame)
@@ -745,10 +759,27 @@ class SVGProcessorApp:
                                 validatecommand=(validate_numeric, '%P'))
         height_entry.pack(side=tk.LEFT)
         
+        # Offset frame to hold x_offset and y_offset
+        offset_frame = ttk.Frame(self.mapping_frame)
+        offset_frame.grid(row=row_index, column=5, sticky=tk.W, pady=5, padx=5)
+        
+        # X offset entry
+        x_offset_entry = ttk.Entry(offset_frame, textvariable=x_offset_var, width=3, validate="key",
+                                   validatecommand=(validate_offset, '%P'))
+        x_offset_entry.pack(side=tk.LEFT)
+        
+        # x separator
+        ttk.Label(offset_frame, text=",").pack(side=tk.LEFT, padx=2)
+        
+        # Y offset entry
+        y_offset_entry = ttk.Entry(offset_frame, textvariable=y_offset_var, width=3, validate="key",
+                                   validatecommand=(validate_offset, '%P'))
+        y_offset_entry.pack(side=tk.LEFT)
+        
         # Remove button
         remove_button = ttk.Button(self.mapping_frame, text="✕", width=2, 
                                    command=lambda idx=len(self.mapping_rows): self._remove_mapping_row(idx))
-        remove_button.grid(row=row_index, column=5, pady=5, padx=5)
+        remove_button.grid(row=row_index, column=6, pady=5, padx=5)
         
         # Add row information to mapping rows list
         self.mapping_rows.append({
@@ -758,13 +789,18 @@ class SVGProcessorApp:
             'props_path': props_path_var,
             'width': width_var,
             'height': height_var,
+            'x_offset': x_offset_var,
+            'y_offset': y_offset_var,
             'svg_entry': svg_type_entry,
             'label_prefix_entry': label_prefix_entry,
             'element_entry': element_type_entry,
             'props_entry': props_path_entry,
             'width_entry': width_entry,
             'height_entry': height_entry,
+            'x_offset_entry': x_offset_entry,
+            'y_offset_entry': y_offset_entry,
             'size_frame': size_frame,
+            'offset_frame': offset_frame,
             'remove_button': remove_button,
             'row': row_index
         })
@@ -811,6 +847,7 @@ class SVGProcessorApp:
         row['element_entry'].grid_forget()
         row['props_entry'].grid_forget()
         row['size_frame'].grid_forget()
+        row['offset_frame'].grid_forget()
         row['remove_button'].grid_forget()
         
         # Destroy the widgets to ensure they're fully removed
@@ -819,6 +856,7 @@ class SVGProcessorApp:
         row['element_entry'].destroy()
         row['props_entry'].destroy()
         row['size_frame'].destroy()
+        row['offset_frame'].destroy()
         row['remove_button'].destroy()
         
         # Remove the row from the list
@@ -828,7 +866,7 @@ class SVGProcessorApp:
         if len(self.mapping_rows) == 0:
             # Add a temporary flag to prevent saving the empty row
             self.skip_next_save = True
-            self._add_mapping_row("", "", "", "", "", "")
+            self._add_mapping_row("", "", "", "", "", "", "", "")
         else:
             # Reindex the remaining rows
             self._reindex_mapping_rows()
@@ -854,7 +892,8 @@ class SVGProcessorApp:
             row['element_entry'].grid(row=new_row, column=2)
             row['props_entry'].grid(row=new_row, column=3)
             row['size_frame'].grid(row=new_row, column=4)
-            row['remove_button'].grid(row=new_row, column=5)
+            row['offset_frame'].grid(row=new_row, column=5)
+            row['remove_button'].grid(row=new_row, column=6)
             
             # Update remove button command
             row['remove_button'].configure(command=lambda idx=i: self._remove_mapping_row(idx))
@@ -1066,13 +1105,15 @@ class SVGProcessorApp:
                         props_path = mapping.get('props_path', '')
                         width = str(mapping.get('width', 14))
                         height = str(mapping.get('height', 14))
+                        x_offset = str(mapping.get('x_offset', 0))
+                        y_offset = str(mapping.get('y_offset', 0))
                         
                         # Add the row with all the data
-                        self._add_mapping_row(svg_type, label_prefix, element_type, props_path, width, height)
+                        self._add_mapping_row(svg_type, label_prefix, element_type, props_path, width, height, x_offset, y_offset)
                     
                     # Ensure we have at least one row - only needed if we cleared rows
                     if not self.mapping_rows:
-                        self._add_mapping_row("rect", "", "ia.display.view", "Symbol-Views/Equipment-Views/Status", "14", "14")
+                        self._add_mapping_row("rect", "", "ia.display.view", "Symbol-Views/Equipment-Views/Status", "14", "14", "0", "0")
                 
                 # Mark as initialized
                 self.initialized_mappings = True
@@ -1114,6 +1155,8 @@ class SVGProcessorApp:
                         props_path = row['props_path'].get().strip()
                         width = row['width'].get().strip()
                         height = row['height'].get().strip()
+                        x_offset = row['x_offset'].get().strip()
+                        y_offset = row['y_offset'].get().strip()
                         
                         # Only add mappings where both required fields have values
                         if svg_type and element_type_value:
@@ -1137,6 +1180,25 @@ class SVGProcessorApp:
                                     mapping['height'] = height_val
                                 except ValueError:
                                     raise ValueError(f"Invalid dimensions for {svg_type}: width={width}, height={height}")
+                            
+                            # Validate and store x_offset and y_offset if provided
+                            if x_offset:
+                                try:
+                                    mapping['x_offset'] = int(x_offset)
+                                except ValueError:
+                                    # Use default if invalid
+                                    mapping['x_offset'] = 0
+                            else:
+                                mapping['x_offset'] = 0
+                                
+                            if y_offset:
+                                try:
+                                    mapping['y_offset'] = int(y_offset)
+                                except ValueError:
+                                    # Use default if invalid
+                                    mapping['y_offset'] = 0
+                            else:
+                                mapping['y_offset'] = 0
                             
                             # Add this mapping to our list
                             element_mappings.append(mapping)
@@ -1404,6 +1466,8 @@ class SVGProcessorApp:
                         props_path = row['props_path'].get().strip()
                         width = row['width'].get().strip()
                         height = row['height'].get().strip()
+                        x_offset = row['x_offset'].get().strip()
+                        y_offset = row['y_offset'].get().strip()
                         
                         # Only add mappings with both SVG type and element type
                         if svg_type and element_type_value:
@@ -1414,21 +1478,40 @@ class SVGProcessorApp:
                                 'props_path': props_path
                             }
                             
-                            # Validate and add width and height if provided
-                            if width and height:
+                            # Add width and height if provided
+                            if width:
                                 try:
-                                    width_val = int(width)
-                                    height_val = int(height)
-                                    
-                                    if width_val <= 0 or height_val <= 0:
-                                        raise ValueError("Width and height must be positive integers.")
-                                        
-                                    mapping['width'] = width_val
-                                    mapping['height'] = height_val
+                                    mapping['width'] = int(width)
                                 except ValueError:
-                                    raise ValueError(f"Invalid dimensions for {svg_type}: width={width}, height={height}")
+                                    # Use default if invalid
+                                    mapping['width'] = 14
                             
-                            # Add this mapping to our list
+                            if height:
+                                try:
+                                    mapping['height'] = int(height)
+                                except ValueError:
+                                    # Use default if invalid
+                                    mapping['height'] = 14
+                            
+                            # Add x_offset and y_offset if provided
+                            if x_offset:
+                                try:
+                                    mapping['x_offset'] = int(x_offset)
+                                except ValueError:
+                                    # Use default if invalid
+                                    mapping['x_offset'] = 0
+                            else:
+                                mapping['x_offset'] = 0
+                                
+                            if y_offset:
+                                try:
+                                    mapping['y_offset'] = int(y_offset)
+                                except ValueError:
+                                    # Use default if invalid
+                                    mapping['y_offset'] = 0
+                            else:
+                                mapping['y_offset'] = 0
+                            
                             element_mappings.append(mapping)
                     except (KeyError, AttributeError) as e:
                         print(f"Warning: Skipping invalid row: {e}")

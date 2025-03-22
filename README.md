@@ -14,6 +14,9 @@ An application for extracting SVG elements and converting them to JSON format fo
 - **Label prefix-based element configurations**
 - **Consistent configuration management with improved persistence**
 - **High test coverage (>80%) for reliable code base**
+- **Enhanced path element handling with precise coordinate extraction**
+- **Support for negative offset values for precise positioning**
+- **Suffix-based rotation override system (r, d, l, u suffixes)**
 - Converts elements to custom JSON format
 - Clipboard/file export options
 - Configurable element settings

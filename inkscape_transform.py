@@ -127,6 +127,9 @@ class SVGTransformer:
         # Apply transformation
         transformed = np.matmul(transform_matrix, point_h)
         
+        # For debugging
+        print(f"Applying transform to point {point} with matrix {transform_matrix} → result: ({transformed[0]}, {transformed[1]})")
+        
         # Convert back from homogeneous coordinates
         return transformed[0], transformed[1]
     
@@ -203,76 +206,56 @@ class SVGTransformer:
         # Default fallback
         return self.custom_options.get('type', "ia.display.view")
 
-    def create_element_json(self, element_name, element_id, element_label, element_count, x, y, svg_type, label_prefix, rotation_angle=0, element_width=None, element_height=None):
+    def create_element_json(self, element_name, element_id, element_label, element_count, x, y, svg_type, label_prefix, rotation_angle=0, element_width=None, element_height=None, x_offset=0, y_offset=0, original_name=None, debug_buffer=None, has_prefix_mapping=None):
         """Create a JSON object for an SVG element."""
         # Output debugging information
-        print(f"\n==== DEBUG FOR ELEMENT: {element_name} ====")
+        if original_name is None:
+            original_name = element_id or element_label or ""
+            
+        # Now that the element is fully processed, print the debug header
+        print(f"\n==== DEBUG FOR ELEMENT {element_count}: {element_name} (Original: {original_name}) ====")
         print(f"SVG Type: {svg_type}, Position: ({x}, {y}), Rotation: {rotation_angle}deg")
+        print(f"Using element size: {element_width}x{element_height}")
+        print(f"Mapping information: Prefix: {label_prefix}, Has mapping: {has_prefix_mapping}")
+        print(f"Applied offsets: x_offset={x_offset}, y_offset={y_offset}")
         
-        # Only try to access element_mappings if it exists in custom_options
-        if 'element_mappings' in self.custom_options and (element_width is None or element_height is None):
-            # Get custom values from options or use defaults
-            element_type = self.get_element_type_for_svg_type_and_label(svg_type, label_prefix)
-            
-            # Get default properties path from custom options
-            default_props_path = self.custom_options.get('props_path', "Symbol-Views/Equipment-Views/Status")
-            
-            # Default properties and sizes - only used if not provided by caller
-            props_path = default_props_path
-            if element_width is None:
-                element_width = 14  # Default width
-            if element_height is None:
-                element_height = 14  # Default height
-            
-            # Find the right mapping to use
-            matching_mappings = []
-            exact_match = None
-            fallback_match = None
-            
-            # Find ALL mappings for this SVG type first
-            for mapping in self.custom_options['element_mappings']:
-                if mapping['svg_type'] == svg_type:
-                    matching_mappings.append(mapping)
-            
-            # Find exact match with prefix first
-            if label_prefix:
-                for mapping in matching_mappings:
-                    if mapping.get('label_prefix', '') == label_prefix:
-                        exact_match = mapping
-                        break
-            
-            # Find fallback with no prefix
-            for mapping in matching_mappings:
-                if not mapping.get('label_prefix', ''):
-                    fallback_match = mapping
+        # Print all the buffered debug messages if provided
+        if debug_buffer:
+            for msg in debug_buffer:
+                print(f"  {msg}")
+                
+        print("==== END DEBUG ====")
+        
+        # Find the right mapping to use
+        exact_match = None
+        fallback_match = None
+        
+        # First look for an exact match with label prefix
+        if label_prefix:
+            for mapping in self.custom_options.get('element_mappings', []):
+                if mapping['svg_type'] == svg_type and mapping.get('label_prefix', '') == label_prefix:
+                    exact_match = mapping
+                    print(f"Found exact match: {mapping}")
                     break
-            
-            # Use exact match if found, otherwise use fallback
-            mapping_to_use = exact_match or fallback_match
-            
-            if mapping_to_use:
-                # Get properties path
-                if 'props_path' in mapping_to_use:
-                    props_path = mapping_to_use['props_path']
-                
-                # Get width and height only if not explicitly provided by caller
-                if element_width is None and 'width' in mapping_to_use:
-                    element_width = mapping_to_use['width']
-                
-                if element_height is None and 'height' in mapping_to_use:
-                    element_height = mapping_to_use['height']
-            
-        else:
-            # If we don't have element_mappings, use simple defaults
-            element_type = self.custom_options.get('type', "ia.display.view")
-            default_props_path = self.custom_options.get('props_path', "Symbol-Views/Equipment-Views/Status")
-            props_path = default_props_path
-            
-            # Use provided dimensions or defaults
-            if element_width is None:
-                element_width = 14
-            if element_height is None:
-                element_height = 14
+        
+        # Then look for a fallback with no prefix
+        for mapping in self.custom_options.get('element_mappings', []):
+            if mapping['svg_type'] == svg_type and not mapping.get('label_prefix', ''):
+                fallback_match = mapping
+                if not exact_match:  # Only print if we haven't found an exact match
+                    print(f"Found fallback match: {mapping}")
+                break
+        
+        # Use the appropriate mapping
+        mapping_to_use = exact_match or fallback_match
+        
+        # Get element type and props path from mapping
+        element_type = "ia.display.view"  # Default
+        props_path = "Symbol-Views/Equipment-Views/Status"  # Default
+        
+        if mapping_to_use:
+            element_type = mapping_to_use.get('element_type', element_type)
+            props_path = mapping_to_use.get('props_path', props_path)
         
         # Preserve rotation angle as float for accuracy, just format it for output
         try:
@@ -280,7 +263,6 @@ class SVGTransformer:
         except (ValueError, TypeError):
             rotation_angle = 0
             
-        print(f"Using element size: {element_width}x{element_height}")
         print(f"Final rotation to use: {rotation_angle}deg")
         
         return {
@@ -308,10 +290,14 @@ class SVGTransformer:
             },
             "meta": {
                 "name": element_name,
-                "originalName": element_id or element_label or "",
+                "originalName": original_name,
                 "elementNumber": element_count,
                 "svgType": svg_type,
-                "labelPrefix": label_prefix
+                "labelPrefix": label_prefix,
+                "offsets": {
+                    "x": x_offset,
+                    "y": y_offset
+                }
             },
             "position": {
                 "x": x,
@@ -416,6 +402,61 @@ class SVGTransformer:
                 orig_center_x, orig_center_y = 0, 0
                 original_width = 10  # Default
                 original_height = 10  # Default
+                
+                # Special handling for path elements - extract starting coordinates from d attribute
+                if svg_type == 'path':
+                    d_attr = element.getAttribute('d')
+                    if d_attr:
+                        debug_buffer.append(f"Processing path with data: {d_attr}")
+                        
+                        # For special debugging
+                        debug_buffer.append(f"*** Y-COORDINATE DEBUG ***")
+                        
+                        # Extract the first x,y coordinates from the path data
+                        # Path data typically starts with "m" or "M" followed by x,y coordinates
+                        # Try to match coordinates with comma separator (most common)
+                        comma_separated = re.findall(r'[mM]\s*([-+]?[0-9]*\.?[0-9]+(?:[eE][-+]?[0-9]+)?)\s*,\s*([-+]?[0-9]*\.?[0-9]+(?:[eE][-+]?[0-9]+)?)', d_attr)
+                        
+                        # If not found, try to match coordinates with space separator
+                        space_separated = []
+                        if not comma_separated:
+                            space_match = re.search(r'[mM]\s*([-+]?[0-9]*\.?[0-9]+(?:[eE][-+]?[0-9]+)?)\s+([-+]?[0-9]*\.?[0-9]+(?:[eE][-+]?[0-9]+)?)', d_attr)
+                            if space_match:
+                                space_separated = [(space_match.group(1), space_match.group(2))]
+                        
+                        # Use comma_separated if found, otherwise use space_separated
+                        path_coords = comma_separated or space_separated
+                        
+                        # For debugging
+                        if comma_separated:
+                            debug_buffer.append(f"Found comma-separated coordinates")
+                        elif space_separated:
+                            debug_buffer.append(f"Found space-separated coordinates")
+                        else:
+                            debug_buffer.append(f"Could not find coordinates with standard patterns")
+                        
+                        # Determine if we're using relative coordinates (lowercase 'm' means relative)
+                        is_relative = d_attr.strip().startswith('m')
+                        
+                        if path_coords:
+                            try:
+                                # Extract the raw coordinate values from the path data
+                                x_str = path_coords[0][0]
+                                y_str = path_coords[0][1]
+                                
+                                debug_buffer.append(f"Raw extracted values - x_str: '{x_str}', y_str: '{y_str}'")
+                                
+                                # Convert to float
+                                orig_center_x = float(x_str)
+                                orig_center_y = float(y_str)
+                                
+                                debug_buffer.append(f"After float conversion - x: {orig_center_x}, y: {orig_center_y}")
+                                debug_buffer.append(f"Extracted path starting coordinates: ({orig_center_x}, {orig_center_y}) - {'Relative' if is_relative else 'Absolute'} coordinates")
+                            except (ValueError, IndexError) as e:
+                                debug_buffer.append(f"Error extracting path coordinates: {e}")
+                        else:
+                            debug_buffer.append(f"Could not extract coordinates from path data: {d_attr}")
+                
                 debug_buffer.append(f"Warning: {svg_type} element support is basic - center may not be accurate")
             else:
                 # Default case for unsupported types
@@ -439,6 +480,14 @@ class SVGTransformer:
             transformed_center_x, transformed_center_y = self.apply_transform(
                 (orig_center_x, orig_center_y), transform_matrix
             )
+            
+            # For debugging - print transformation details for path elements
+            if svg_type == 'path':
+                debug_buffer.append(f"TRANSFORM DEBUG - Original: ({orig_center_x}, {orig_center_y}), Transformed: ({transformed_center_x}, {transformed_center_y})")
+                
+                # Print transform matrix if available
+                if transform_matrix is not None and not np.array_equal(transform_matrix, np.identity(3)):
+                    debug_buffer.append(f"Transform Matrix: {transform_matrix}")
             
             # Get element identifiers
             element_id = element.getAttribute('id') or ""
@@ -492,9 +541,84 @@ class SVGTransformer:
             
             debug_buffer.append(f"Final dimensions for {element_name}: {element_width}x{element_height}")
             
-            # Calculate the centered position
-            final_x = transformed_center_x - element_width / 2
-            final_y = transformed_center_y - element_height / 2
+            # Initialize final_x and final_y with default values
+            final_x = transformed_center_x
+            final_y = transformed_center_y
+            
+            # Handle elements based on their type
+            if svg_type == 'path':
+                # Special handling for path elements
+                
+                # Additional debugging for y-coordinate issue
+                svg_height = float(self.svg_element.getAttribute('height') or 0)
+                debug_buffer.append(f"SVG HEIGHT: {svg_height}")
+                
+                # Force using original path coordinates option
+                use_original_path_coords = self.custom_options.get('use_original_path_coords', False)
+                
+                if use_original_path_coords:
+                    debug_buffer.append(f"USING ORIGINAL PATH COORDINATES - Original: ({orig_center_x}, {orig_center_y})")
+                    final_x = orig_center_x
+                    final_y = orig_center_y
+                else:
+                    # Check if y-coordinate seems to be inverted (common in some SVG processing)
+                    if svg_height > 0 and abs(svg_height - orig_center_y) < 100:
+                        debug_buffer.append(f"POSSIBLE Y-INVERSION DETECTED: SVG height={svg_height}, y-coord={orig_center_y}")
+                        debug_buffer.append(f"Testing if y-coordinate is being flipped from bottom-left to top-left origin")
+                        
+                        # Try using the y-coordinate directly from the path data
+                        # without any transformation
+                        if 'y_coordinate_handling' in self.custom_options and self.custom_options['y_coordinate_handling'] == 'preserve':
+                            debug_buffer.append(f"Using preserve mode for y-coordinate")
+                            final_y = orig_center_y
+                
+                debug_buffer.append(f"Using path coordinates directly: ({final_x}, {final_y})")
+                
+                # For path elements, explicitly set element_width and element_height to be used for display purposes
+                # but they don't affect the positioning
+                if exact_prefix_match:
+                    if 'width' in exact_prefix_match:
+                        element_width = exact_prefix_match['width']
+                    if 'height' in exact_prefix_match:
+                        element_height = exact_prefix_match['height']
+                    debug_buffer.append(f"Using display dimensions for path from mapping: {element_width}x{element_height}")
+            else:
+                # For non-path elements, calculate the centered position
+                final_x = transformed_center_x - element_width / 2
+                final_y = transformed_center_y - element_height / 2
+                debug_buffer.append(f"Calculated centered position: ({final_x}, {final_y})")
+            
+            # Apply x_offset and y_offset from mapping if available
+            x_offset = 0
+            y_offset = 0
+            
+            # Get x_offset and y_offset from mappings based on svg_type and label_prefix
+            if 'element_mappings' in self.custom_options:
+                # Find best match (exact match with label prefix first, then fallback to no prefix)
+                exact_match = None
+                fallback_match = None
+                
+                for mapping in self.custom_options['element_mappings']:
+                    if mapping.get('svg_type', '') == svg_type:
+                        if mapping.get('label_prefix', '') == label_prefix:
+                            exact_match = mapping
+                            break
+                        elif not mapping.get('label_prefix', ''):
+                            fallback_match = mapping
+                
+                # Use exact match if found, otherwise use fallback
+                mapping_to_use = exact_match or fallback_match
+                
+                if mapping_to_use:
+                    # Get x_offset and y_offset
+                    x_offset = mapping_to_use.get('x_offset', 0)
+                    y_offset = mapping_to_use.get('y_offset', 0)
+                    
+            # Apply offsets
+            final_x += x_offset
+            final_y += y_offset
+            
+            debug_buffer.append(f"Applied offsets: x_offset={x_offset}, y_offset={y_offset}")
             
             suffix = None
             
@@ -503,6 +627,10 @@ class SVGTransformer:
                 last_char = element_name[-1].lower()
                 if last_char in ['r', 'd', 'l', 'u']:
                     suffix = last_char
+                    # Store original rotation for debug output
+                    original_rotation = rotation_angle
+                    
+                    # Override rotation based on suffix
                     if last_char == 'r':
                         rotation_angle = 0
                     elif last_char == 'd':
@@ -511,6 +639,9 @@ class SVGTransformer:
                         rotation_angle = 180
                     elif last_char == 'u':
                         rotation_angle = 270
+                    
+                    # Log that we're overriding the rotation
+                    debug_buffer.append(f"SUFFIX ROTATION OVERRIDE: Suffix '{last_char}' changed rotation from {original_rotation}deg to {rotation_angle}deg")
             
             # Log detailed positioning information for debugging
             debug_buffer.append(f"{svg_type.capitalize()} #{element_count}: {element_name}, " 
@@ -518,6 +649,7 @@ class SVGTransformer:
                   f"Transformed center: ({transformed_center_x}, {transformed_center_y}), "
                   f"Final position: ({final_x}, {final_y}), "
                   f"Using element size: {element_width}x{element_height}, "
+                  f"Offsets: (x={x_offset}, y={y_offset}), "
                   f"Rotation: {rotation_angle}deg")
             
             # Clean the element name by removing prefix/suffix AFTER logging
@@ -533,63 +665,25 @@ class SVGTransformer:
                 debug_buffer.append(f"Cleaned element name: '{element_name}' → '{cleaned_name}' [Prefix mapping: {has_prefix_mapping}, Suffix: {suffix}]")
                 element_name = cleaned_name
             
-            # Create JSON element with correct position and rotation
-            element_json = {
-                "type": self.get_element_type_for_svg_type_and_label(svg_type, label_prefix),
-                "version": 0,
-                "props": {
-                    "path": self.custom_options.get('props_path', "Symbol-Views/Equipment-Views/Status"),
-                    "params": {
-                        "directionLeft": False,
-                        "forceFaultStatus": None,
-                        "forceRunningStatus": None,
-                        "tagProps": [
-                            element_name,
-                            "value",
-                            "value",
-                            "value",
-                            "value",
-                            "value",
-                            "value",
-                            "value",
-                            "value",
-                            "value"
-                        ]
-                    }
-                },
-                "meta": {
-                    "name": element_name,
-                    "originalName": original_name,
-                    "elementNumber": element_count,
-                    "svgType": svg_type,
-                    "labelPrefix": label_prefix
-                },
-                "position": {
-                    "x": final_x,
-                    "y": final_y,
-                    "height": element_height,
-                    "width": element_width,
-                    "rotate": {
-                        "anchor": "50% 50%",
-                        "angle": f"{rotation_angle}deg"
-                    }
-                },
-                "custom": {}
-            }
-            
-            # Now that the element is fully processed, print the debug header
-            print(f"\n==== DEBUG FOR ELEMENT {element_count}: {element_name} (Original: {original_name}) ====")
-            print(f"SVG Type: {svg_type}, Position: ({final_x}, {final_y}), Rotation: {rotation_angle}deg")
-            print(f"Using element size: {element_width}x{element_height}")
-            print(f"Mapping information: Prefix: {label_prefix}, Has mapping: {has_prefix_mapping}")
-            
-            # Print all the buffered debug messages
-            for msg in debug_buffer:
-                print(f"  {msg}")
-                
-            print("==== END DEBUG ====")
-            
-            return element_json
+            # Now create JSON with element name, position, and other properties
+            return self.create_element_json(
+                element_name=element_name,
+                element_id=element_id,
+                element_label=element_label,
+                element_count=element_count,
+                x=final_x,
+                y=final_y,
+                svg_type=svg_type,
+                label_prefix=label_prefix,
+                rotation_angle=rotation_angle,
+                element_width=element_width,
+                element_height=element_height,
+                x_offset=x_offset,
+                y_offset=y_offset,
+                original_name=original_name,
+                debug_buffer=debug_buffer,
+                has_prefix_mapping=has_prefix_mapping
+            )
         
         except Exception as e:
             print(f"Error processing {svg_type} #{element_count}: {e}")

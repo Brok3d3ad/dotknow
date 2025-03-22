@@ -2,6 +2,16 @@
 
 ## Recent Updates
 
+### [1.11.0] - 2025-04-03
+- Added support for negative offset values for precise positioning of elements
+- Enhanced path element handling with accurate coordinate extraction
+- Fixed regex pattern for correctly parsing comma-separated and space-separated coordinates in SVG paths
+- Improved suffix-based rotation override system with clearer debug output
+- Added proper y-coordinate handling for SVG path elements
+- Enhanced debugging output for better troubleshooting
+- Fixed issue where paths properties were not being correctly applied
+- Improved element property path handling based on element mappings
+
 ### [1.10.1] - 2025-04-02
 - Improved rotation handling for SVG elements with transform attributes
 - Enhanced rotation angle extraction from SVG transforms
