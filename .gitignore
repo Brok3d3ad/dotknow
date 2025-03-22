@@ -7,7 +7,7 @@ __pycache__/
 *.so
 .Python
 *.spec
-SVG_Processor_Distribute/
+SVG*
 
 # Virtual environments
 venv/
@@ -84,3 +84,4 @@ rotation_test_*.json
 *.jpg
 *.png
 *.gif
+*.DS_Store
