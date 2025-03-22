@@ -1,36 +1,65 @@
-# SVG Processor Tool - Executable Release
+# SVG Processor Tool v1.10.1
 
-## Overview
-The SVG Processor Tool is an application designed to extract SVG elements from files and convert them to a custom JSON format for use in automation systems. This tool simplifies the process of integrating graphics from vector editing software into automation HMI systems, particularly Ignition SCADA.
+## Installation
+1. Extract all files to a folder on your computer
+2. Run SVG_Processor.exe
+3. No additional installation required
 
-## Running the Application
-Simply double-click on `SVG_Processor.exe` to launch the application.
-
-## From Different Shells:
-- **Windows Explorer:** Simply double-click the `SVG_Processor.exe` file
-- **Command Prompt:** Use `SVG_Processor.exe` or the full path
-- **PowerShell:** Use `.\SVG_Processor.exe` or the full path
-- **Git Bash:** Use one of these approaches:
-  - Use the full Windows path: `./SVG_Processor.exe`
-  - Use the `start` command: `start SVG_Processor.exe`
-  - Use `cmd` to execute it: `cmd //c SVG_Processor.exe`
-
-## Configuration
-The application stores its settings in an `app_config.json` file that will be created in the same directory as the executable when you first run the application.
+## New in Version 1.10.1
+- Improved rotation handling for SVG elements with transform attributes
+- Enhanced rotation angle extraction from SVG transforms
+- Added better debugging for rotation transformations
+- Fixed direct rotation extraction from transform strings
+- Added matrix-based rotation calculation as fallback method
 
 ## Features
-- User-friendly GUI interface with automation standard branding
-- Ability to browse and select SVG files for processing
-- Support for multiple SVG element types including rectangles, circles, ellipses, lines, polylines, polygons, paths, and text elements
-- Processing of complex SVG transformations including translation, rotation, and scaling
-- Conversion of SVG elements to a custom JSON format for automation systems
-- Options to copy results to clipboard or save to a file
-- Export to Ignition SCADA project structure with proper folder hierarchy and configuration files
+- GUI with automation standard branding
+- Supports multiple SVG element types (rectangles, circles, ellipses, lines, polylines, polygons, paths, text)
+- Handles complex SVG transformations (translation, rotation, scaling)
+- Enhanced rotation handling with direct extraction and matrix-based calculations
+- Optimized performance for processing complex SVG elements
+- Enhanced error handling for reliable operation
+- Supports custom SVG element representations and mappings
+- Label prefix-based element configurations
+- Consistent configuration management with improved persistence
+- Converts elements to custom JSON format
+- Clipboard/file export options
+- Configurable element settings
+- Persistent configuration
+- Ignition SCADA project export with proper structure
+
+## Usage
+1. Launch application
+2. Browse for SVG file
+3. Configure settings:
+   - **Element Mappings tab**:
+     - Configure element type, properties path, and size for different SVG elements
+     - Use label prefix mappings for specialized element configurations
+     - Customize SVG element behavior based on element labels
+4. Process SVG
+5. Copy/save results
+6. For SCADA export, configure:
+   - Project Title, Parent Project, View Name, SVG URL
+   - Image and View Dimensions
+7. Export SCADA project as zip
 
 ## Troubleshooting
-If you encounter any issues running the application:
-1. Ensure all files (SVG_Processor.exe, automation_standard_logo.jpg, and autStand_ic0n.ico) are in the same directory
-2. Try running as Administrator if permission issues occur
-3. Make sure your system has the required Visual C++ Redistributable packages installed
 
-For further details or support, please refer to the main project documentation. 
+### Common Issues
+- **Application won't start**: Ensure you have extracted all files including config.json
+- **SVG not properly processed**: Check that your SVG file follows standard format
+- **Missing elements**: Verify that SVG elements have proper types and attributes
+- **Rotation issues**: Check SVG transform attributes format
+
+### Windows Specific Issues
+- **Missing dependencies**: Install Visual C++ Redistributable if needed
+- **Icon problems**: Check file permissions and antivirus settings
+
+If problems persist, please contact support with error details.
+
+## License
+[Standard Automation License]
+
+## Acknowledgments
+- Built for automation standard systems
+- Uses open-source Python libraries for XML processing and GUI 

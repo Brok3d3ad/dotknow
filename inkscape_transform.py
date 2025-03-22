@@ -8,7 +8,7 @@ import argparse
 from xml.dom import minidom
 
 class SVGTransformer:
-    """Class to handle SVG parsing and transformation of rectangle elements."""
+    """Class to handle SVG parsing and transformation of SVG elements."""
     
     def __init__(self, svg_path, custom_options=None):
         """Initialize with the path to the SVG file and optional custom options."""
@@ -31,13 +31,23 @@ class SVGTransformer:
         # Initialize transformation matrix as identity
         matrix = np.identity(3)
         
-        # Find all transformation operations
-        for op in re.finditer(r'(\w+)\s*\(([^)]*)\)', transform_str):
-            op_name = op.group(1)
-            params = [float(x) for x in re.findall(r'[-+]?[0-9]*\.?[0-9]+(?:[eE][-+]?[0-9]+)?', op.group(2))]
+        try:
+            # Find all transformation operations
+            for op in re.finditer(r'(\w+)\s*\(([^)]*)\)', transform_str):
+                op_name = op.group(1)
+                params_str = op.group(2)
+                
+                # Extract parameters safely
+                try:
+                    params = [float(x) for x in re.findall(r'[-+]?[0-9]*\.?[0-9]+(?:[eE][-+]?[0-9]+)?', params_str)]
+                    matrix = self._apply_operation_to_matrix(matrix, op_name, params)
+                except (ValueError, TypeError) as e:
+                    print(f"Error parsing transform parameters '{params_str}': {e}")
+                    # Continue with the current matrix rather than failing
+        except Exception as e:
+            print(f"Error parsing transform '{transform_str}': {e}")
+            return np.identity(3)
             
-            matrix = self._apply_operation_to_matrix(matrix, op_name, params)
-        
         return matrix
     
     def _apply_operation_to_matrix(self, matrix, op_name, params):
@@ -145,60 +155,133 @@ class SVGTransformer:
         
         return combined_matrix
     
-    def process_rectangle(self, rect, rect_count):
-        """Process a single rectangle element and return its JSON representation."""
-        try:
-            # Extract rect attributes
-            x = float(rect.getAttribute('x') or 0)
-            y = float(rect.getAttribute('y') or 0)
-            width = float(rect.getAttribute('width') or 0)
-            height = float(rect.getAttribute('height') or 0)
-            
-            # Calculate center
-            center_x = x + width/2
-            center_y = y + height/2
-            
-            # Get all transforms (including parent group transforms)
-            transform_matrix = self.get_all_transforms(rect)
-            
-            # Apply transform
-            center_x, center_y = self.apply_transform((center_x, center_y), transform_matrix)
-            
-            # Get element dimensions from custom options or use defaults
-            element_width = self.custom_options.get('width', 14)
-            element_height = self.custom_options.get('height', 14)
-            
-            # Apply the offset using half of element width and height
-            offset_x = center_x - element_width / 2
-            offset_y = center_y - element_height / 2
-            
-            # Get element identifiers
-            rect_id = rect.getAttribute('id') or ""
-            rect_label = rect.getAttribute('inkscape:label') or ""
-            
-            # Use the inkscape:label as name, or fallback to a numbered format
-            element_name = rect_label or f"rect{rect_count}"
-            
-            # Log processing information
-            print(f"Rect #{rect_count}: Original name/id: {element_name}, "
-                  f"Original center ({x + width/2}, {y + height/2}), "
-                  f"Transformed ({center_x}, {center_y}), "
-                  f"With offset ({offset_x}, {offset_y})")
-            
-            # Create and return element JSON object
-            return self.create_element_json(element_name, rect_id, rect_label, rect_count, offset_x, offset_y)
-            
-        except (ValueError, TypeError) as e:
-            print(f"Error processing rect #{rect_count}: {e}")
-            return None
+    def get_element_type_for_svg_type(self, svg_type):
+        """
+        Determine the element type to use based on SVG element type.
+        Uses the element_type_mapping from custom_options if available,
+        otherwise falls back to the default element type.
+        """
+        # Get the element type mapping from custom options, or use empty dict
+        element_type_mapping = self.custom_options.get('element_type_mapping', {})
+        
+        # If we have a mapping for this SVG element type, use it
+        if svg_type in element_type_mapping and element_type_mapping[svg_type]:
+            return element_type_mapping[svg_type]
+        
+        # Fall back to the general element type
+        return self.custom_options.get('type', "ia.display.view")
     
-    def create_element_json(self, element_name, rect_id, rect_label, rect_number, x, y):
-        """Create a JSON object for a rectangle element."""
-        # Get custom values from options or use defaults
-        element_type = self.custom_options.get('type', "ia.display.view")
-        props_path = self.custom_options.get('props_path', "Symbol-Views/Equipment-Views/Status")
-        element_height = self.custom_options.get('height', 14)
-        element_width = self.custom_options.get('width', 14)
+    def get_element_type_for_svg_type_and_label(self, svg_type, label_prefix):
+        """Get the appropriate element type for an SVG type and label."""
+        # Find the right mapping to use - first exact match, then fallback
+        exact_match = None
+        fallback_match = None
+        
+        print(f"Looking for mapping for svg_type={svg_type}, label_prefix='{label_prefix}'")
+        
+        # First pass: look for an exact match
+        if label_prefix:  # Only look for exact match if we have a prefix
+            for mapping in self.custom_options['element_mappings']:
+                if mapping['svg_type'] == svg_type and mapping.get('label_prefix', '') == label_prefix:
+                    exact_match = mapping
+                    print(f"Found exact match: {mapping}")
+                    break
+        
+        # Second pass: look for a fallback match (no prefix)
+        for mapping in self.custom_options['element_mappings']:
+            if mapping['svg_type'] == svg_type and not mapping.get('label_prefix', ''):
+                fallback_match = mapping
+                print(f"Found fallback match: {mapping}")
+                break
+        
+        # Use the exact match if found, otherwise try the fallback
+        if exact_match and 'element_type' in exact_match:
+            return exact_match['element_type']
+        elif fallback_match and 'element_type' in fallback_match:
+            return fallback_match['element_type']
+        
+        # Default fallback
+        return self.custom_options.get('type', "ia.display.view")
+
+    def create_element_json(self, element_name, element_id, element_label, element_count, x, y, svg_type, label_prefix, rotation_angle=0, element_width=None, element_height=None):
+        """Create a JSON object for an SVG element."""
+        # Output debugging information
+        print(f"\n==== DEBUG FOR ELEMENT: {element_name} ====")
+        print(f"SVG Type: {svg_type}, Position: ({x}, {y}), Rotation: {rotation_angle}deg")
+        
+        # Only try to access element_mappings if it exists in custom_options
+        if 'element_mappings' in self.custom_options and (element_width is None or element_height is None):
+            # Get custom values from options or use defaults
+            element_type = self.get_element_type_for_svg_type_and_label(svg_type, label_prefix)
+            
+            # Get default properties path from custom options
+            default_props_path = self.custom_options.get('props_path', "Symbol-Views/Equipment-Views/Status")
+            
+            # Default properties and sizes - only used if not provided by caller
+            props_path = default_props_path
+            if element_width is None:
+                element_width = 14  # Default width
+            if element_height is None:
+                element_height = 14  # Default height
+            
+            # Find the right mapping to use
+            matching_mappings = []
+            exact_match = None
+            fallback_match = None
+            
+            # Find ALL mappings for this SVG type first
+            for mapping in self.custom_options['element_mappings']:
+                if mapping['svg_type'] == svg_type:
+                    matching_mappings.append(mapping)
+            
+            # Find exact match with prefix first
+            if label_prefix:
+                for mapping in matching_mappings:
+                    if mapping.get('label_prefix', '') == label_prefix:
+                        exact_match = mapping
+                        break
+            
+            # Find fallback with no prefix
+            for mapping in matching_mappings:
+                if not mapping.get('label_prefix', ''):
+                    fallback_match = mapping
+                    break
+            
+            # Use exact match if found, otherwise use fallback
+            mapping_to_use = exact_match or fallback_match
+            
+            if mapping_to_use:
+                # Get properties path
+                if 'props_path' in mapping_to_use:
+                    props_path = mapping_to_use['props_path']
+                
+                # Get width and height only if not explicitly provided by caller
+                if element_width is None and 'width' in mapping_to_use:
+                    element_width = mapping_to_use['width']
+                
+                if element_height is None and 'height' in mapping_to_use:
+                    element_height = mapping_to_use['height']
+            
+        else:
+            # If we don't have element_mappings, use simple defaults
+            element_type = self.custom_options.get('type', "ia.display.view")
+            default_props_path = self.custom_options.get('props_path', "Symbol-Views/Equipment-Views/Status")
+            props_path = default_props_path
+            
+            # Use provided dimensions or defaults
+            if element_width is None:
+                element_width = 14
+            if element_height is None:
+                element_height = 14
+        
+        # Preserve rotation angle as float for accuracy, just format it for output
+        try:
+            rotation_angle = float(rotation_angle)
+        except (ValueError, TypeError):
+            rotation_angle = 0
+            
+        print(f"Using element size: {element_width}x{element_height}")
+        print(f"Final rotation to use: {rotation_angle}deg")
         
         return {
             "type": element_type,
@@ -225,32 +308,420 @@ class SVGTransformer:
             },
             "meta": {
                 "name": element_name,
-                "originalName": rect_id or rect_label or "",
-                "rectNumber": rect_number
+                "originalName": element_id or element_label or "",
+                "elementNumber": element_count,
+                "svgType": svg_type,
+                "labelPrefix": label_prefix
             },
             "position": {
                 "x": x,
                 "y": y,
-                "height": element_height,  # Height from custom options or default
-                "width": element_width     # Width from custom options or default
+                "height": element_height,
+                "width": element_width,
+                "rotate": {
+                    "anchor": "50% 50%",
+                    "angle": f"{rotation_angle}deg"
+                }
             },
             "custom": {}
         }
     
+    def clean_element_name(self, element_name, prefix=None, suffix=None, has_prefix_mapping=False):
+        """Clean element name by removing prefix and suffix if configured.
+        Also removes adjacent underscores.
+        
+        Args:
+            element_name (str): Original element name
+            prefix (str): Identified prefix to remove (if any)
+            suffix (str): Identified suffix to remove (if any)
+            has_prefix_mapping (bool): Whether a mapping exists for the prefix
+            
+        Returns:
+            str: Cleaned element name
+        """
+        cleaned_name = element_name
+        
+        # Remove prefix ONLY if we have a mapping for it
+        if prefix and has_prefix_mapping and cleaned_name.startswith(prefix):
+            # Remove prefix
+            cleaned_name = cleaned_name[len(prefix):]
+            # Remove underscore after prefix if present
+            if cleaned_name.startswith('_'):
+                cleaned_name = cleaned_name[1:]
+        
+        # Remove suffix if it exists and is configured - this works independently of prefix
+        if suffix and len(cleaned_name) > 0:
+            # When removing just the suffix, remove it only from the very end
+            if cleaned_name.endswith(suffix):
+                # Remove suffix
+                cleaned_name = cleaned_name[:-len(suffix)]
+                # Remove underscore before suffix if present
+                if cleaned_name.endswith('_'):
+                    cleaned_name = cleaned_name[:-1]
+        
+        # If the name is empty after cleaning, revert to original
+        if not cleaned_name:
+            return element_name
+            
+        return cleaned_name
+    
+    def process_element(self, element, element_count, svg_type):
+        """Process a single SVG element and return its JSON representation."""
+        try:
+            # Debug buffer to collect all debug messages for this element
+            debug_buffer = []
+            
+            # Extract element attributes and calculate center based on element type
+            if svg_type == 'rect':
+                x = float(element.getAttribute('x') or 0)
+                y = float(element.getAttribute('y') or 0)
+                width = float(element.getAttribute('width') or 0)
+                height = float(element.getAttribute('height') or 0)
+                # Calculate center of the original rect
+                orig_center_x = x + width/2
+                orig_center_y = y + height/2
+                # Keep track of original dimensions
+                original_width = width
+                original_height = height
+            elif svg_type == 'circle':
+                cx = float(element.getAttribute('cx') or 0)
+                cy = float(element.getAttribute('cy') or 0)
+                r = float(element.getAttribute('r') or 0)
+                # The center is already given for circles
+                orig_center_x, orig_center_y = cx, cy
+                original_width = r * 2
+                original_height = r * 2
+            elif svg_type == 'ellipse':
+                cx = float(element.getAttribute('cx') or 0)
+                cy = float(element.getAttribute('cy') or 0)
+                rx = float(element.getAttribute('rx') or 0)
+                ry = float(element.getAttribute('ry') or 0)
+                # The center is already given for ellipses
+                orig_center_x, orig_center_y = cx, cy
+                original_width = rx * 2
+                original_height = ry * 2
+            elif svg_type == 'line':
+                x1 = float(element.getAttribute('x1') or 0)
+                y1 = float(element.getAttribute('y1') or 0)
+                x2 = float(element.getAttribute('x2') or 0)
+                y2 = float(element.getAttribute('y2') or 0)
+                # Calculate midpoint of the line
+                orig_center_x = (x1 + x2) / 2
+                orig_center_y = (y1 + y2) / 2
+                original_width = abs(x2 - x1)
+                original_height = abs(y2 - y1)
+            elif svg_type in ['polyline', 'polygon', 'path']:
+                # For these complex types, we'll use a simple approach
+                # In a real implementation, you'd calculate the bounding box
+                orig_center_x, orig_center_y = 0, 0
+                original_width = 10  # Default
+                original_height = 10  # Default
+                debug_buffer.append(f"Warning: {svg_type} element support is basic - center may not be accurate")
+            else:
+                # Default case for unsupported types
+                orig_center_x, orig_center_y = 0, 0
+                original_width = 10  # Default
+                original_height = 10  # Default
+                debug_buffer.append(f"Warning: Unsupported element type {svg_type}")
+            
+            # Get transformation matrix from all parent transforms
+            transform_matrix = self.get_all_transforms(element)
+            
+            # Print the original transform string for debugging
+            transform_str = element.getAttribute('transform')
+            if transform_str:
+                debug_buffer.append(f"Element has transform: {transform_str}")
+            
+            # Extract rotation angle from the transform
+            rotation_angle = self.extract_rotation_from_transform(element)
+            
+            # Apply transform to the center point to get transformed center
+            transformed_center_x, transformed_center_y = self.apply_transform(
+                (orig_center_x, orig_center_y), transform_matrix
+            )
+            
+            # Get element identifiers
+            element_id = element.getAttribute('id') or ""
+            element_label = element.getAttribute('inkscape:label') or ""
+            element_name = element_label or f"{svg_type}{element_count}"
+            original_name = element_name  # Store original name
+            
+            # Get the first 3 letters of the label if it exists
+            label_prefix = ""
+            if element_label and len(element_label) >= 3:
+                label_prefix = element_label[:3]
+            
+            # Check if we have a mapping for this prefix
+            has_prefix_mapping = False
+            exact_prefix_match = None
+            
+            if 'element_mappings' in self.custom_options and label_prefix:
+                for mapping in self.custom_options['element_mappings']:
+                    if mapping.get('label_prefix', '') == label_prefix:
+                        has_prefix_mapping = True
+                        exact_prefix_match = mapping
+                        break
+            
+            # Get element dimensions from the prefix mapping if available
+            element_width = None
+            element_height = None
+            
+            # If we have an exact prefix match, use its dimensions first
+            if exact_prefix_match:
+                if 'width' in exact_prefix_match:
+                    element_width = exact_prefix_match['width']
+                if 'height' in exact_prefix_match:
+                    element_height = exact_prefix_match['height']
+                debug_buffer.append(f"Using dimensions from prefix mapping '{label_prefix}': {element_width}x{element_height}")
+            
+            # If no dimensions from prefix mapping, check element_size_mapping
+            if element_width is None or element_height is None:
+                if 'element_size_mapping' in self.custom_options and svg_type in self.custom_options['element_size_mapping']:
+                    size_mapping = self.custom_options['element_size_mapping'][svg_type]
+                    if element_width is None and 'width' in size_mapping:
+                        element_width = size_mapping['width']
+                    if element_height is None and 'height' in size_mapping:
+                        element_height = size_mapping['height']
+                    debug_buffer.append(f"Using dimensions from element_size_mapping: {element_width}x{element_height}")
+            
+            # If still no dimensions, try direct custom_options
+            if element_width is None:
+                element_width = self.custom_options.get('width', 10)
+            if element_height is None:
+                element_height = self.custom_options.get('height', 10)
+            
+            debug_buffer.append(f"Final dimensions for {element_name}: {element_width}x{element_height}")
+            
+            # Calculate the centered position
+            final_x = transformed_center_x - element_width / 2
+            final_y = transformed_center_y - element_height / 2
+            
+            suffix = None
+            
+            # Check for specific suffixes to override rotation
+            if element_name and len(element_name) >= 2:
+                last_char = element_name[-1].lower()
+                if last_char in ['r', 'd', 'l', 'u']:
+                    suffix = last_char
+                    if last_char == 'r':
+                        rotation_angle = 0
+                    elif last_char == 'd':
+                        rotation_angle = 90
+                    elif last_char == 'l':
+                        rotation_angle = 180
+                    elif last_char == 'u':
+                        rotation_angle = 270
+            
+            # Log detailed positioning information for debugging
+            debug_buffer.append(f"{svg_type.capitalize()} #{element_count}: {element_name}, " 
+                  f"Original center: ({orig_center_x}, {orig_center_y}), "
+                  f"Transformed center: ({transformed_center_x}, {transformed_center_y}), "
+                  f"Final position: ({final_x}, {final_y}), "
+                  f"Using element size: {element_width}x{element_height}, "
+                  f"Rotation: {rotation_angle}deg")
+            
+            # Clean the element name by removing prefix/suffix AFTER logging
+            cleaned_name = self.clean_element_name(
+                element_name, 
+                label_prefix if label_prefix else None, 
+                suffix,
+                has_prefix_mapping
+            )
+            
+            # Log information about name cleaning
+            if cleaned_name != element_name:
+                debug_buffer.append(f"Cleaned element name: '{element_name}' → '{cleaned_name}' [Prefix mapping: {has_prefix_mapping}, Suffix: {suffix}]")
+                element_name = cleaned_name
+            
+            # Create JSON element with correct position and rotation
+            element_json = {
+                "type": self.get_element_type_for_svg_type_and_label(svg_type, label_prefix),
+                "version": 0,
+                "props": {
+                    "path": self.custom_options.get('props_path', "Symbol-Views/Equipment-Views/Status"),
+                    "params": {
+                        "directionLeft": False,
+                        "forceFaultStatus": None,
+                        "forceRunningStatus": None,
+                        "tagProps": [
+                            element_name,
+                            "value",
+                            "value",
+                            "value",
+                            "value",
+                            "value",
+                            "value",
+                            "value",
+                            "value",
+                            "value"
+                        ]
+                    }
+                },
+                "meta": {
+                    "name": element_name,
+                    "originalName": original_name,
+                    "elementNumber": element_count,
+                    "svgType": svg_type,
+                    "labelPrefix": label_prefix
+                },
+                "position": {
+                    "x": final_x,
+                    "y": final_y,
+                    "height": element_height,
+                    "width": element_width,
+                    "rotate": {
+                        "anchor": "50% 50%",
+                        "angle": f"{rotation_angle}deg"
+                    }
+                },
+                "custom": {}
+            }
+            
+            # Now that the element is fully processed, print the debug header
+            print(f"\n==== DEBUG FOR ELEMENT {element_count}: {element_name} (Original: {original_name}) ====")
+            print(f"SVG Type: {svg_type}, Position: ({final_x}, {final_y}), Rotation: {rotation_angle}deg")
+            print(f"Using element size: {element_width}x{element_height}")
+            print(f"Mapping information: Prefix: {label_prefix}, Has mapping: {has_prefix_mapping}")
+            
+            # Print all the buffered debug messages
+            for msg in debug_buffer:
+                print(f"  {msg}")
+                
+            print("==== END DEBUG ====")
+            
+            return element_json
+        
+        except Exception as e:
+            print(f"Error processing {svg_type} #{element_count}: {e}")
+            import traceback
+            traceback.print_exc()
+            # Return a default element with error information
+            return self.create_default_element(element_count, svg_type, str(e))
+    
+    def extract_rotation_from_transform(self, element):
+        """Extract rotation angle from element's transform attribute if it exists."""
+        # Get the transform attribute
+        transform_str = element.getAttribute('transform')
+        if not transform_str:
+            return 0
+        
+        # First try direct extraction for rotate transform
+        direct_rotate = re.search(r'rotate\s*\(\s*([-+]?[0-9]*\.?[0-9]+(?:[eE][-+]?[0-9]+)?)', transform_str)
+        if direct_rotate:
+            try:
+                angle = float(direct_rotate.group(1))
+                print(f"Directly extracted rotation angle: {angle} degrees")
+                return angle
+            except Exception as e:
+                print(f"Error extracting direct rotation: {e}")
+        
+        # If no direct rotation found, look at the transform matrix
+        try:
+            # Get the complete transform matrix for this element (including parent transforms)
+            transform_matrix = self.get_all_transforms(element)
+            
+            # Calculate rotation from matrix - using arctan2 of the matrix elements
+            # In SVG transform matrix [a c e; b d f; 0 0 1], rotation is atan2(b, a)
+            a = transform_matrix[0, 0]
+            b = transform_matrix[1, 0]
+            
+            # Avoid division by zero
+            if abs(a) < 1e-6 and abs(b) < 1e-6:
+                return 0
+                
+            angle_rad = math.atan2(b, a)
+            angle_deg = math.degrees(angle_rad)
+            
+            print(f"Extracted rotation from transform matrix: {angle_deg} degrees")
+            
+            return angle_deg
+            
+        except Exception as e:
+            print(f"Error calculating rotation from matrix: {e}")
+            return 0
+    
+    def create_default_element(self, element_count, svg_type, error_msg):
+        """Create a default element when processing fails."""
+        element_name = f"error_{svg_type}{element_count}"
+        
+        return {
+            "type": "ia.display.view",
+            "version": 0,
+            "props": {
+                "path": "Symbol-Views/Equipment-Views/Status",
+                "params": {
+                    "tagProps": [
+                        element_name,
+                        "value",
+                        "value",
+                        "value",
+                        "value",
+                        "value",
+                        "value",
+                        "value",
+                        "value",
+                        "value"
+                    ]
+                }
+            },
+            "meta": {
+                "name": element_name,
+                "originalName": "",
+                "elementNumber": element_count,
+                "svgType": svg_type,
+                "error": error_msg
+            },
+            "position": {
+                "x": 0,
+                "y": 0,
+                "height": 14,
+                "width": 14,
+                "rotate": {
+                    "anchor": "50% 50%",
+                    "angle": "0deg"
+                }
+            },
+            "custom": {}
+        }
+    
+    def process_rectangle(self, rect, rect_count):
+        """Process a single rectangle element - for backward compatibility."""
+        return self.process_element(rect, rect_count, 'rect')
+    
     def process_svg(self):
-        """Process SVG file and extract rect elements with calculated centers."""
-        # Find all rect elements
+        """Process SVG file and extract elements with calculated centers."""
+        # Results list for all elements
         results = []
-        rect_count = 0
-        rect_elements = self.doc.getElementsByTagName('rect')
         
-        for rect in rect_elements:
-            rect_count += 1
-            element_json = self.process_rectangle(rect, rect_count)
-            if element_json:
-                results.append(element_json)
+        # Process different element types
+        element_types = [
+            ('rect', 'rectangles'),
+            ('circle', 'circles'),
+            ('ellipse', 'ellipses'),
+            ('line', 'lines'),                   
+            ('polyline', 'polylines'),
+            ('polygon', 'polygons'),
+            ('path', 'paths')
+        ]
         
-        print(f"Processed {rect_count} rectangles, successfully converted {len(results)}")
+        total_elements = 0
+        
+        # Process each type of element
+        for svg_type, plural in element_types:
+            elements = self.doc.getElementsByTagName(svg_type)
+            count = 0
+            
+            for element in elements:
+                count += 1
+                total_elements += 1
+                element_json = self.process_element(element, count, svg_type)
+                if element_json:
+                    results.append(element_json)
+            
+            if count > 0:
+                print(f"Processed {count} {plural}, successfully converted {count}")
+        
+        print(f"Total: Processed {total_elements} SVG elements, successfully converted {len(results)}")
         return results
 
 def save_json_to_file(data, output_file):
@@ -292,10 +763,20 @@ def validate_with_existing(new_elements, existing_file='elements.json'):
             
             # Check name and metadata
             name_match = new_el["meta"]["name"] == old_el["meta"]["name"]
-            rect_num_match = new_el["meta"]["rectNumber"] == old_el["meta"]["rectNumber"]
-            tag_props_match = new_el["props"]["params"]["tagProps"] == old_el["props"]["params"]["tagProps"]
             
-            if not (pos_match and name_match and rect_num_match and tag_props_match):
+            # Handle both old rectNumber and new elementNumber field
+            old_number = old_el["meta"].get("rectNumber", old_el["meta"].get("elementNumber", -1))
+            new_number = new_el["meta"].get("elementNumber", -1)
+            element_num_match = old_number == new_number
+            
+            # Check tag properties if they exist
+            tag_props_match = True
+            if "props" in new_el and "props" in old_el:
+                if "params" in new_el["props"] and "params" in old_el["props"]:
+                    if "tagProps" in new_el["props"]["params"] and "tagProps" in old_el["props"]["params"]:
+                        tag_props_match = new_el["props"]["params"]["tagProps"] == old_el["props"]["params"]["tagProps"]
+            
+            if not (pos_match and name_match and element_num_match and tag_props_match):
                 mismatches += 1
                 if mismatches <= 5:  # Limit reporting to first 5 mismatches to avoid flooding console
                     print(f"Mismatch at element {idx}:")
@@ -304,8 +785,8 @@ def validate_with_existing(new_elements, existing_file='elements.json'):
                               f"Old ({old_el['position']['x']}, {old_el['position']['y']})")
                     if not name_match:
                         print(f"  Name: New '{new_el['meta']['name']}' vs Old '{old_el['meta']['name']}'")
-                    if not rect_num_match:
-                        print(f"  Rectangle Number: New {new_el['meta']['rectNumber']} vs Old {old_el['meta']['rectNumber']}")
+                    if not element_num_match:
+                        print(f"  Element Number: New {new_number} vs Old {old_number}")
                     if not tag_props_match:
                         print(f"  Tag Properties mismatch")
         

@@ -1,39 +1,68 @@
 # Build artifacts
 dist/
 build/
-# *.spec  # Uncommenting to allow .spec files
 __pycache__/
-*.pyc
-*.pyo
-*.pyd
-*.pyw
-*.pyz
-*.exe
-venv/ 
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.spec
+SVG_Processor_Distribute/
+
+# Virtual environments
+venv/
+env/
+ENV/
+.env
+.venv/
+env.bak/
+venv.bak/
+
 # Test artifacts
 .pytest_cache/
 .coverage
 htmlcov/
 coverage.xml
+.tox/
+nosetests.xml
+.hypothesis/
+.nox/
+
+# IDE specific files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.spyderproject
+.spyproject
+.ropeproject
 
 # Project specific files
 app_config.json
 MTN6_SCADA_*
 MTN6_SCADAa_*
 
-# Image files (as needed)
-# *.ico  # Uncommenting to allow icon files
+# Image files (generally ignored)
 *.jpg
-*.spec
 *.png
 *.gif
 *.bmp
 *.tiff
 *.jpeg
 
-# Exception for app logo
+# Exception for app assets
 !automation_standard_logo.jpg
 !autStand_ic0n.ico
 
-# macOS specific
+# OS specific
 .DS_Store
+Thumbs.db
+desktop.ini
+._*
+.Spotlight-V100
+.Trashes
+
+# Rotation test files
+rotation_test_*.svg
+rotation_test_*.json

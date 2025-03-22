@@ -1,0 +1,29 @@
+{
+    "file_path": "C:/Users/user/Desktop/incscape_transform/Bypass.svg",
+    "project_title": "MTN6_SCADA",
+    "parent_project": "SCADA_PERSPECTIVE_PARENT_PROJECT",
+    "view_name": "Bypass",
+    "svg_url": "http://127.0.0.1:5500/Bypass.svg       ",
+    "image_width": "1850",
+    "image_height": "1028",
+    "default_width": "1850",
+    "default_height": "1028",
+    "element_mappings": [
+        {
+            "svg_type": "rect",
+            "element_type": "ia.display.view",
+            "label_prefix": "",
+            "props_path": "Symbol-Views/Equipment-Views/Status",
+            "width": 10,
+            "height": 10
+        },
+        {
+            "svg_type": "rect",
+            "element_type": "ia.display.view",
+            "label_prefix": "CON",
+            "props_path": "Symbol-Views/Equipment-Views/Status",
+            "width": 12,
+            "height": 12
+        }
+    ]
+}

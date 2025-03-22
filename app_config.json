@@ -1,15 +1,50 @@
 {
-    "file_path": "asd",
-    "element_type": "ia.display.viewada",
-    "props_path": "Symbol-Views/Equipment-Views/Statusas",
-    "element_width": "14ad",
-    "element_height": "14sd",
+    "file_path": "C:/Users/user/Downloads/Singulated Inbound_lower 1.svg",
+    "element_width": "14",
+    "element_height": "14",
     "project_title": "MTN6_SCADA",
     "parent_project": "SCADA_PERSPECTIVE_PARENT_PROJECT",
-    "view_name": "Bulk Inbound Problem Solve",
-    "svg_url": "http://127.0.0.1:5500/bulk_inbound_problemsolve.svg",
-    "image_width": "1920",
-    "image_height": "1080",
-    "default_width": "1920",
-    "default_height": "1080"
+    "view_name": "Bypass",
+    "svg_url": "http://127.0.0.1:5500/Bypass.svg",
+    "image_width": "1850",
+    "image_height": "1028",
+    "default_width": "1850",
+    "default_height": "1028",
+    "element_type_mapping": {
+        "rect": "ia.display.view1",
+        "circle": "ia.display.view",
+        "ellipse": "ia.display.view",
+        "line": "ia.display.view",
+        "polyline": "ia.display.view",
+        "polygon": "ia.display.view",
+        "path": "ia.display.view"
+    },
+    "element_mappings": [
+        {
+            "svg_type": "rect",
+            "element_type": "ia.display.view1",
+            "label_prefix": "",
+            "props_path": "Symbol-Views/Equipment-Views/PPI",
+            "width": 13,
+            "height": 13
+        },
+        {
+            "svg_type": "rect",
+            "element_type": "ia.display.viewtest",
+            "label_prefix": "CON",
+            "props_path": "Symbol-Views/Equipment-Views/CON",
+            "width": 20,
+            "height": 20
+        }
+    ],
+    "element_props_mapping": {
+        "rect": "Symbol-Views/Equipment-Views/PPI"
+    },
+    "element_size_mapping": {
+        "rect": {
+            "width": 13,
+            "height": 13
+        }
+    },
+    "element_label_prefix_mapping": {}
 }
