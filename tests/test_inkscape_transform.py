@@ -604,6 +604,141 @@ class TestSVGTransformer(unittest.TestCase):
         # may vary depending on the implementation
         pass
 
+    def test_element_offset(self):
+        """Test that x_offset and y_offset values are applied correctly when positioning elements."""
+        test_svg = """
+        <svg>
+            <rect id="test_rect" x="100" y="100" width="50" height="50" />
+        </svg>
+        """
+        
+        # Create a temporary SVG file
+        with tempfile.NamedTemporaryFile(suffix='.svg', delete=False) as f:
+            f.write(test_svg.encode('utf-8'))
+            temp_svg_path = f.name
+        
+        try:
+            # Create custom options with offsets
+            custom_options = {
+                'element_mappings': [
+                    {
+                        'svg_type': 'rect',
+                        'element_type': 'ia.display.view',
+                        'label_prefix': '',
+                        'props_path': 'test/path',
+                        'width': 20,
+                        'height': 20,
+                        'x_offset': 10,
+                        'y_offset': -5
+                    }
+                ]
+            }
+            
+            # Process the SVG with the transformer
+            transformer = SVGTransformer(temp_svg_path, custom_options)
+            result = transformer.process_svg()
+            
+            # Verify we got one element
+            self.assertEqual(len(result), 1)
+            
+            # Get the element position
+            element = result[0]
+            x = element['position']['x']
+            y = element['position']['y']
+            
+            # Verify that offsets were applied
+            # The rect is at 100,100 with width/height 50,50, so center is at 125,125
+            # With width/height 20,20, the top-left without offset would be at 115,115
+            # With offset 10,-5, it should be at 125,110
+            self.assertAlmostEqual(x, 125, delta=1)
+            self.assertAlmostEqual(y, 110, delta=1)
+            
+            # Verify offset values are in the metadata
+            self.assertEqual(element['meta']['offsets']['x'], 10)
+            self.assertEqual(element['meta']['offsets']['y'], -5)
+            
+        finally:
+            # Clean up the temporary file
+            if os.path.exists(temp_svg_path):
+                os.remove(temp_svg_path)
+
+    def test_element_mapping_selection_with_offsets(self):
+        """Test that the correct element mapping with offsets is selected based on label prefix."""
+        test_svg = """
+        <svg>
+            <rect id="normal_rect" x="100" y="100" width="50" height="50" />
+            <rect id="special_rect" x="200" y="200" width="50" height="50" inkscape:label="SPEC_Some Label" />
+        </svg>
+        """
+        
+        # Create a temporary SVG file
+        with tempfile.NamedTemporaryFile(suffix='.svg', delete=False) as f:
+            f.write(test_svg.encode('utf-8'))
+            temp_svg_path = f.name
+        
+        try:
+            # Create custom options with different mappings and offsets
+            custom_options = {
+                'element_mappings': [
+                    {
+                        'svg_type': 'rect',
+                        'element_type': 'ia.display.view',
+                        'label_prefix': '',
+                        'props_path': 'default/path',
+                        'width': 20,
+                        'height': 20,
+                        'x_offset': 0,
+                        'y_offset': 0
+                    },
+                    {
+                        'svg_type': 'rect',
+                        'element_type': 'ia.display.special',
+                        'label_prefix': 'SPEC',
+                        'props_path': 'special/path',
+                        'width': 30,
+                        'height': 30,
+                        'x_offset': 15,
+                        'y_offset': -10
+                    }
+                ]
+            }
+            
+            # Process the SVG with the transformer
+            transformer = SVGTransformer(temp_svg_path, custom_options)
+            result = transformer.process_svg()
+            
+            # Sort results by id to ensure consistent ordering
+            result.sort(key=lambda x: x['meta']['originalName'])
+            
+            # Verify we got two elements
+            self.assertEqual(len(result), 2)
+            
+            # Normal rect should have default offsets
+            normal_rect = result[0]
+            self.assertEqual(normal_rect['meta']['originalName'], 'normal_rect')
+            self.assertEqual(normal_rect['meta']['offsets']['x'], 0)
+            self.assertEqual(normal_rect['meta']['offsets']['y'], 0)
+            
+            # Special rect should have special offsets
+            special_rect = result[1]
+            self.assertEqual(special_rect['meta']['originalName'], 'special_rect')
+            self.assertEqual(special_rect['meta']['offsets']['x'], 15)
+            self.assertEqual(special_rect['meta']['offsets']['y'], -10)
+            
+            # Special rect should be offset from its calculated position
+            # The special_rect is at 200,200 with width/height 50,50, so center is at 225,225
+            # With width/height 30,30, the top-left without offset would be at 210,210
+            # With offset 15,-10, it should be at 225,200
+            special_x = special_rect['position']['x']
+            special_y = special_rect['position']['y']
+            self.assertAlmostEqual(special_x, 225, delta=1)
+            self.assertAlmostEqual(special_y, 200, delta=1)
+            
+        finally:
+            # Clean up the temporary file
+            if os.path.exists(temp_svg_path):
+                os.remove(temp_svg_path)
+
 class TestStandaloneFunctions(unittest.TestCase):
     """Test the standalone functions in the inkscape_transform module."""
     

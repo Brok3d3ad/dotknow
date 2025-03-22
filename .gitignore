@@ -66,3 +66,21 @@ desktop.ini
 # Rotation test files
 rotation_test_*.svg
 rotation_test_*.json
+
+*.zip
+*.exe
+*.json
+*.spec
+*.jpg
+*.png
+*.gif
+*.bmp
+*.tiff
+*.jpeg
+*.ico
+*.svg
+*.json
+*.spec
+*.jpg
+*.png
+*.gif
