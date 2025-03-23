@@ -12,6 +12,8 @@ An application for extracting SVG elements and converting them to JSON format fo
 - Enhanced error handling for reliable operation
 - Supports custom SVG element representations and mappings
 - **Label prefix-based element configurations**
+- **Final prefix and suffix fields for consistent element naming**
+- **Automatic underscore handling for prefixes and suffixes**
 - **Consistent configuration management with improved persistence**
 - **High test coverage (>80%) for reliable code base**
 - **Enhanced path element handling with precise coordinate extraction**
@@ -87,6 +89,7 @@ pyinstaller --clean --onefile --windowed --name="SVG_Processor" \
    - **Element Mappings tab**:
      - Configure element type, properties path, and size for different SVG elements
      - Use label prefix mappings for specialized element configurations
+     - Set final prefix/suffix values to be applied to element names
      - Customize SVG element behavior based on element labels
 4. Process SVG
 5. Copy/save results
@@ -144,6 +147,9 @@ pytest --cov=. --cov-report=term-missing
 - Specialized mappings for elements with specific prefixes
 - Default mappings for elements without prefixes
 - Priority-based mapping selection (exact match > fallback)
+- Final prefix and suffix options for consistent element naming
+  - Final prefixes automatically add underscore separator (_) if not included
+  - Final suffixes automatically add underscore separator (_) if not included
 
 ### Performance Optimizations
 - Efficient matrix operations for faster transformation calculations

@@ -2,6 +2,18 @@
 
 ## Recent Updates
 
+### [1.12.0] - 2025-04-05
+- Added new "Final Prefix" and "Final Suffix" fields for element mappings to handle potential typos
+- Enhanced prefix and suffix handling to automatically add underscores when needed 
+  - Final prefixes are automatically followed by "_" if not already present
+  - Final suffixes are automatically preceded by "_" if not already present
+- Fixed layout issues with element mapping table
+- Fixed bug with delete mapping button functionality
+- Increased default application window size to 1200x800 for better usability
+- Expanded width of Properties Path input field to 50 characters for better visibility
+- Expanded width of Final Prefix and Final Suffix input fields to 15 characters
+- Fixed element reindexing after row removal
+
 ### [1.11.0] - 2025-04-03
 - Added support for negative offset values for precise positioning of elements
 - Enhanced path element handling with accurate coordinate extraction
