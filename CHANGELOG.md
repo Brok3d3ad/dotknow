@@ -2,6 +2,13 @@
 
 ## Recent Updates
 
+### [1.12.1] - 2025-04-06
+- Fixed "Error: 'height'" issue when exporting SCADA projects
+- Standardized position format in JSON to use direct x, y, width, height properties  
+- Added better error handling and diagnostics for export process
+- Improved support for different SVG element formats and structures
+- Enhanced robustness when handling incomplete or malformed SVG elements
+
 ### [1.12.0] - 2025-04-05
 - Added new "Final Prefix" and "Final Suffix" fields for element mappings to handle potential typos
 - Enhanced prefix and suffix handling to automatically add underscores when needed 

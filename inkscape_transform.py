@@ -208,32 +208,39 @@ class SVGTransformer:
 
     def create_element_json(self, element_name, element_id, element_label, element_count, x, y, svg_type, label_prefix, rotation_angle=0, element_width=None, element_height=None, x_offset=0, y_offset=0, original_name=None, debug_buffer=None, has_prefix_mapping=None):
         """Create a JSON object for an SVG element."""
-        # Output debugging information
-        if original_name is None:
-            original_name = element_id or element_label or ""
+        # If not provided, element_width and element_height should be retrieved from custom_options
+        if element_width is None:
+            element_width = self.custom_options.get('width', 10)
+        if element_height is None:
+            element_height = self.custom_options.get('height', 10)
             
-        # Now that the element is fully processed, print the debug header
-        print(f"\n==== DEBUG FOR ELEMENT {element_count}: {element_name} (Original: {original_name}) ====")
-        print(f"SVG Type: {svg_type}, Position: ({x}, {y}), Rotation: {rotation_angle}deg")
-        print(f"Using element size: {element_width}x{element_height}")
-        print(f"Mapping information: Prefix: {label_prefix}, Has mapping: {has_prefix_mapping}")
-        print(f"Applied offsets: x_offset={x_offset}, y_offset={y_offset}")
-        
-        # Print all the buffered debug messages if provided
-        if debug_buffer:
-            for msg in debug_buffer:
-                print(f"  {msg}")
-                
+        # Store debug buffer contents if provided
+        debug_messages = []
+        if debug_buffer is not None:
+            debug_messages = debug_buffer.copy()
+            
+        # Log all debug messages to the console for transparency
+        for msg in debug_messages:
+            print(msg)
+            
+        # Add a final debug summary
         print("==== END DEBUG ====")
         
-        # Find the right mapping to use
+        # Get the appropriate element type and props path based on prefix
+        # First look for an exact match with this prefix
         exact_match = None
         fallback_match = None
         
-        # First look for an exact match with label prefix
-        if label_prefix:
-            for mapping in self.custom_options.get('element_mappings', []):
-                if mapping['svg_type'] == svg_type and mapping.get('label_prefix', '') == label_prefix:
+        print(f"Looking for mapping for svg_type={svg_type}, label_prefix='{label_prefix}'")
+        print(f"Available mappings: {len(self.custom_options.get('element_mappings', []))}")
+        
+        # Debug print all available mappings
+        for i, mapping in enumerate(self.custom_options.get('element_mappings', [])):
+            print(f"  Available mapping #{i+1}: svg_type={mapping.get('svg_type', 'None')}, label_prefix='{mapping.get('label_prefix', '')}'")
+        
+        if 'element_mappings' in self.custom_options and label_prefix:
+            for mapping in self.custom_options['element_mappings']:
+                if mapping.get('svg_type', '') == svg_type and mapping.get('label_prefix', '') == label_prefix:
                     exact_match = mapping
                     print(f"Found exact match: {mapping}")
                     break
@@ -256,63 +263,62 @@ class SVGTransformer:
         if mapping_to_use:
             element_type = mapping_to_use.get('element_type', element_type)
             props_path = mapping_to_use.get('props_path', props_path)
+            print(f"Selected mapping: {mapping_to_use}")
+            print(f"Using element_type: {element_type} from {'exact match' if exact_match else 'fallback match'}")
+            print(f"Using props_path: {props_path} from {'exact match' if exact_match else 'fallback match'}")
+        else:
+            print(f"WARNING: No mapping found for svg_type={svg_type}, label_prefix='{label_prefix}'. Using defaults: type={element_type}, props_path={props_path}")
         
         # Preserve rotation angle as float for accuracy, just format it for output
         try:
             rotation_angle = float(rotation_angle)
         except (ValueError, TypeError):
             rotation_angle = 0
-            
-        print(f"Final rotation to use: {rotation_angle}deg")
         
-        return {
-            "type": element_type,
-            "version": 0,
-            "props": {
-                "path": props_path,
-                "params": {
-                    "directionLeft": False,
-                    "forceFaultStatus": None,
-                    "forceRunningStatus": None,
-                    "tagProps": [
-                        element_name,
-                        "value",
-                        "value",
-                        "value",
-                        "value",
-                        "value",
-                        "value",
-                        "value",
-                        "value",
-                        "value"
-                    ]
-                }
-            },
-            "meta": {
-                "name": element_name,
-                "originalName": original_name,
-                "elementNumber": element_count,
-                "svgType": svg_type,
-                "labelPrefix": label_prefix,
-                "offsets": {
-                    "x": x_offset,
-                    "y": y_offset
-                }
-            },
-            "position": {
-                "x": x,
-                "y": y,
-                "height": element_height,
-                "width": element_width,
-                "rotate": {
-                    "anchor": "50% 50%",
-                    "angle": f"{rotation_angle}deg"
-                }
-            },
-            "custom": {}
+        # Create metadata and meta object
+        meta = {
+            'id': element_id,
+            'name': element_name,
+            'originalName': original_name or element_name,  # Preserve original name
+            'elementPrefix': label_prefix if label_prefix else None
         }
+        
+        # Check if final prefix/suffix were applied
+        if mapping_to_use:
+            final_prefix = mapping_to_use.get('final_prefix', '')
+            final_suffix = mapping_to_use.get('final_suffix', '')
+            
+            if final_prefix:
+                meta['finalPrefixApplied'] = final_prefix
+            
+            if final_suffix:
+                meta['finalSuffixApplied'] = final_suffix
+        
+        # Build the element JSON object with the simpler position structure
+        element_json = {
+            'type': element_type,
+            'position': {
+                'x': x,
+                'y': y,
+                'width': element_width,
+                'height': element_height
+            },
+            'props': {
+                'path': props_path
+            },
+            'meta': meta
+        }
+        
+        # Add rotation if it's not 0
+        if rotation_angle != 0:
+            element_json['position']['rotate'] = {
+                'angle': f"{rotation_angle}deg",
+                'anchor': '50% 50%'
+            }
+        
+        return element_json
     
-    def clean_element_name(self, element_name, prefix=None, suffix=None, has_prefix_mapping=False):
+    def clean_element_name(self, element_name, prefix=None, suffix=None, has_prefix_mapping=False, mapping_to_use=None):
         """Clean element name by removing prefix and suffix if configured.
         Also removes adjacent underscores.
         
@@ -321,6 +327,7 @@ class SVGTransformer:
             prefix (str): Identified prefix to remove (if any)
             suffix (str): Identified suffix to remove (if any)
             has_prefix_mapping (bool): Whether a mapping exists for the prefix
+            mapping_to_use (dict): The mapping being used for this element (if any)
             
         Returns:
             str: Cleaned element name
@@ -347,17 +354,62 @@ class SVGTransformer:
         
         # If the name is empty after cleaning, revert to original
         if not cleaned_name:
-            return element_name
+            cleaned_name = element_name
+        
+        # Apply final prefix and suffix if they exist in the mapping
+        if mapping_to_use:
+            # Apply final prefix if it exists in the mapping
+            final_prefix = mapping_to_use.get('final_prefix', '')
+            if final_prefix:
+                # Ensure final prefix is followed by an underscore
+                if not final_prefix.endswith('_'):
+                    final_prefix += '_'
+                cleaned_name = f"{final_prefix}{cleaned_name}"
+            
+            # Apply final suffix if it exists in the mapping
+            final_suffix = mapping_to_use.get('final_suffix', '')
+            if final_suffix:
+                # Ensure final suffix is preceded by an underscore
+                if not final_suffix.startswith('_'):
+                    final_suffix = f"_{final_suffix}"
+                cleaned_name = f"{cleaned_name}{final_suffix}"
             
         return cleaned_name
     
     def process_element(self, element, element_count, svg_type):
         """Process a single SVG element and return its JSON representation."""
         try:
-            # Debug buffer to collect all debug messages for this element
-            debug_buffer = []
+            debug_buffer = []  # Collect debug messages
+            debug_buffer.append(f"Processing {svg_type} #{element_count}")
             
-            # Extract element attributes and calculate center based on element type
+            # Initialize transformed coordinates
+            transformed_center_x = 0
+            transformed_center_y = 0
+            
+            # Get element name from ID or create a default one
+            element_id = element.getAttribute('id')
+            element_name = None
+            label_prefix = None
+            
+            if element_id:
+                element_name = element_id
+                debug_buffer.append(f"Found ID: {element_id}")
+            else:
+                # Create a default name based on element type and count
+                element_name = f"{svg_type}{element_count}"
+                debug_buffer.append(f"No ID found, using default: {element_name}")
+            
+            # Get original element coordinates and dimensions
+            # Process based on element type
+            orig_center_x = 0
+            orig_center_y = 0
+            
+            # Try to get original width and height for appropriate element types
+            element_width = None
+            element_height = None
+            
+            print(f"DEBUG: Processing element: {element_name} (SVG type: {svg_type})")
+            
             if svg_type == 'rect':
                 x = float(element.getAttribute('x') or 0)
                 y = float(element.getAttribute('y') or 0)
@@ -495,10 +547,10 @@ class SVGTransformer:
             element_name = element_label or f"{svg_type}{element_count}"
             original_name = element_name  # Store original name
             
-            # Get the first 3 letters of the label if it exists
+            # Get the prefix from the label (text before underscore)
             label_prefix = ""
-            if element_label and len(element_label) >= 3:
-                label_prefix = element_label[:3]
+            if element_label and "_" in element_label:
+                label_prefix = element_label.split("_")[0]
             
             # Check if we have a mapping for this prefix
             has_prefix_mapping = False
@@ -523,7 +575,7 @@ class SVGTransformer:
                     element_height = exact_prefix_match['height']
                 debug_buffer.append(f"Using dimensions from prefix mapping '{label_prefix}': {element_width}x{element_height}")
             
-            # If no dimensions from prefix mapping, check element_size_mapping
+            # Get size mapping based on element type
             if element_width is None or element_height is None:
                 if 'element_size_mapping' in self.custom_options and svg_type in self.custom_options['element_size_mapping']:
                     size_mapping = self.custom_options['element_size_mapping'][svg_type]
@@ -532,14 +584,18 @@ class SVGTransformer:
                     if element_height is None and 'height' in size_mapping:
                         element_height = size_mapping['height']
                     debug_buffer.append(f"Using dimensions from element_size_mapping: {element_width}x{element_height}")
+                    print(f"DEBUG: Using size mapping for {svg_type}: width={element_width}, height={element_height}")
             
             # If still no dimensions, try direct custom_options
             if element_width is None:
                 element_width = self.custom_options.get('width', 10)
+                print(f"DEBUG: Using fallback width: {element_width}")
             if element_height is None:
                 element_height = self.custom_options.get('height', 10)
+                print(f"DEBUG: Using fallback height: {element_height}")
             
             debug_buffer.append(f"Final dimensions for {element_name}: {element_width}x{element_height}")
+            print(f"DEBUG: Final dimensions for {element_name}: {element_width}x{element_height}")
             
             # Initialize final_x and final_y with default values
             final_x = transformed_center_x
@@ -657,7 +713,8 @@ class SVGTransformer:
                 element_name, 
                 label_prefix if label_prefix else None, 
                 suffix,
-                has_prefix_mapping
+                has_prefix_mapping,
+                mapping_to_use
             )
             
             # Log information about name cleaning
@@ -686,10 +743,10 @@ class SVGTransformer:
             )
         
         except Exception as e:
-            print(f"Error processing {svg_type} #{element_count}: {e}")
+            print(f"DEBUG ERROR: Failed to process element {element_count} of type {svg_type}: {str(e)}")
             import traceback
             traceback.print_exc()
-            # Return a default element with error information
+            # Create a default element when there's an error
             return self.create_default_element(element_count, svg_type, str(e))
     
     def extract_rotation_from_transform(self, element):
@@ -737,6 +794,9 @@ class SVGTransformer:
     def create_default_element(self, element_count, svg_type, error_msg):
         """Create a default element when processing fails."""
         element_name = f"error_{svg_type}{element_count}"
+        
+        print(f"DEBUG: Creating default element due to error: {error_msg}")
+        print(f"DEBUG: Default element name: {element_name}, type: {svg_type}")
         
         return {
             "type": "ia.display.view",
@@ -799,24 +859,217 @@ class SVGTransformer:
         ]
         
         total_elements = 0
+        processed_elements = 0
         
-        # Process each type of element
+        # Process each type of element that are direct children of the SVG (not in groups)
         for svg_type, plural in element_types:
             elements = self.doc.getElementsByTagName(svg_type)
             count = 0
             
             for element in elements:
-                count += 1
-                total_elements += 1
-                element_json = self.process_element(element, count, svg_type)
-                if element_json:
-                    results.append(element_json)
+                # Only process elements that are direct children of the SVG (not in groups)
+                # Check if the parent is not a group element
+                if element.parentNode.tagName != 'g':
+                    count += 1
+                    total_elements += 1
+                    element_json = self.process_element(element, count, svg_type)
+                    if element_json:
+                        results.append(element_json)
+                        processed_elements += 1
             
             if count > 0:
-                print(f"Processed {count} {plural}, successfully converted {count}")
+                print(f"Processed {count} {plural} (outside groups), successfully converted {count}")
         
-        print(f"Total: Processed {total_elements} SVG elements, successfully converted {len(results)}")
+        # Process group elements
+        groups = self.doc.getElementsByTagName('g')
+        group_count = 0
+        
+        for group in groups:
+            group_count += 1
+            group_elements = self.process_group(group, group_count)
+            if group_elements:
+                results.extend(group_elements)
+                total_elements += len(group_elements)
+                processed_elements += len(group_elements)
+                print(f"Processed group #{group_count} with {len(group_elements)} elements")
+        
+        print(f"Total: Processed {total_elements} SVG elements ({group_count} groups), successfully converted {processed_elements}")
         return results
+    
+    def process_group(self, group, group_count):
+        """Process a group element and all its children."""
+        results = []
+        
+        # Get group attributes
+        group_id = group.getAttribute('id') or f"group{group_count}"
+        group_label = group.getAttribute('inkscape:label') or ""
+        
+        # Extract group label prefix (if any)
+        group_label_prefix = ""
+        if group_label and "_" in group_label:
+            group_label_prefix = group_label.split("_")[0]
+        
+        # Extract group suffix (if any)
+        group_suffix = None
+        if group_label and len(group_label) >= 2:
+            last_char = group_label[-1].lower()
+            if last_char in ['r', 'd', 'l', 'u']:
+                group_suffix = last_char
+        
+        print(f"Processing group #{group_count}: id='{group_id}', label='{group_label}', prefix='{group_label_prefix}', suffix='{group_suffix}'")
+        
+        # Get all child elements of supported types
+        element_types = ['rect', 'circle', 'ellipse', 'line', 'polyline', 'polygon', 'path']
+        element_count_by_type = {svg_type: 0 for svg_type in element_types}
+        
+        # Process direct children of this group
+        for child in group.childNodes:
+            if child.nodeType != child.ELEMENT_NODE:
+                continue
+                
+            svg_type = child.tagName
+            if svg_type in element_types:
+                # Increment count for this type
+                element_count_by_type[svg_type] += 1
+                count = element_count_by_type[svg_type]
+                
+                # Process the element
+                element_json = self.process_element_with_group_context(
+                    child, 
+                    count, 
+                    svg_type, 
+                    group_label_prefix, 
+                    group_suffix
+                )
+                
+                if element_json:
+                    results.append(element_json)
+        
+        return results
+    
+    def process_element_with_group_context(self, element, element_count, svg_type, group_label_prefix, group_suffix):
+        """Process an element within a group context, applying group prefix/suffix if appropriate."""
+        try:
+            # Get the element's own attributes
+            element_id = element.getAttribute('id') or ""
+            element_label = element.getAttribute('inkscape:label') or ""
+            
+            # Check if the element has its own suffix
+            has_own_suffix = False
+            if element_label and len(element_label) >= 2:
+                last_char = element_label[-1].lower()
+                if last_char in ['r', 'd', 'l', 'u']:
+                    has_own_suffix = True
+            
+            # Check if the element has its own prefix
+            has_own_prefix = False
+            if element_label and "_" in element_label:
+                element_prefix = element_label.split("_")[0]
+                if element_prefix:
+                    has_own_prefix = True
+            
+            # Get the original element JSON
+            element_json = self.process_element(element, element_count, svg_type)
+            if not element_json:
+                return None
+                
+            # If the element doesn't have its own label but the group has a prefix,
+            # apply the group's prefix to this element
+            if not element_label and group_label_prefix:
+                # Apply group prefix to element type detection
+                label_prefix = group_label_prefix
+                
+                # Update the element type based on the group prefix
+                element_type = self.get_element_type_for_svg_type_and_label(svg_type, label_prefix)
+                if element_type:
+                    element_json['type'] = element_type
+                    element_json['meta']['elementPrefix'] = label_prefix
+                    print(f"Applied group prefix '{label_prefix}' to element {element_json['meta']['name']}")
+                    
+                    # Also update the props_path based on the mapping
+                    exact_match = None
+                    fallback_match = None
+                    
+                    # Find the right mapping to use based on svg_type and label_prefix
+                    if 'element_mappings' in self.custom_options:
+                        for mapping in self.custom_options['element_mappings']:
+                            if mapping.get('svg_type', '') == svg_type:
+                                if mapping.get('label_prefix', '') == label_prefix:
+                                    exact_match = mapping
+                                    break
+                                elif not mapping.get('label_prefix', ''):
+                                    fallback_match = mapping
+                    
+                    # Use the exact match if found, otherwise fallback
+                    mapping_to_use = exact_match or fallback_match
+                    if mapping_to_use and 'props_path' in mapping_to_use:
+                        element_json['props']['path'] = mapping_to_use['props_path']
+                        print(f"Updated props_path to '{mapping_to_use['props_path']}' based on group prefix")
+                        
+                        # Apply final prefix/suffix from mapping if they exist
+                        element_name = element_json['meta']['name']
+                        final_prefix = mapping_to_use.get('final_prefix', '')
+                        final_suffix = mapping_to_use.get('final_suffix', '')
+                        
+                        if final_prefix or final_suffix:
+                            new_name = element_name
+                            if final_prefix:
+                                # Ensure final prefix is followed by an underscore
+                                if not final_prefix.endswith('_'):
+                                    final_prefix += '_'
+                                new_name = f"{final_prefix}{new_name}"
+                            if final_suffix:
+                                # Ensure final suffix is preceded by an underscore
+                                if not final_suffix.startswith('_'):
+                                    final_suffix = f"_{final_suffix}"
+                                new_name = f"{new_name}{final_suffix}"
+                            
+                            if new_name != element_name:
+                                element_json['meta']['name'] = new_name
+                                print(f"Applied final prefix/suffix: '{element_name}' → '{new_name}'")
+                                element_json['meta']['finalPrefixApplied'] = final_prefix if final_prefix else None
+                                element_json['meta']['finalSuffixApplied'] = final_suffix if final_suffix else None
+            
+            # If the element doesn't have its own suffix (regardless of prefix) and the group has a suffix,
+            # apply the group's suffix to this element
+            if group_suffix and not has_own_suffix:
+                original_rotation = element_json['position'].get('rotate', {}).get('angle', '0deg')
+                
+                # Parse the original rotation
+                try:
+                    orig_rotation_angle = float(original_rotation.replace('deg', ''))
+                except (ValueError, AttributeError):
+                    orig_rotation_angle = 0
+                
+                # Calculate new rotation based on group suffix
+                new_rotation = orig_rotation_angle
+                if group_suffix == 'r':
+                    new_rotation = 0
+                elif group_suffix == 'd':
+                    new_rotation = 90
+                elif group_suffix == 'l':
+                    new_rotation = 180
+                elif group_suffix == 'u':
+                    new_rotation = 270
+                
+                # Update the rotation in the element JSON
+                if 'rotate' not in element_json['position']:
+                    element_json['position']['rotate'] = {'anchor': '50% 50%'}
+                    
+                element_json['position']['rotate']['angle'] = f"{new_rotation}deg"
+                
+                print(f"Applied group suffix '{group_suffix}' to element {element_json['meta']['name']}, rotation: {original_rotation} → {new_rotation}deg")
+                
+                # Add suffix to metadata
+                element_json['meta']['groupSuffix'] = group_suffix
+            
+            return element_json
+            
+        except Exception as e:
+            print(f"Error processing {svg_type} #{element_count} in group context: {e}")
+            import traceback
+            traceback.print_exc()
+            return self.create_default_element(element_count, svg_type, str(e))
 
 def save_json_to_file(data, output_file):
     """Save data to a JSON file."""

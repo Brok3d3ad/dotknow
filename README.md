@@ -5,7 +5,7 @@ An application for extracting SVG elements and converting them to JSON format fo
 
 ## Features
 - GUI with automation standard branding
-- Supports multiple SVG element types (rectangles, circles, ellipses, lines, polylines, polygons, paths, text)
+- Supports multiple SVG element types (rectangles, circles, ellipses, lines, polylines, polygons, paths)
 - Handles complex SVG transformations (translation, rotation, scaling)
 - Enhanced rotation handling with direct extraction and matrix-based calculations
 - Optimized performance for processing complex SVG elements
@@ -19,6 +19,7 @@ An application for extracting SVG elements and converting them to JSON format fo
 - **Enhanced path element handling with precise coordinate extraction**
 - **Support for negative offset values for precise positioning**
 - **Suffix-based rotation override system (r, d, l, u suffixes)**
+- **Robust export handling and error recovery for SCADA projects**
 - Converts elements to custom JSON format
 - Clipboard/file export options
 - Configurable element settings

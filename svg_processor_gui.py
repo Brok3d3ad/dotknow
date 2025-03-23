@@ -202,36 +202,60 @@ class ConfigManager:
             return False
             
     def _ensure_backward_compatibility(self, config):
-        """
-        Update configuration for backward compatibility.
+        """Ensure backward compatibility with older config formats."""
+        # Add missing default options
+        default_options = {
+            'type': 'ia.display.view',
+            'path': 'Symbol-Views/Equipment-Views/Status',
+            'width': 10,
+            'height': 10,
+            'element_mappings': [],
+            'element_size_mapping': {},
+            'element_type_mapping': {
+                'rect': 'ia.display.view',
+                'circle': 'ia.display.view',
+                'ellipse': 'ia.display.view',
+                'line': 'ia.display.view',
+                'polyline': 'ia.display.view',
+                'polygon': 'ia.display.view',
+                'path': 'ia.display.view'
+            },
+            'element_props_mapping': {
+                'rect': 'Symbol-Views/Equipment-Views/Status',
+                'circle': 'Symbol-Views/Equipment-Views/Status',
+                'ellipse': 'Symbol-Views/Equipment-Views/Status',
+                'line': 'Symbol-Views/Equipment-Views/Status',
+                'polyline': 'Symbol-Views/Equipment-Views/Status',
+                'polygon': 'Symbol-Views/Equipment-Views/Status',
+                'path': 'Symbol-Views/Equipment-Views/Status'
+            },
+            'element_label_prefix_mapping': {
+                'rect': '',
+                'path': ''
+            }
+        }
         
-        Args:
-            config (dict): The configuration dictionary to update.
-            
-        Returns:
-            dict: The updated configuration dictionary.
-        """
-        # If it's already using the new format, we don't need to convert
-        if 'element_mappings' in config:
-            return config
+        # Add any missing keys to config
+        for key, value in default_options.items():
+            if key not in config:
+                config[key] = value
         
-        # Check if we have the old format
-        if 'element_type_mapping' in config:
-            # Get the old-style mappings
+        # Convert old element mapping format to new format if needed
+        # (Only if we have old keys but no element_mappings)
+        if 'element_mappings' not in config or not config['element_mappings']:
+            # We need to convert from individual mappings
+            element_mappings = []
             element_type_mapping = config.get('element_type_mapping', {})
             element_props_mapping = config.get('element_props_mapping', {})
-            element_size_mapping = config.get('element_size_mapping', {})
             element_label_prefix_mapping = config.get('element_label_prefix_mapping', {})
+            element_size_mapping = config.get('element_size_mapping', {})
             
-            # Default values for size and path
-            default_props_path = config.get('props_path', "Symbol-Views/Equipment-Views/Status")
-            default_width = int(config.get('element_width', "14"))
-            default_height = int(config.get('element_height', "14"))
+            default_type = config.get('type', 'ia.display.view')
+            default_props_path = config.get('path', 'Symbol-Views/Equipment-Views/Status')
+            default_width = config.get('width', 10)
+            default_height = config.get('height', 10)
             
-            # Create a new format mapping list
-            element_mappings = []
-            
-            # Need to track which SVG types we've processed to avoid duplicates
+            # Track processed SVG types so we don't create duplicates
             processed_svg_types = set()
             
             # First, create mappings for each prefixed configuration
@@ -263,7 +287,9 @@ class ConfigManager:
                     'width': width,
                     'height': height,
                     'x_offset': 0,
-                    'y_offset': 0
+                    'y_offset': 0,
+                    'final_prefix': '',
+                    'final_suffix': ''
                 }
                 
                 # Add this mapping to our list
@@ -307,7 +333,9 @@ class ConfigManager:
                     'width': width,
                     'height': height,
                     'x_offset': 0,
-                    'y_offset': 0
+                    'y_offset': 0,
+                    'final_prefix': '',
+                    'final_suffix': ''
                 }
                 
                 # Add this mapping to our list
@@ -323,6 +351,61 @@ class ConfigManager:
             # (we'll still read from it but primarily use element_mappings)
             
         return config
+
+    def _update_config_format(self, config):
+        """
+        Update config format to ensure all required fields exist in element mappings.
+        """
+        if 'element_mappings' in config:
+            for mapping in config['element_mappings']:
+                # Ensure x_offset and y_offset fields exist (added in a later version)
+                if 'x_offset' not in mapping:
+                    mapping['x_offset'] = 0
+                if 'y_offset' not in mapping:
+                    mapping['y_offset'] = 0
+                # Ensure final_prefix and final_suffix fields exist (added in latest version)
+                if 'final_prefix' not in mapping:
+                    mapping['final_prefix'] = ''
+                if 'final_suffix' not in mapping:
+                    mapping['final_suffix'] = ''
+                    
+        return config
+                
+    def load(self):
+        """Load configuration from file."""
+        try:
+            # First check if config file exists
+            if not os.path.exists(self.config_file):
+                print(f"Config file '{self.config_file}' not found, creating default config...")
+                # Create default config if it doesn't exist
+                self.save(self.default_config)
+                return self.default_config
+            
+            # Read the config file
+            with open(self.config_file, 'r') as f:
+                config = json.load(f)
+            
+            # Ensure backward compatibility
+            config = self._ensure_backward_compatibility(config)
+            
+            # Update config format to include new fields
+            config = self._update_config_format(config)
+            
+            return config
+        except Exception as e:
+            print(f"Error loading configuration: {e}")
+            return {}
+    
+    def save(self, config):
+        """Save configuration to file."""
+        try:
+            with open(self.config_file, 'w') as f:
+                json.dump(config, f, indent=4)
+            print(f"Configuration saved to: {self.config_file}")
+            return True
+        except Exception as e:
+            print(f"Error saving configuration: {e}")
+            return False
 
 class RedirectText:
     """
@@ -427,7 +510,7 @@ class SVGProcessorApp:
         self.root = root
         self.root.title("SVG Processor")
         self.root.minsize(800, 600)
-        self.root.geometry("1000x700")
+        self.root.geometry("1200x800")
         
         # Dependency injection for easier testing
         self.config_manager = config_manager or ConfigManager()
@@ -645,7 +728,9 @@ class SVGProcessorApp:
         ttk.Label(mapping_frame, text="Properties Path:", font=('Helvetica', 9, 'bold')).grid(row=2, column=3, sticky=tk.W, pady=(0, 5), padx=5)
         ttk.Label(mapping_frame, text="Size (WxH):", font=('Helvetica', 9, 'bold')).grid(row=2, column=4, sticky=tk.W, pady=(0, 5), padx=5)
         ttk.Label(mapping_frame, text="Offset (X,Y):", font=('Helvetica', 9, 'bold')).grid(row=2, column=5, sticky=tk.W, pady=(0, 5), padx=5)
-        ttk.Label(mapping_frame, text="", width=4).grid(row=2, column=6, sticky=tk.W, pady=(0, 5), padx=5)  # Header spacer for buttons
+        ttk.Label(mapping_frame, text="Final Prefix:", font=('Helvetica', 9, 'bold')).grid(row=2, column=6, sticky=tk.W, pady=(0, 5), padx=5)
+        ttk.Label(mapping_frame, text="Final Suffix:", font=('Helvetica', 9, 'bold')).grid(row=2, column=7, sticky=tk.W, pady=(0, 5), padx=5)
+        ttk.Label(mapping_frame, text="", width=4).grid(row=2, column=8, sticky=tk.W, pady=(0, 5), padx=5)  # Header spacer for buttons
         
         # Store a reference to the mapping_frame
         self.mapping_frame = mapping_frame
@@ -695,7 +780,7 @@ class SVGProcessorApp:
         """Reset the flag to allow cleanup of empty rows again."""
         self.allow_empty_rows = False
     
-    def _add_mapping_row(self, svg_type="", label_prefix="", element_type="", props_path="", width="", height="", x_offset="", y_offset=""):
+    def _add_mapping_row(self, svg_type="", label_prefix="", element_type="", props_path="", width="", height="", x_offset="", y_offset="", final_prefix="", final_suffix=""):
         """Add a new row for element mapping."""
         # Current row number (after headers)
         row_index = len(self.mapping_rows) + 3
@@ -709,6 +794,8 @@ class SVGProcessorApp:
         height_var = tk.StringVar(value=height)
         x_offset_var = tk.StringVar(value=x_offset)
         y_offset_var = tk.StringVar(value=y_offset)
+        final_prefix_var = tk.StringVar(value=final_prefix)
+        final_suffix_var = tk.StringVar(value=final_suffix)
         
         # Add trace to save when values change
         svg_type_var.trace_add("write", lambda *args: self._on_mapping_changed())
@@ -719,67 +806,57 @@ class SVGProcessorApp:
         height_var.trace_add("write", lambda *args: self._on_mapping_changed())
         x_offset_var.trace_add("write", lambda *args: self._on_mapping_changed())
         y_offset_var.trace_add("write", lambda *args: self._on_mapping_changed())
+        final_prefix_var.trace_add("write", lambda *args: self._on_mapping_changed())
+        final_suffix_var.trace_add("write", lambda *args: self._on_mapping_changed())
         
-        # SVG type entry
-        svg_type_entry = ttk.Entry(self.mapping_frame, textvariable=svg_type_var, width=12)
-        svg_type_entry.grid(row=row_index, column=0, sticky=tk.W, pady=5, padx=5)
+        # Create entries for each field
+        svg_type_entry = ttk.Entry(self.mapping_frame, textvariable=svg_type_var, width=10)
+        svg_type_entry.grid(row=row_index, column=0, sticky=tk.W, pady=2, padx=5)
         
-        # Label prefix entry
-        label_prefix_entry = ttk.Entry(self.mapping_frame, textvariable=label_prefix_var, width=6)
-        label_prefix_entry.grid(row=row_index, column=1, sticky=tk.W, pady=5, padx=5)
+        label_prefix_entry = ttk.Entry(self.mapping_frame, textvariable=label_prefix_var, width=10)
+        label_prefix_entry.grid(row=row_index, column=1, sticky=tk.W, pady=2, padx=5)
         
-        # Output element type entry
-        element_type_entry = ttk.Entry(self.mapping_frame, textvariable=element_type_var, width=25)
-        element_type_entry.grid(row=row_index, column=2, sticky=tk.W+tk.E, pady=5, padx=5)
+        element_type_entry = ttk.Entry(self.mapping_frame, textvariable=element_type_var, width=20)
+        element_type_entry.grid(row=row_index, column=2, sticky=tk.W, pady=2, padx=5)
         
-        # Properties path entry
-        props_path_entry = ttk.Entry(self.mapping_frame, textvariable=props_path_var, width=40)
-        props_path_entry.grid(row=row_index, column=3, sticky=tk.W+tk.E, pady=5, padx=5)
+        props_path_entry = ttk.Entry(self.mapping_frame, textvariable=props_path_var, width=50)
+        props_path_entry.grid(row=row_index, column=3, sticky=tk.W, pady=2, padx=5)
         
-        # Register validation function for number-only fields
-        validate_numeric = self.root.register(lambda P: P.isdigit() or P == "")
-        
-        # Register validation function for offset fields that allows negative values
-        validate_offset = self.root.register(lambda P: P == "" or P == "-" or P.lstrip('-').isdigit())
-        
-        # Size frame to hold width and height
+        # Size Frame (WxH in one compact row)
         size_frame = ttk.Frame(self.mapping_frame)
-        size_frame.grid(row=row_index, column=4, sticky=tk.W, pady=5, padx=5)
+        size_frame.grid(row=row_index, column=4, sticky=tk.W, pady=2, padx=5)
         
-        # Width entry
-        width_entry = ttk.Entry(size_frame, textvariable=width_var, width=3, validate="key", 
-                               validatecommand=(validate_numeric, '%P'))
+        width_entry = ttk.Entry(size_frame, textvariable=width_var, width=5)
         width_entry.pack(side=tk.LEFT)
         
-        # x separator
         ttk.Label(size_frame, text="×").pack(side=tk.LEFT, padx=2)
         
-        # Height entry
-        height_entry = ttk.Entry(size_frame, textvariable=height_var, width=3, validate="key",
-                                validatecommand=(validate_numeric, '%P'))
+        height_entry = ttk.Entry(size_frame, textvariable=height_var, width=5)
         height_entry.pack(side=tk.LEFT)
         
-        # Offset frame to hold x_offset and y_offset
+        # Offset Frame (X,Y in one compact row)
         offset_frame = ttk.Frame(self.mapping_frame)
-        offset_frame.grid(row=row_index, column=5, sticky=tk.W, pady=5, padx=5)
+        offset_frame.grid(row=row_index, column=5, sticky=tk.W, pady=2, padx=5)
         
-        # X offset entry
-        x_offset_entry = ttk.Entry(offset_frame, textvariable=x_offset_var, width=3, validate="key",
-                                   validatecommand=(validate_offset, '%P'))
+        x_offset_entry = ttk.Entry(offset_frame, textvariable=x_offset_var, width=5)
         x_offset_entry.pack(side=tk.LEFT)
         
-        # x separator
         ttk.Label(offset_frame, text=",").pack(side=tk.LEFT, padx=2)
         
-        # Y offset entry
-        y_offset_entry = ttk.Entry(offset_frame, textvariable=y_offset_var, width=3, validate="key",
-                                   validatecommand=(validate_offset, '%P'))
+        y_offset_entry = ttk.Entry(offset_frame, textvariable=y_offset_var, width=5)
         y_offset_entry.pack(side=tk.LEFT)
         
+        # Final prefix and suffix entries
+        final_prefix_entry = ttk.Entry(self.mapping_frame, textvariable=final_prefix_var, width=15)
+        final_prefix_entry.grid(row=row_index, column=6, sticky=tk.W, pady=2, padx=5)
+        
+        final_suffix_entry = ttk.Entry(self.mapping_frame, textvariable=final_suffix_var, width=15)
+        final_suffix_entry.grid(row=row_index, column=7, sticky=tk.W, pady=2, padx=5)
+        
         # Remove button
-        remove_button = ttk.Button(self.mapping_frame, text="✕", width=2, 
+        remove_button = ttk.Button(self.mapping_frame, text="×", width=2,
                                    command=lambda idx=len(self.mapping_rows): self._remove_mapping_row(idx))
-        remove_button.grid(row=row_index, column=6, pady=5, padx=5)
+        remove_button.grid(row=row_index, column=8, sticky=tk.W, pady=2, padx=5)
         
         # Add row information to mapping rows list
         self.mapping_rows.append({
@@ -791,6 +868,8 @@ class SVGProcessorApp:
             'height': height_var,
             'x_offset': x_offset_var,
             'y_offset': y_offset_var,
+            'final_prefix': final_prefix_var,
+            'final_suffix': final_suffix_var,
             'svg_entry': svg_type_entry,
             'label_prefix_entry': label_prefix_entry,
             'element_entry': element_type_entry,
@@ -799,6 +878,8 @@ class SVGProcessorApp:
             'height_entry': height_entry,
             'x_offset_entry': x_offset_entry,
             'y_offset_entry': y_offset_entry,
+            'final_prefix_entry': final_prefix_entry,
+            'final_suffix_entry': final_suffix_entry,
             'size_frame': size_frame,
             'offset_frame': offset_frame,
             'remove_button': remove_button,
@@ -848,6 +929,8 @@ class SVGProcessorApp:
         row['props_entry'].grid_forget()
         row['size_frame'].grid_forget()
         row['offset_frame'].grid_forget()
+        row['final_prefix_entry'].grid_forget()
+        row['final_suffix_entry'].grid_forget()
         row['remove_button'].grid_forget()
         
         # Destroy the widgets to ensure they're fully removed
@@ -857,6 +940,8 @@ class SVGProcessorApp:
         row['props_entry'].destroy()
         row['size_frame'].destroy()
         row['offset_frame'].destroy()
+        row['final_prefix_entry'].destroy()
+        row['final_suffix_entry'].destroy()
         row['remove_button'].destroy()
         
         # Remove the row from the list
@@ -866,7 +951,7 @@ class SVGProcessorApp:
         if len(self.mapping_rows) == 0:
             # Add a temporary flag to prevent saving the empty row
             self.skip_next_save = True
-            self._add_mapping_row("", "", "", "", "", "", "", "")
+            self._add_mapping_row("", "", "", "", "", "", "", "", "")
         else:
             # Reindex the remaining rows
             self._reindex_mapping_rows()
@@ -893,7 +978,9 @@ class SVGProcessorApp:
             row['props_entry'].grid(row=new_row, column=3)
             row['size_frame'].grid(row=new_row, column=4)
             row['offset_frame'].grid(row=new_row, column=5)
-            row['remove_button'].grid(row=new_row, column=6)
+            row['final_prefix_entry'].grid(row=new_row, column=6)
+            row['final_suffix_entry'].grid(row=new_row, column=7)
+            row['remove_button'].grid(row=new_row, column=8)
             
             # Update remove button command
             row['remove_button'].configure(command=lambda idx=i: self._remove_mapping_row(idx))
@@ -1107,13 +1194,15 @@ class SVGProcessorApp:
                         height = str(mapping.get('height', 14))
                         x_offset = str(mapping.get('x_offset', 0))
                         y_offset = str(mapping.get('y_offset', 0))
+                        final_prefix = mapping.get('final_prefix', '')
+                        final_suffix = mapping.get('final_suffix', '')
                         
                         # Add the row with all the data
-                        self._add_mapping_row(svg_type, label_prefix, element_type, props_path, width, height, x_offset, y_offset)
+                        self._add_mapping_row(svg_type, label_prefix, element_type, props_path, width, height, x_offset, y_offset, final_prefix, final_suffix)
                     
                     # Ensure we have at least one row - only needed if we cleared rows
                     if not self.mapping_rows:
-                        self._add_mapping_row("rect", "", "ia.display.view", "Symbol-Views/Equipment-Views/Status", "14", "14", "0", "0")
+                        self._add_mapping_row("rect", "", "ia.display.view", "Symbol-Views/Equipment-Views/Status", "14", "14", "0", "0", "", "")
                 
                 # Mark as initialized
                 self.initialized_mappings = True
@@ -1157,6 +1246,8 @@ class SVGProcessorApp:
                         height = row['height'].get().strip()
                         x_offset = row['x_offset'].get().strip()
                         y_offset = row['y_offset'].get().strip()
+                        final_prefix = row['final_prefix'].get().strip()
+                        final_suffix = row['final_suffix'].get().strip()
                         
                         # Only add mappings where both required fields have values
                         if svg_type and element_type_value:
@@ -1164,7 +1255,13 @@ class SVGProcessorApp:
                                 'svg_type': svg_type,
                                 'element_type': element_type_value,
                                 'label_prefix': label_prefix,
-                                'props_path': props_path
+                                'props_path': props_path,
+                                'width': width,
+                                'height': height,
+                                'x_offset': x_offset,
+                                'y_offset': y_offset,
+                                'final_prefix': final_prefix,
+                                'final_suffix': final_suffix
                             }
                             
                             # Validate and store width and height if provided
@@ -1468,6 +1565,8 @@ class SVGProcessorApp:
                         height = row['height'].get().strip()
                         x_offset = row['x_offset'].get().strip()
                         y_offset = row['y_offset'].get().strip()
+                        final_prefix = row['final_prefix'].get().strip()
+                        final_suffix = row['final_suffix'].get().strip()
                         
                         # Only add mappings with both SVG type and element type
                         if svg_type and element_type_value:
@@ -1475,7 +1574,13 @@ class SVGProcessorApp:
                                 'svg_type': svg_type,
                                 'element_type': element_type_value,
                                 'label_prefix': label_prefix,
-                                'props_path': props_path
+                                'props_path': props_path,
+                                'width': width,
+                                'height': height,
+                                'x_offset': x_offset,
+                                'y_offset': y_offset,
+                                'final_prefix': final_prefix,
+                                'final_suffix': final_suffix
                             }
                             
                             # Add width and height if provided
@@ -1720,6 +1825,14 @@ class SVGProcessorApp:
             messagebox.showinfo("Processing", "Please wait for SVG processing to complete before exporting.")
             return
             
+        # Debug: Print elements before export
+        print("DEBUG: Elements before export:")
+        for i, element in enumerate(self.elements):
+            print(f"DEBUG: Element {i}: {element.get('meta', {}).get('name', 'unknown')}")
+            # Print position info to check for height
+            pos = element.get('position', {})
+            print(f"DEBUG: Position: x={pos.get('x')}, y={pos.get('y')}, width={pos.get('width')}, height={pos.get('height')}")
+            
         # Validate SCADA project settings
         if not self._validate_scada_settings():
             return
@@ -1756,6 +1869,7 @@ class SVGProcessorApp:
                 
         except Exception as e:
             self.status_var.set("Error preparing SCADA export.")
+            print(f"DEBUG: Export preparation error: {str(e)}")
             messagebox.showerror("Export Error", f"Error: {str(e)}")
             self.progress.stop()
             self.export_scada_button.configure(state=tk.NORMAL)
@@ -1852,7 +1966,9 @@ class SVGProcessorApp:
                 
             if hasattr(project_folder_name, '__class__') and project_folder_name.__class__.__name__ == 'MagicMock':
                 raise ValueError("Cannot export with mock project folder name")
-                
+            
+            print(f"DEBUG: Starting SCADA export to {zip_file_path}")
+            
             # Do the actual export
             self._create_scada_export_zip(zip_file_path, project_folder_name)
             
@@ -1861,6 +1977,9 @@ class SVGProcessorApp:
         except Exception as exc:
             # Store error message
             error_message = str(exc)
+            print(f"DEBUG: Export thread exception: {error_message}")
+            import traceback
+            traceback.print_exc()
             # Handle errors on the main thread
             self.root.after(0, lambda: self._finish_export_error(error_message))
     
@@ -1874,7 +1993,21 @@ class SVGProcessorApp:
     def _finish_export_error(self, error_message):
         """Handle export error in the main thread."""
         self.status_var.set("Error exporting SCADA project.")
-        messagebox.showerror("Export Error", f"Error: {error_message}")
+        
+        # Special handling for 'height' error
+        if "height" in error_message.lower():
+            print("DEBUG: Detected height error, providing specific message")
+            messagebox.showerror(
+                "Export Error", 
+                "Error: One or more elements is missing a height value. This usually happens when:\n\n"
+                "1. An SVG element doesn't have explicit height\n"
+                "2. The SVG contains unsupported element types\n"
+                "3. Element mappings have missing values\n\n"
+                "Try checking your element mappings and ensure all have valid height values."
+            )
+        else:
+            messagebox.showerror("Export Error", f"Error: {error_message}")
+            
         self.progress.stop()
         self.export_scada_button.configure(state=tk.NORMAL)
     
@@ -2049,22 +2182,30 @@ class SVGProcessorApp:
         # Get image dimensions with mock protection
         try:
             image_width = int(self.image_width.get())
-        except (ValueError, TypeError):
+            print(f"DEBUG: Image width: {image_width}")
+        except (ValueError, TypeError) as e:
+            print(f"DEBUG: Error parsing image width: {e}")
             image_width = 800  # Default value for tests
             
         try:
             image_height = int(self.image_height.get())
-        except (ValueError, TypeError):
+            print(f"DEBUG: Image height: {image_height}")
+        except (ValueError, TypeError) as e:
+            print(f"DEBUG: Error parsing image height: {e}")
             image_height = 600  # Default value for tests
             
         try:
             default_width = int(self.default_width.get())
-        except (ValueError, TypeError):
+            print(f"DEBUG: Default width: {default_width}")
+        except (ValueError, TypeError) as e:
+            print(f"DEBUG: Error parsing default width: {e}")
             default_width = 1024  # Default value for tests
             
         try:
             default_height = int(self.default_height.get())
-        except (ValueError, TypeError):
+            print(f"DEBUG: Default height: {default_height}")
+        except (ValueError, TypeError) as e:
+            print(f"DEBUG: Error parsing default height: {e}")
             default_height = 768  # Default value for tests
         
         view_config = {
@@ -2123,42 +2264,114 @@ class SVGProcessorApp:
         view_config["root"]["children"].append(background_image)
         
         # Format the elements to match Ignition SCADA view format
-        for element in self.elements:
-            # Transform our element format to Ignition SCADA format
-            scada_element = {
-                "meta": {
-                    "name": element["meta"]["name"]
-                },
-                "position": {
-                    "height": element["position"]["height"],
-                    "width": element["position"]["width"],
-                    "x": element["position"]["x"],
-                    "y": element["position"]["y"]
-                },
-                "props": {
-                    "params": {
-                        "directionLeft": element["props"]["params"]["directionLeft"],
-                        "forceFaultStatus": element["props"]["params"]["forceFaultStatus"],
-                        "forceRunningStatus": element["props"]["params"]["forceRunningStatus"],
-                        "tagProps": element["props"]["params"]["tagProps"]
+        for i, element in enumerate(self.elements):
+            try:
+                # Debug prints to check element data
+                print(f"DEBUG: Processing element {i} for SCADA export: {element.get('meta', {}).get('name', 'unknown')}")
+                
+                # Check for different position formats
+                pos = element.get('position', {})
+                print(f"DEBUG: Position keys: {list(pos.keys())}")
+                
+                # Extract height, width, x, y values from wherever they are stored
+                height = None
+                width = None
+                x = None
+                y = None
+                
+                # Handle different position structures but output in standard format
+                if 'size' in pos:
+                    size = pos.get('size', {})
+                    print(f"DEBUG: Found size property: {size}")
+                    height = size.get('height')
+                    width = size.get('width')
+                else:
+                    # Try to get height/width directly from position
+                    height = pos.get('height')
+                    width = pos.get('width')
+                
+                if 'translate' in pos:
+                    translate = pos.get('translate', {})
+                    print(f"DEBUG: Found translate property: {translate}")
+                    x = translate.get('x')
+                    y = translate.get('y')
+                else:
+                    # Try to get x/y directly from position
+                    x = pos.get('x')
+                    y = pos.get('y')
+                
+                # Apply defaults if any value is missing
+                if height is None:
+                    print(f"DEBUG: *** HEIGHT MISSING for element {i} ***")
+                    height = 14  # Default height
+                
+                if width is None:
+                    print(f"DEBUG: *** WIDTH MISSING for element {i} ***")
+                    width = 14  # Default width
+                
+                if x is None:
+                    print(f"DEBUG: *** X COORDINATE MISSING for element {i} ***")
+                    x = 0  # Default x
+                
+                if y is None:
+                    print(f"DEBUG: *** Y COORDINATE MISSING for element {i} ***")
+                    y = 0  # Default y
+                
+                print(f"DEBUG: Final position values - x:{x}, y:{y}, width:{width}, height:{height}")
+                
+                # Transform our element format to Ignition SCADA format with x/y directly in position
+                scada_element = {
+                    "meta": {
+                        "name": element["meta"]["name"]
                     },
-                    "path": element["props"]["path"]
-                },
-                "type": element["type"]
-            }
-            
-            # Add rotation if specified in our app
-            if "rotation" in element and element["rotation"]:
-                scada_element["position"]["rotate"] = {
-                    "angle": f"{element['rotation']}deg"
+                    "position": {
+                        "height": height,
+                        "width": width,
+                        "x": x,
+                        "y": y
+                    },
+                    "props": {
+                        "params": {
+                            "directionLeft": element["props"]["params"].get("directionLeft", False),
+                            "forceFaultStatus": element["props"]["params"].get("forceFaultStatus", False),
+                            "forceRunningStatus": element["props"]["params"].get("forceRunningStatus", False),
+                            "tagProps": element["props"]["params"].get("tagProps", [])
+                        },
+                        "path": element["props"].get("path", "")
+                    },
+                    "type": element.get("type", "ia.display.view")
                 }
-            
-            view_config["root"]["children"].append(scada_element)
+                
+                # Add rotation if specified
+                if "rotate" in pos:
+                    scada_element["position"]["rotate"] = {
+                        "anchor": "50% 50%",  # Default anchor point
+                        "angle": pos["rotate"].get("angle", "0deg")
+                    }
+                elif "rotation" in element and element["rotation"]:
+                    scada_element["position"]["rotate"] = {
+                        "anchor": "50% 50%",  # Default anchor point
+                        "angle": f"{element['rotation']}deg"
+                    }
+                
+                view_config["root"]["children"].append(scada_element)
+                print(f"DEBUG: Added element {i} to SCADA view")
+            except KeyError as ke:
+                print(f"DEBUG: KeyError processing element {i}: {ke}")
+                print(f"DEBUG: Problem element: {element}")
+            except Exception as e:
+                print(f"DEBUG: Error processing element {i}: {e}")
+                print(f"DEBUG: Problem element: {element}")
         
         # Write view.json
         view_file = os.path.join(view_dir, "view.json")
-        with open(view_file, 'w') as f:
-            json.dump(view_config, f, indent=2)
+        try:
+            with open(view_file, 'w') as f:
+                json.dump(view_config, f, indent=2)
+            print(f"DEBUG: Successfully wrote view.json to {view_file}")
+        except Exception as e:
+            print(f"DEBUG: Error writing view.json: {e}")
+            raise
     
     def _apply_config(self):
         """Apply the current configuration to the UI."""
@@ -2213,8 +2426,8 @@ def main():
         root.protocol("WM_DELETE_WINDOW", confirm_exit)
         
         # Center the window on the screen
-        window_width = 1000
-        window_height = 700
+        window_width = 1200
+        window_height = 800
         screen_width = root.winfo_screenwidth()
         screen_height = root.winfo_screenheight()
         x_coordinate = int((screen_width / 2) - (window_width / 2))
