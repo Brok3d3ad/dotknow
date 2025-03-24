@@ -2208,6 +2208,7 @@ class SVGProcessorApp:
             print(f"DEBUG: Error parsing default height: {e}")
             default_height = 768  # Default value for tests
         
+        # Create the base view configuration
         view_config = {
             "custom": {},
             "params": {},
@@ -2261,109 +2262,112 @@ class SVGProcessorApp:
             "type": "ia.display.image"
         }
         
+        # Add the background image
         view_config["root"]["children"].append(background_image)
+        print(f"DEBUG: Added background image to root")
+        print(f"DEBUG: Total elements to process: {len(self.elements)}")
         
-        # Format the elements to match Ignition SCADA view format
+        # Process all elements to SCADA format
+        scada_elements = []
+        
+        # Completely rebuild each element from scratch avoiding any dependency on the original structure
         for i, element in enumerate(self.elements):
             try:
-                # Debug prints to check element data
-                print(f"DEBUG: Processing element {i} for SCADA export: {element.get('meta', {}).get('name', 'unknown')}")
+                print(f"DEBUG: Creating SCADA element {i}")
                 
-                # Check for different position formats
-                pos = element.get('position', {})
-                print(f"DEBUG: Position keys: {list(pos.keys())}")
+                # Extract element name from meta
+                meta = element.get('meta', {})
+                element_name = meta.get('name', f"element{i}")
+                print(f"DEBUG: Element name: {element_name}")
                 
-                # Extract height, width, x, y values from wherever they are stored
-                height = None
-                width = None
-                x = None
-                y = None
+                # Extract position information
+                position = element.get('position', {})
                 
-                # Handle different position structures but output in standard format
-                if 'size' in pos:
-                    size = pos.get('size', {})
-                    print(f"DEBUG: Found size property: {size}")
-                    height = size.get('height')
-                    width = size.get('width')
+                # Initialize position values
+                x = 0
+                y = 0
+                width = 14
+                height = 14
+                rotation = None
+                
+                # Get position values from different possible locations
+                if 'translate' in position:
+                    translate = position.get('translate', {})
+                    x = translate.get('x', 0)
+                    y = translate.get('y', 0)
                 else:
-                    # Try to get height/width directly from position
-                    height = pos.get('height')
-                    width = pos.get('width')
+                    x = position.get('x', 0)
+                    y = position.get('y', 0)
                 
-                if 'translate' in pos:
-                    translate = pos.get('translate', {})
-                    print(f"DEBUG: Found translate property: {translate}")
-                    x = translate.get('x')
-                    y = translate.get('y')
+                if 'size' in position:
+                    size = position.get('size', {})
+                    width = size.get('width', 14)
+                    height = size.get('height', 14)
                 else:
-                    # Try to get x/y directly from position
-                    x = pos.get('x')
-                    y = pos.get('y')
+                    width = position.get('width', 14)
+                    height = position.get('height', 14)
                 
-                # Apply defaults if any value is missing
-                if height is None:
-                    print(f"DEBUG: *** HEIGHT MISSING for element {i} ***")
-                    height = 14  # Default height
+                # Get rotation if available
+                if 'rotate' in position:
+                    rotation = position.get('rotate', {})
+                elif 'rotation' in element:
+                    rotation = {
+                        'angle': f"{element['rotation']}deg",
+                        'anchor': '50% 50%'
+                    }
                 
-                if width is None:
-                    print(f"DEBUG: *** WIDTH MISSING for element {i} ***")
-                    width = 14  # Default width
+                # Build tag properties array
+                tag_props = [element_name, "value", "value", "value", "value", "value", "value", "value", "value", "value"]
                 
-                if x is None:
-                    print(f"DEBUG: *** X COORDINATE MISSING for element {i} ***")
-                    x = 0  # Default x
+                # Get path from props
+                props = element.get('props', {})
+                path = props.get('path', 'Symbol-Views/Equipment-Views/Status')
                 
-                if y is None:
-                    print(f"DEBUG: *** Y COORDINATE MISSING for element {i} ***")
-                    y = 0  # Default y
-                
-                print(f"DEBUG: Final position values - x:{x}, y:{y}, width:{width}, height:{height}")
-                
-                # Transform our element format to Ignition SCADA format with x/y directly in position
+                # Build the SCADA element with all required properties
                 scada_element = {
+                    "type": element.get('type', 'ia.display.view'),
+                    "version": 0,
+                    "props": {
+                        "path": path,
+                        "params": {
+                            "directionLeft": False,
+                            "forceFaultStatus": None,
+                            "forceRunningStatus": None,
+                            "tagProps": tag_props
+                        }
+                    },
                     "meta": {
-                        "name": element["meta"]["name"]
+                        "name": element_name
                     },
                     "position": {
-                        "height": height,
-                        "width": width,
                         "x": x,
-                        "y": y
+                        "y": y,
+                        "width": width,
+                        "height": height
                     },
-                    "props": {
-                        "params": {
-                            "directionLeft": element["props"]["params"].get("directionLeft", False),
-                            "forceFaultStatus": element["props"]["params"].get("forceFaultStatus", False),
-                            "forceRunningStatus": element["props"]["params"].get("forceRunningStatus", False),
-                            "tagProps": element["props"]["params"].get("tagProps", [])
-                        },
-                        "path": element["props"].get("path", "")
-                    },
-                    "type": element.get("type", "ia.display.view")
+                    "custom": {}
                 }
                 
-                # Add rotation if specified
-                if "rotate" in pos:
-                    scada_element["position"]["rotate"] = {
-                        "anchor": "50% 50%",  # Default anchor point
-                        "angle": pos["rotate"].get("angle", "0deg")
-                    }
-                elif "rotation" in element and element["rotation"]:
-                    scada_element["position"]["rotate"] = {
-                        "anchor": "50% 50%",  # Default anchor point
-                        "angle": f"{element['rotation']}deg"
-                    }
+                # Add rotation if it was found
+                if rotation:
+                    scada_element["position"]["rotate"] = rotation
                 
-                view_config["root"]["children"].append(scada_element)
-                print(f"DEBUG: Added element {i} to SCADA view")
-            except KeyError as ke:
-                print(f"DEBUG: KeyError processing element {i}: {ke}")
-                print(f"DEBUG: Problem element: {element}")
+                # Add the element to our list
+                scada_elements.append(scada_element)
+                print(f"DEBUG: Successfully created element {i}")
+                
             except Exception as e:
-                print(f"DEBUG: Error processing element {i}: {e}")
-                print(f"DEBUG: Problem element: {element}")
+                print(f"DEBUG: Error creating SCADA element {i}: {e}")
         
-        # Write view.json
+        # Add all processed elements to the root children
+        for element in scada_elements:
+            view_config["root"]["children"].append(element)
+        
+        # Print final summary
+        print(f"DEBUG: Total elements added to root: {len(scada_elements)}")
+        print(f"DEBUG: Total items in root.children: {len(view_config['root']['children'])}")
+        
+        # Write the view.json file
         view_file = os.path.join(view_dir, "view.json")
         try:
             with open(view_file, 'w') as f:

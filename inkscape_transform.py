@@ -297,16 +297,18 @@ class SVGTransformer:
         # Build the element JSON object with the simpler position structure
         element_json = {
             'type': element_type,
+            'version': 0,
+            'props': {
+                'path': props_path
+            },
+            'meta': meta,
             'position': {
                 'x': x,
                 'y': y,
                 'width': element_width,
                 'height': element_height
             },
-            'props': {
-                'path': props_path
-            },
-            'meta': meta
+            'custom': {}
         }
         
         # Add rotation if it's not 0

@@ -372,6 +372,10 @@ class TestSVGProcessor(unittest.TestCase):
                 'width': MagicMock(),
                 'height': MagicMock(),
                 'label_prefix': MagicMock(),
+                'x_offset': MagicMock(),
+                'y_offset': MagicMock(),
+                'final_prefix': MagicMock(),
+                'final_suffix': MagicMock(),
             }
             # Configure the mock return values
             row['svg_type'].get.return_value = svg_type
@@ -380,6 +384,10 @@ class TestSVGProcessor(unittest.TestCase):
             row['width'].get.return_value = '20'
             row['height'].get.return_value = '30'
             row['label_prefix'].get.return_value = ''
+            row['x_offset'].get.return_value = '0'
+            row['y_offset'].get.return_value = '0'
+            row['final_prefix'].get.return_value = ''
+            row['final_suffix'].get.return_value = ''
             self.app.mapping_rows.append(row)
 
         # Get options from UI
@@ -1002,12 +1010,28 @@ class TestSVGProcessorAppConfig(unittest.TestCase):
             ('circle', 'ia.display.shape')
         ]:
             row = {
-                'svg_type': create_string_var_mock(svg_type),
-                'element_type': create_string_var_mock(element_type),
-                'props_path': create_string_var_mock('test/path'),
-                'width': create_string_var_mock('20'),
-                'height': create_string_var_mock('30'),
+                'svg_type': MagicMock(),
+                'element_type': MagicMock(),
+                'props_path': MagicMock(),
+                'width': MagicMock(),
+                'height': MagicMock(),
+                'label_prefix': MagicMock(),
+                'x_offset': MagicMock(),
+                'y_offset': MagicMock(),
+                'final_prefix': MagicMock(),
+                'final_suffix': MagicMock(),
             }
+            # Configure the mock return values
+            row['svg_type'].get.return_value = svg_type
+            row['element_type'].get.return_value = element_type
+            row['props_path'].get.return_value = 'test/path'
+            row['width'].get.return_value = '20'
+            row['height'].get.return_value = '30'
+            row['label_prefix'].get.return_value = ''
+            row['x_offset'].get.return_value = '0'
+            row['y_offset'].get.return_value = '0'
+            row['final_prefix'].get.return_value = ''
+            row['final_suffix'].get.return_value = ''
             self.app.mapping_rows.append(row)
     
     def tearDown(self):
@@ -1051,6 +1075,10 @@ class TestSVGProcessorAppConfig(unittest.TestCase):
                 'width': MagicMock(),
                 'height': MagicMock(),
                 'label_prefix': MagicMock(),
+                'x_offset': MagicMock(),
+                'y_offset': MagicMock(),
+                'final_prefix': MagicMock(),
+                'final_suffix': MagicMock(),
             }
             # Configure the mock return values
             row['svg_type'].get.return_value = svg_type
@@ -1059,6 +1087,10 @@ class TestSVGProcessorAppConfig(unittest.TestCase):
             row['width'].get.return_value = '20'
             row['height'].get.return_value = '30'
             row['label_prefix'].get.return_value = ''
+            row['x_offset'].get.return_value = '0'
+            row['y_offset'].get.return_value = '0'
+            row['final_prefix'].get.return_value = ''
+            row['final_suffix'].get.return_value = ''
             self.app.mapping_rows.append(row)
 
         # Call the method to save config
