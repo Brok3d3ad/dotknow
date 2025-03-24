@@ -20,6 +20,8 @@ An application for extracting SVG elements and converting them to JSON format fo
 - **Support for negative offset values for precise positioning**
 - **Suffix-based rotation override system (r, d, l, u suffixes)**
 - **Robust export handling and error recovery for SCADA projects**
+- **Standardized JSON format with version field and proper field ordering**
+- **Improved compatibility with Ignition SCADA JSON format**
 - Converts elements to custom JSON format
 - Clipboard/file export options
 - Configurable element settings
@@ -142,6 +144,40 @@ pytest --cov=. --cov-report=term-missing
 3. Extract position, size, attributes
 4. Apply matrix transformations
 5. Convert to JSON format
+
+### JSON Element Structure
+The application exports elements in the following standardized format:
+```json
+{
+  "type": "ia.display.view",
+  "version": 0,
+  "props": {
+    "path": "Symbol-Views/Equipment-Views/Status",
+    "params": {
+      "directionLeft": false,
+      "forceFaultStatus": null,
+      "forceRunningStatus": null,
+      "tagProps": ["element_name", "value", "value", ...]
+    }
+  },
+  "meta": {
+    "name": "element_name"
+  },
+  "position": {
+    "x": 123.45,
+    "y": 67.89,
+    "width": 14,
+    "height": 14
+  },
+  "custom": {}
+}
+```
+Key features:
+- Standardized field order to match Ignition SCADA requirements
+- Version field for compatibility tracking
+- Null values for status fields
+- Empty custom object for future extensibility
+- Direct position values (x, y, width, height) without nesting
 
 ### Label Prefix System
 - Configure element behavior based on element label prefixes

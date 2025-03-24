@@ -8,6 +8,10 @@
 - Added better error handling and diagnostics for export process
 - Improved support for different SVG element formats and structures
 - Enhanced robustness when handling incomplete or malformed SVG elements
+- Updated JSON element format to include version field (version: 0)
+- Changed forceFaultStatus and forceRunningStatus values to use null instead of false
+- Added empty custom field to element JSON objects
+- Reorganized field order to match Ignition SCADA's expected format
 
 ### [1.12.0] - 2025-04-05
 - Added new "Final Prefix" and "Final Suffix" fields for element mappings to handle potential typos
