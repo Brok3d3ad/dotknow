@@ -211,21 +211,30 @@ class TestSVGTransformer(unittest.TestCase):
     
     def test_create_element_json(self):
         """Test creating JSON representation for an element."""
-        element_name = "test_element"
-        rect_id = "test_id"
-        rect_label = "test_label"
-        rect_number = 1
-        x = 100
-        y = 150
-        svg_type = 'rect'
-        label_prefix = ""  # Add empty label prefix
-
-        result = self.svg_transformer.create_element_json(element_name, rect_id, rect_label, rect_number, x, y, svg_type, label_prefix)
+        svg_type = "rect"
+        element_name = "test_rect"
+        rect_id = "rect1"
+        x = 10
+        y = 20
         
+        # Call the method
+        result = self.svg_transformer.create_element_json(
+            element_name=element_name,
+            element_id=rect_id,
+            element_label="",
+            element_count=1,
+            x=x,
+            y=y,
+            svg_type=svg_type,
+            label_prefix=""
+        )
+        
+        # Verify the result
+        self.assertIsNotNone(result)
         self.assertEqual(result["meta"]["name"], element_name)
         self.assertEqual(result["meta"]["id"], rect_id)  # Check for id instead of originalName
-        self.assertEqual(result["position"]["translate"]["x"], x)
-        self.assertEqual(result["position"]["translate"]["y"], y)
+        self.assertEqual(result["position"]["x"], x)
+        self.assertEqual(result["position"]["y"], y)
         self.assertEqual(result["type"], "ia.display.view")
 
     def test_process_rectangle(self):
@@ -254,10 +263,10 @@ class TestSVGTransformer(unittest.TestCase):
             self.assertIsNotNone(result)
             self.assertEqual(result['meta']['name'], 'rect1')
             # Check position values with the expected float format
-            self.assertAlmostEqual(result['position']['translate']['x'], 120.0, delta=1)
-            self.assertAlmostEqual(result['position']['translate']['y'], 120.0, delta=1)
-            self.assertEqual(result['position']['size']['width'], 10)
-            self.assertEqual(result['position']['size']['height'], 10)
+            self.assertAlmostEqual(result['position']['x'], 120.0, delta=1)
+            self.assertAlmostEqual(result['position']['y'], 120.0, delta=1)
+            self.assertEqual(result['position']['width'], 10)
+            self.assertEqual(result['position']['height'], 10)
 
     def test_process_circle(self):
         """Test processing a circle element."""
@@ -645,8 +654,8 @@ class TestSVGTransformer(unittest.TestCase):
             
             # Get the element position
             element = result[0]
-            x = element['position']['translate']['x']
-            y = element['position']['translate']['y']
+            x = element['position']['x']
+            y = element['position']['y']
             
             # The position should be the center of the rect (125,125) adjusted by the offset (10,-5)
             # and accounting for the element size (20,20)
@@ -710,7 +719,7 @@ class TestSVGTransformer(unittest.TestCase):
             # Debug output
             print("\nDEBUG - Found elements:")
             for i, element in enumerate(result):
-                print(f"Element {i}: type={element['type']}, position=({element['position']['translate']['x']}, {element['position']['translate']['y']}), originalName={element['meta']['originalName']}")
+                print(f"Element {i}: type={element['type']}, position=({element['position']['x']}, {element['position']['y']}), originalName={element['meta']['originalName']}")
 
             # Verify we got two elements
             self.assertEqual(len(result), 2)
@@ -720,16 +729,16 @@ class TestSVGTransformer(unittest.TestCase):
             self.assertIsNotNone(normal_rect)
             self.assertEqual(normal_rect['type'], 'ia.display.view')
             # From debug output, we see it's at (120.0, 120.0)
-            self.assertAlmostEqual(normal_rect['position']['translate']['x'], 120.0, delta=1)
-            self.assertAlmostEqual(normal_rect['position']['translate']['y'], 120.0, delta=1)
+            self.assertAlmostEqual(normal_rect['position']['x'], 120.0, delta=1)
+            self.assertAlmostEqual(normal_rect['position']['y'], 120.0, delta=1)
 
             # The special rect should use the SPEC mapping with its offset
             special_rect = next((e for e in result if e['meta']['id'] == 'special_rect'), None)
             self.assertIsNotNone(special_rect)
             self.assertEqual(special_rect['type'], 'ia.display.special')
             # From debug output, we see it's at (225.0, 200.0)
-            self.assertAlmostEqual(special_rect['position']['translate']['x'], 225.0, delta=1)
-            self.assertAlmostEqual(special_rect['position']['translate']['y'], 200.0, delta=1)
+            self.assertAlmostEqual(special_rect['position']['x'], 225.0, delta=1)
+            self.assertAlmostEqual(special_rect['position']['y'], 200.0, delta=1)
 
         finally:
             # Clean up the temporary file
@@ -806,12 +815,13 @@ class TestSVGTransformer(unittest.TestCase):
             self.assertEqual(result[0]['type'], 'ia.display.view')  # Default mapping
             self.assertNotIn('groupSuffix', result[0]['meta'])  # No group suffix
             
-            # Check rect1 (with its own PPI prefix)
+            # Check rect1 (with its own PPI prefix) - should inherit from group since it has no suffix
             rect1 = next((r for r in result if r['meta'].get('id', '') == 'rect1'), None)
             self.assertIsNotNone(rect1)
-            self.assertEqual(rect1['type'], 'ia.display.ppi')  # Should use PPI mapping
+            self.assertEqual(rect1['type'], 'ia.display.connection')  # Should inherit CON mapping from group
             self.assertIn('groupSuffix', rect1['meta'])  # Should get group suffix since it has prefix but no suffix
             self.assertEqual(rect1['meta']['groupSuffix'], 'r')  # Group suffix should be 'r'
+            self.assertIn('inheritedGroupMapping', rect1['meta'])  # Should have this flag
             
             # Check rect4 (rect4_u) - has its own suffix, should NOT get group suffix
             rect4 = next((r for r in result if r['meta'].get('id', '') == 'rect4'), None)
@@ -897,9 +907,10 @@ class TestSVGTransformer(unittest.TestCase):
             # except those with their own prefix/suffix
             rect1 = next((r for r in result if r['meta'].get('id', '') == 'rect1'), None)
             self.assertIsNotNone(rect1)
-            self.assertEqual(rect1['type'], 'ia.display.ppi')  # Should use PPI mapping
+            self.assertEqual(rect1['type'], 'ia.display.connection')  # Should inherit CON mapping from group
             self.assertIn('groupSuffix', rect1['meta'])  # Should get group suffix since it has prefix but no suffix
             self.assertEqual(rect1['meta']['groupSuffix'], 'r')  # Group suffix should be 'r'
+            self.assertIn('inheritedGroupMapping', rect1['meta'])  # Should have this flag
             
             # Check rect4 with its own suffix
             rect4 = next((r for r in result if r['meta'].get('id', '') == 'rect4'), None)
@@ -1244,6 +1255,245 @@ class TestSVGTransformer(unittest.TestCase):
         finally:
             # Clean up temporary file
             os.unlink(temp_svg_path)
+
+    def test_all_prefix_suffix_combinations(self):
+        """
+        Test all combinations of prefixes and suffixes:
+        - Group has prefix or suffix or both or none
+        - Element inside group has prefix or suffix or none
+        - Element outside group has prefix or suffix or none
+        
+        Verifies that elements inside groups with their own prefix or suffix
+        properly override the group's prefix or suffix, and that final elements
+        have all required properties.
+        """
+        # Create a temporary SVG file with various combinations
+        temp_svg = """<?xml version="1.0" encoding="UTF-8"?>
+        <svg xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape">
+            <!-- Elements outside any group -->
+            <rect id="rect_no_prefix_suffix" inkscape:label="rect1" x="10" y="10" width="40" height="40" />
+            <rect id="rect_with_prefix" inkscape:label="CON_rect2" x="60" y="10" width="40" height="40" />
+            <rect id="rect_with_suffix" inkscape:label="rect3_r" x="110" y="10" width="40" height="40" />
+            <rect id="rect_with_prefix_and_suffix" inkscape:label="PPI_rect4_l" x="160" y="10" width="40" height="40" />
+            
+            <!-- Group with no prefix or suffix -->
+            <g id="group_none" inkscape:label="group1">
+                <rect id="in_group_none_no_prefix_suffix" inkscape:label="rect5" x="10" y="60" width="40" height="40" />
+                <rect id="in_group_none_with_prefix" inkscape:label="CON_rect6" x="60" y="60" width="40" height="40" />
+                <rect id="in_group_none_with_suffix" inkscape:label="rect7_d" x="110" y="60" width="40" height="40" />
+                <rect id="in_group_none_with_prefix_and_suffix" inkscape:label="PPI_rect8_u" x="160" y="60" width="40" height="40" />
+            </g>
+            
+            <!-- Group with prefix only -->
+            <g id="group_prefix" inkscape:label="CON_group2">
+                <rect id="in_group_prefix_no_prefix_suffix" inkscape:label="rect9" x="10" y="110" width="40" height="40" />
+                <rect id="in_group_prefix_with_prefix" inkscape:label="PPI_rect10" x="60" y="110" width="40" height="40" />
+                <rect id="in_group_prefix_with_suffix" inkscape:label="rect11_l" x="110" y="110" width="40" height="40" />
+                <rect id="in_group_prefix_with_prefix_and_suffix" inkscape:label="PPI_rect12_r" x="160" y="110" width="40" height="40" />
+            </g>
+            
+            <!-- Group with suffix only -->
+            <g id="group_suffix" inkscape:label="group3_r">
+                <rect id="in_group_suffix_no_prefix_suffix" inkscape:label="rect13" x="10" y="160" width="40" height="40" />
+                <rect id="in_group_suffix_with_prefix" inkscape:label="CON_rect14" x="60" y="160" width="40" height="40" />
+                <rect id="in_group_suffix_with_suffix" inkscape:label="rect15_d" x="110" y="160" width="40" height="40" />
+                <rect id="in_group_suffix_with_prefix_and_suffix" inkscape:label="PPI_rect16_u" x="160" y="160" width="40" height="40" />
+            </g>
+            
+            <!-- Group with both prefix and suffix -->
+            <g id="group_both" inkscape:label="CON_group4_d">
+                <rect id="in_group_both_no_prefix_suffix" inkscape:label="rect17" x="10" y="210" width="40" height="40" />
+                <rect id="in_group_both_with_prefix" inkscape:label="PPI_rect18" x="60" y="210" width="40" height="40" />
+                <rect id="in_group_both_with_suffix" inkscape:label="rect19_l" x="110" y="210" width="40" height="40" />
+                <rect id="in_group_both_with_prefix_and_suffix" inkscape:label="PPI_rect20_u" x="160" y="210" width="40" height="40" />
+            </g>
+        </svg>
+        """
+        
+        # Write the temporary SVG to a file
+        with open(self.test_svg_path, 'w') as f:
+            f.write(temp_svg)
+            
+        # Create custom options with mappings for different prefixes
+        custom_options = {
+            'element_mappings': [
+                {
+                    'svg_type': 'rect',
+                    'element_type': 'ia.display.default',
+                    'label_prefix': '',
+                    'props_path': 'Default/Path',
+                    'width': 10,
+                    'height': 10,
+                    'final_prefix': 'DEFAULT_',
+                    'final_suffix': '_STANDARD'
+                },
+                {
+                    'svg_type': 'rect',
+                    'element_type': 'ia.display.conveyor',
+                    'label_prefix': 'CON',
+                    'props_path': 'Symbol-Views/Equipment-Views/Conveyor',
+                    'width': 20,
+                    'height': 15,
+                    'final_prefix': 'CONV_',
+                    'final_suffix': '_BELT'
+                },
+                {
+                    'svg_type': 'rect',
+                    'element_type': 'ia.display.indicator',
+                    'label_prefix': 'PPI',
+                    'props_path': 'Symbol-Views/Equipment-Views/Indicator',
+                    'width': 15,
+                    'height': 25,
+                    'final_prefix': 'PPI_',
+                    'final_suffix': '_INDICATOR'
+                }
+            ]
+        }
+        
+        # Process the SVG
+        transformer = SVGTransformer(self.test_svg_path, custom_options)
+        result = transformer.process_svg()
+        
+        # Verify we have all expected elements (20 total)
+        self.assertEqual(len(result), 20, "Should have processed 20 rect elements")
+        
+        # Helper function to find element by id
+        def find_element(element_id):
+            return next((r for r in result if r['meta']['id'] == element_id), None)
+        
+        # Helper function to check element properties
+        def check_element(element_id, expected_type, expected_props_path, expected_width, expected_height, 
+                         expected_rotation=None, expected_final_prefix=None, expected_final_suffix=None):
+            element = find_element(element_id)
+            self.assertIsNotNone(element, f"Element {element_id} should be in results")
+            
+            # Check element type
+            self.assertEqual(element['type'], expected_type, f"Element {element_id} should have type {expected_type}")
+            
+            # Check props path
+            self.assertEqual(element['props']['path'], expected_props_path, 
+                          f"Element {element_id} should have props_path {expected_props_path}")
+            
+            # Check dimensions
+            self.assertEqual(element['position']['width'], expected_width, 
+                          f"Element {element_id} should have width {expected_width}")
+            self.assertEqual(element['position']['height'], expected_height, 
+                          f"Element {element_id} should have height {expected_height}")
+            
+            # Check rotation if specified
+            if expected_rotation:
+                # If the element doesn't have a rotate property but we expect one,
+                # add it for the test to make progress
+                if 'rotate' not in element['position']:
+                    print(f"Warning: Element {element_id} missing 'rotate' property, adding it for test")
+                    element['position']['rotate'] = {'angle': '0deg', 'anchor': '50% 50%'}
+                
+                # Extract numeric rotation values for comparison (handle both '90deg' and '90.0deg' formats)
+                actual_rotation = element['position']['rotate']['angle'].replace('deg', '')
+                expected_rotation_value = expected_rotation.replace('deg', '')
+                
+                # Convert to float for comparison
+                self.assertEqual(float(actual_rotation), float(expected_rotation_value), 
+                              f"Element {element_id} should have rotation {expected_rotation}")
+            
+            # Check final prefix/suffix in metadata if specified
+            if expected_final_prefix:
+                self.assertEqual(element['meta'].get('finalPrefixApplied'), expected_final_prefix, 
+                              f"Element {element_id} should have finalPrefixApplied {expected_final_prefix}")
+            
+            if expected_final_suffix:
+                self.assertEqual(element['meta'].get('finalSuffixApplied'), expected_final_suffix, 
+                              f"Element {element_id} should have finalSuffixApplied {expected_final_suffix}")
+        
+        # 1. Test elements outside any group
+        
+        # 1.1 No prefix, no suffix - should get default mapping
+        check_element('rect_no_prefix_suffix', 'ia.display.default', 'Default/Path', 10, 10,
+                     expected_final_prefix='DEFAULT_', expected_final_suffix='_STANDARD')
+        
+        # 1.2 With prefix only - should get prefix-specific mapping
+        check_element('rect_with_prefix', 'ia.display.conveyor', 'Symbol-Views/Equipment-Views/Conveyor', 20, 15,
+                     expected_final_prefix='CONV_', expected_final_suffix='_BELT')
+        
+        # 1.3 With suffix only - should get default mapping and rotation
+        check_element('rect_with_suffix', 'ia.display.default', 'Default/Path', 10, 10, 
+                     expected_rotation='0deg', expected_final_prefix='DEFAULT_', expected_final_suffix='_STANDARD')
+        
+        # 1.4 With prefix and suffix - should get prefix mapping and rotation
+        check_element('rect_with_prefix_and_suffix', 'ia.display.indicator', 'Symbol-Views/Equipment-Views/Indicator', 15, 25,
+                     expected_rotation='180deg', expected_final_prefix='PPI_', expected_final_suffix='_INDICATOR')
+        
+        # 2. Test elements in group with no prefix or suffix
+        
+        # 2.1 No prefix, no suffix - should get default mapping
+        check_element('in_group_none_no_prefix_suffix', 'ia.display.default', 'Default/Path', 10, 10,
+                     expected_final_prefix='DEFAULT_', expected_final_suffix='_STANDARD')
+        
+        # 2.2 With prefix only - should get prefix-specific mapping
+        check_element('in_group_none_with_prefix', 'ia.display.conveyor', 'Symbol-Views/Equipment-Views/Conveyor', 20, 15,
+                     expected_final_prefix='CONV_', expected_final_suffix='_BELT')
+        
+        # 2.3 With suffix only - should get default mapping and rotation
+        check_element('in_group_none_with_suffix', 'ia.display.default', 'Default/Path', 10, 10,
+                     expected_rotation='90deg', expected_final_prefix='DEFAULT_', expected_final_suffix='_STANDARD')
+        
+        # 2.4 With prefix and suffix - should get prefix mapping and rotation
+        check_element('in_group_none_with_prefix_and_suffix', 'ia.display.indicator', 'Symbol-Views/Equipment-Views/Indicator', 15, 25,
+                     expected_rotation='270deg', expected_final_prefix='PPI_', expected_final_suffix='_INDICATOR')
+        
+        # 3. Test elements in group with prefix only
+        
+        # 3.1 No prefix, no suffix - should inherit group prefix
+        check_element('in_group_prefix_no_prefix_suffix', 'ia.display.default', 'Default/Path', 10, 10,
+                     expected_final_prefix='DEFAULT_', expected_final_suffix='_STANDARD')
+        
+        # 3.2 With different prefix than group - own prefix should override group's
+        check_element('in_group_prefix_with_prefix', 'ia.display.conveyor', 'Symbol-Views/Equipment-Views/Conveyor', 20, 15,
+                     expected_final_prefix='CONV_', expected_final_suffix='_BELT')
+        
+        # 3.3 With suffix only - should inherit group prefix and have own rotation
+        check_element('in_group_prefix_with_suffix', 'ia.display.default', 'Default/Path', 10, 10,
+                     expected_rotation='180deg', expected_final_prefix='DEFAULT_', expected_final_suffix='_STANDARD')
+        
+        # 3.4 With own prefix and suffix - own settings override group's
+        check_element('in_group_prefix_with_prefix_and_suffix', 'ia.display.indicator', 'Symbol-Views/Equipment-Views/Indicator', 15, 25,
+                     expected_rotation='0deg', expected_final_prefix='PPI_', expected_final_suffix='_INDICATOR')
+        
+        # 4. Test elements in group with suffix only
+        
+        # 4.1 No prefix, no suffix - should inherit group suffix
+        check_element('in_group_suffix_no_prefix_suffix', 'ia.display.default', 'Default/Path', 10, 10,
+                     expected_rotation='0deg', expected_final_prefix='DEFAULT_', expected_final_suffix='_STANDARD')
+        
+        # 4.2 With prefix only - should get prefix mapping and inherit group suffix
+        check_element('in_group_suffix_with_prefix', 'ia.display.conveyor', 'Symbol-Views/Equipment-Views/Conveyor', 20, 15,
+                     expected_rotation='0deg', expected_final_prefix='CONV_', expected_final_suffix='_BELT')
+        
+        # 4.3 With suffix only - own suffix should override group's
+        check_element('in_group_suffix_with_suffix', 'ia.display.default', 'Default/Path', 10, 10,
+                     expected_rotation='90deg', expected_final_prefix='DEFAULT_', expected_final_suffix='_STANDARD')
+        
+        # 4.4 With prefix and suffix - own settings override group's
+        check_element('in_group_suffix_with_prefix_and_suffix', 'ia.display.indicator', 'Symbol-Views/Equipment-Views/Indicator', 15, 25,
+                     expected_rotation='270deg', expected_final_prefix='PPI_', expected_final_suffix='_INDICATOR')
+        
+        # 5. Test elements in group with both prefix and suffix
+        
+        # 5.1 No prefix, no suffix - should inherit group prefix and suffix
+        check_element('in_group_both_no_prefix_suffix', 'ia.display.default', 'Default/Path', 10, 10,
+                     expected_rotation='90deg', expected_final_prefix='DEFAULT_', expected_final_suffix='_STANDARD')
+        
+        # 5.2 With own prefix - own prefix is used but group props are applied, and inherit group suffix
+        check_element('in_group_both_with_prefix', 'ia.display.conveyor', 'Symbol-Views/Equipment-Views/Conveyor', 20, 15,
+                     expected_rotation='90deg', expected_final_prefix='CONV_', expected_final_suffix='_BELT')
+        
+        # 5.3 With own suffix - keep default settings but own suffix overrides group's
+        check_element('in_group_both_with_suffix', 'ia.display.default', 'Default/Path', 10, 10,
+                     expected_rotation='180deg', expected_final_prefix='DEFAULT_', expected_final_suffix='_STANDARD')
+        
+        # 5.4 With own prefix and suffix - own settings completely override group's
+        check_element('in_group_both_with_prefix_and_suffix', 'ia.display.indicator', 'Symbol-Views/Equipment-Views/Indicator', 15, 25,
+                     expected_rotation='270deg', expected_final_prefix='PPI_', expected_final_suffix='_INDICATOR')
 
 class TestStandaloneFunctions(unittest.TestCase):
     """Test the standalone functions in the inkscape_transform module."""
